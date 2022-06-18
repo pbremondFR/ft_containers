@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/18 16:50:25 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/18 22:20:59 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,14 @@ void	newtest(void)
 
 	std::cout << "\e[0;30;47m===============TEST " << i++ << "===============\e[0m"
 		<< std::endl;
+}
+
+template < class T >
+void	fillWithAscii(T container)
+{
+	char	truc = '0';
+	for (typename T::iterator itr = container.begin(); itr != container.end(); ++itr)
+		*itr = truc++;
 }
 
 int	main(void)
@@ -103,6 +111,24 @@ int	main(void)
 			std::cout << (*itr = truc++) << std::endl;
 		test2.assign(test.begin(), test.end());
 		std::cout << "------------" << std::endl;
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "Exception caught: " << e.what() << std::endl;
+	}
+	newtest();
+	try
+	{
+		std::string			truc = "0123456789";
+		ft::vector<char>	test(truc.begin(), truc.end());
+
+		fillWithAscii(test);
+		ft::vector<char>::iterator	itr1 = test.begin();
+		// ft::vector<char>::iterator	itr2 = itr1 + 5;
+		ft::vector<char>::iterator	itr2 = 5 + itr1;
+		std::cout << "itr1: " << *itr1 << '\n'
+			<< "itr2: " << *itr2 << std::endl;
+		
 	}
 	catch(const std::exception& e)
 	{

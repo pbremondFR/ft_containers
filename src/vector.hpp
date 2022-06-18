@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/18 17:47:34 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/19 00:17:17 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,6 @@ class __vector_iterator : public ft::iterator<std::random_access_iterator_tag, T
 		T	*_ptr;
 
 	public:
-		// using typename ft::iterator<ft::random_access_iterator_tag, T>::pointer;
-		// using typename ft::iterator<ft::random_access_iterator_tag, T>::reference;
-		// using typename ft::iterator<ft::random_access_iterator_tag, T>::difference_type;
-		// typedef ptrdiff_t					difference_type;
-		// typedef T							value_type;
-		// typedef T*							pointer;
-		// typedef T&							reference;
-		// typedef std::random_access_iterator_tag	iterator_category;
-
-		// using	base = ft::iterator<std::random_access_iterator_tag, T>;
 		typedef typename	ft::iterator<std::random_access_iterator_tag, T>	base;
 		using typename	base::difference_type;
 		using typename	base::value_type;
@@ -45,22 +35,35 @@ class __vector_iterator : public ft::iterator<std::random_access_iterator_tag, T
 		
 		__vector_iterator(pointer ptr = NULL) : _ptr(ptr) {};
 
-		reference			operator*() const	{ return (*_ptr); };
-		pointer				operator->()		{ return (_ptr);  };
+		reference	operator* () const			  { return (*_ptr); };
+		pointer		operator->()				  { return (_ptr);  };
+		reference	operator[](difference_type n) { return (*(_ptr + n)); };
 
-		__vector_iterator	&operator++()	{ ++_ptr; return (*this);							   };
+		__vector_iterator&	operator++()	{ ++_ptr; return (*this);							   };
 		__vector_iterator	operator++(int)	{ __vector_iterator tmp = *this; ++_ptr; return (tmp); };
-		__vector_iterator	&operator--()	{ --_ptr; return (*this);							   };
+		__vector_iterator&	operator--()	{ --_ptr; return (*this);							   };
 		__vector_iterator	operator--(int)	{ __vector_iterator tmp = *this; --_ptr; return (tmp); };
 
-		__vector_iterator	operator+(difference_type delta) { return (__vector_iterator(_ptr + delta)); };
-		// difference_type	operator+(__vector_iterator delta) { return (difference_type(_ptr + (delta.operator->() - _ptr))); };
-		__vector_iterator	operator-(difference_type delta) { return (__vector_iterator(_ptr - delta)); };
-		difference_type	operator-(__vector_iterator delta) { return (difference_type(_ptr - (delta.operator->()))); };
+		__vector_iterator&	operator+=(difference_type n)	{ _ptr += n; return (*this); };
+		__vector_iterator&	operator-=(difference_type n)	{ _ptr -= n; return (*this); };
 
-		bool				operator==(const __vector_iterator& rhs) { return (_ptr == rhs._ptr); };
-		bool				operator!=(const __vector_iterator& rhs) { return (_ptr != rhs._ptr); };
+		__vector_iterator	operator+(difference_type rhs) const	 { return (__vector_iterator(_ptr + rhs)); };
+		__vector_iterator	operator-(difference_type rhs) const	 { return (__vector_iterator(_ptr - rhs)); };
+		difference_type		operator-(__vector_iterator delta) const { return (difference_type(_ptr - delta._ptr)); };
+
+		inline bool		operator==(const __vector_iterator& rhs) const { return (_ptr == rhs._ptr); };
+		inline bool		operator!=(const __vector_iterator& rhs) const { return (_ptr != rhs._ptr); };
+		inline bool		operator> (const __vector_iterator& rhs) const { return (_ptr > rhs._ptr);  };
+		inline bool		operator< (const __vector_iterator& rhs) const { return (_ptr < rhs._ptr);  };
+		inline bool		operator>=(const __vector_iterator& rhs) const { return (_ptr >= rhs._ptr); };
+		inline bool		operator<=(const __vector_iterator& rhs) const { return (_ptr <= rhs._ptr); };
 };
+
+template < class T >
+__vector_iterator<T>	operator+(typename __vector_iterator<T>::difference_type lhs, __vector_iterator<T> const& rhs)
+{
+	return (rhs + lhs);
+}
 
 template < class T >
 class __vector_c_iterator : public __vector_iterator<T>
@@ -76,47 +79,8 @@ class __vector_c_iterator : public __vector_iterator<T>
 		__vector_c_iterator(pointer ptr = NULL) : __vector_iterator<T>(ptr) {};
 		__vector_c_iterator(__vector_iterator<T> src) : __vector_iterator<T>(src) {};
 		
-		const reference	operator*() const	{ return (*base::_ptr); };
+		reference	operator*() const	{ return (*base::_ptr); };
 };
-
-// template < class T >
-// class __vector_c_iterator : public ft::iterator<std::random_access_iterator_tag, T>
-// {
-// 	private:
-// 		T	*_ptr;
-
-// 	public:
-// 		// using	ft::iterator<std::random_access_iterator_tag, T> = base;
-// 		// using typename	base::difference_type;
-// 		// using typename	base::value_type;
-// 		// using typename	base::pointer;
-// 		// using typename	base::reference;
-// 		// using typename	base::iterator_category;
-
-// 		typedef ptrdiff_t					difference_type;
-// 		typedef T							value_type;
-// 		typedef T*							pointer;
-// 		typedef T&							reference;
-// 		typedef std::random_access_iterator_tag	iterator_category;
-		
-// 		__vector_c_iterator(pointer ptr = NULL) : _ptr(ptr) {};
-// 		__vector_c_iterator(__vector_iterator<T> src = NULL) : _ptr(src.operator->()) {};
-
-// 		/*const*/reference		operator*() const { return (*_ptr); };
-// 		pointer				operator->()	  { return (_ptr);  };
-
-// 		__vector_c_iterator	&operator++()	{ ++_ptr; return (*this);								 };
-// 		__vector_c_iterator	operator++(int)	{ __vector_c_iterator tmp = *this; ++_ptr; return (tmp); };
-// 		__vector_c_iterator	&operator--()	{ --_ptr; return (*this);								 };
-// 		__vector_c_iterator	operator--(int)	{ __vector_c_iterator tmp = *this; --_ptr; return (tmp); };
-
-// 		__vector_c_iterator	operator+(difference_type delta) { return (__vector_c_iterator(_ptr + delta)); };
-// 		__vector_c_iterator	operator-(difference_type delta) { return (__vector_c_iterator(_ptr - delta)); };
-
-// 		bool				operator==(const __vector_c_iterator& rhs) { return (_ptr == rhs._ptr); };
-// 		bool				operator!=(const __vector_c_iterator& rhs) { return (_ptr != rhs._ptr); };
-// };
-
 
 template< class T, class Allocator = std::allocator<T> >
 class vector
@@ -184,7 +148,13 @@ class vector
 		iterator	insert(iterator pos, const T& value);
 		void		insert(iterator pos, size_type count, const T& value);
 		template<class InputIt>
-		void		insert(iterator pos, InputIt first, InputIt last);
+		typename std::enable_if
+		<
+			std::is_same<
+				typename InputIt::iterator_category,
+				std::random_access_iterator_tag>::value,
+			void
+		>::type		insert(iterator pos, InputIt first, InputIt last);
 		iterator	erase(iterator pos);
 		iterator	erase(iterator first, iterator last);
 		void		push_back(const T& value);

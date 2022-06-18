@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/18 16:54:59 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/19 00:17:40 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,10 +80,12 @@ ft::vector<T, Allocator>	&ft::vector<T, Allocator>::operator=(const ft::vector<T
 {
 	_allocator.deallocate(_array, _init_size);
 	_array = _allocator.allocate(rhs._capacity);
+	_recalcIterators(true, false);
 	_capacity = rhs._capacity;
 	_init_size = rhs._capacity;
 	_size = rhs.size();
 	this->assign(rhs.begin(), rhs.end());
+	return (*this);
 }
 
 template < class T, class Allocator >
@@ -209,7 +211,7 @@ void	ft::vector<T, Allocator>::insert(iterator pos, size_type count, const T& va
 	}
 	std::memmove((pos + count).operator->(), pos.operator->(),
 		static_cast<size_type>((_itrEnd).operator->() - pos.operator->()));
-	for (int i = 0; i < count; ++i)
+	for (size_type i = 0; i < count; ++i)
 		*pos++ = value;
 	_size += count;
 	_recalcIterators(false, true);
@@ -217,7 +219,14 @@ void	ft::vector<T, Allocator>::insert(iterator pos, size_type count, const T& va
 
 template < class T, class Allocator >
 template < class InputIt >
-void	ft::vector<T, Allocator>::insert(iterator pos, InputIt first, InputIt last)
+typename std::enable_if
+<
+	std::is_same<
+		typename InputIt::iterator_category,
+		std::random_access_iterator_tag>::value,
+	void
+>::type
+ft::vector<T, Allocator>::insert(iterator pos, InputIt first, InputIt last)
 {
 	difference_type	count = std::distance(first, last);
 
@@ -239,10 +248,23 @@ template < class T, class Allocator >
 typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iterator pos)
 {
 	std::memmove(pos.operator->(), (pos + 1).operator->(),
-		static_cast<size_type>((_itrEnd).operator->() - (pos + 1).operator->()));
+		static_cast<size_type>((_itrEnd).operator->() - (pos + 1).operator->()) * sizeof(T));
 	--_size;
 	_recalcIterators(false, true);
-	return (pos);
+	if (pos > _itrEnd)
+		return (_itrEnd);
+	else
+		return (pos);
+}
+
+template < class T, class Allocator >
+typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iterator first, iterator last)
+{	
+	_size -= std::distance(first, last);
+	std::memmove(first.operator->(), (last).operator->(),
+		static_cast<size_type>((_itrEnd).operator->() - (first).operator->()) * sizeof(T));
+	_recalcIterators(false, true);
+	return (first);
 }
 
 template < class T, class Allocator >
