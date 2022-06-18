@@ -1,38 +1,47 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_vector.hpp                                      :+:      :+:    :+:   */
+/*   vector.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/17 01:13:14 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/18 17:47:34 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include <memory>
-#include "../ft_iterator.hpp"
+#include "iterator.hpp"
+#include "enable_if.hpp"
 
 namespace ft
 {
 
 template < class T >
-class __vector_iterator : public ft::iterator<ft::random_access_iterator_tag, T>
+class __vector_iterator : public ft::iterator<std::random_access_iterator_tag, T>
 {
-	private:
+	protected:
 		T	*_ptr;
 
 	public:
-		using typename ft::iterator<ft::random_access_iterator_tag, T>::pointer;
-		using typename ft::iterator<ft::random_access_iterator_tag, T>::reference;
-		using typename ft::iterator<ft::random_access_iterator_tag, T>::difference_type;
+		// using typename ft::iterator<ft::random_access_iterator_tag, T>::pointer;
+		// using typename ft::iterator<ft::random_access_iterator_tag, T>::reference;
+		// using typename ft::iterator<ft::random_access_iterator_tag, T>::difference_type;
 		// typedef ptrdiff_t					difference_type;
 		// typedef T							value_type;
 		// typedef T*							pointer;
 		// typedef T&							reference;
-		// typedef random_access_iterator_tag	iterator_category;
+		// typedef std::random_access_iterator_tag	iterator_category;
+
+		// using	base = ft::iterator<std::random_access_iterator_tag, T>;
+		typedef typename	ft::iterator<std::random_access_iterator_tag, T>	base;
+		using typename	base::difference_type;
+		using typename	base::value_type;
+		using typename	base::pointer;
+		using typename	base::reference;
+		using typename	base::iterator_category;
 		
 		__vector_iterator(pointer ptr = NULL) : _ptr(ptr) {};
 
@@ -45,32 +54,68 @@ class __vector_iterator : public ft::iterator<ft::random_access_iterator_tag, T>
 		__vector_iterator	operator--(int)	{ __vector_iterator tmp = *this; --_ptr; return (tmp); };
 
 		__vector_iterator	operator+(difference_type delta) { return (__vector_iterator(_ptr + delta)); };
+		// difference_type	operator+(__vector_iterator delta) { return (difference_type(_ptr + (delta.operator->() - _ptr))); };
 		__vector_iterator	operator-(difference_type delta) { return (__vector_iterator(_ptr - delta)); };
+		difference_type	operator-(__vector_iterator delta) { return (difference_type(_ptr - (delta.operator->()))); };
 
 		bool				operator==(const __vector_iterator& rhs) { return (_ptr == rhs._ptr); };
 		bool				operator!=(const __vector_iterator& rhs) { return (_ptr != rhs._ptr); };
 };
 
 template < class T >
-class __vector_c_iterator : public ft::iterator<ft::random_access_iterator_tag, T>
+class __vector_c_iterator : public __vector_iterator<T>
 {
-	private:
-		T	*_ptr;
-
 	public:
-		using typename iterator<ft::random_access_iterator_tag, T>::pointer;
-		using typename iterator<ft::random_access_iterator_tag, T>::reference;
-		
-		__vector_c_iterator(pointer ptr = NULL) : _ptr(ptr) {};
-		__vector_c_iterator(__vector_iterator<T> src = NULL) : _ptr(src.operator->()) {};
+		typedef typename	ft::__vector_iterator<T>		base;
+		typedef				const typename base::pointer	pointer;
+		typedef 			const typename base::reference	reference;
+		using typename		base::iterator_category;
+		using typename		base::difference_type;
+		using typename		base::value_type;
 
-		const reference		operator*() const { return (*_ptr); };
-		pointer				operator->()	  { return (_ptr);  };
-		__vector_c_iterator	&operator++()	{ ++_ptr; return (*this);								 };
-		__vector_c_iterator	operator++(int)	{ __vector_c_iterator tmp = *this; ++_ptr; return (tmp); };
-		bool				operator==(const __vector_c_iterator& rhs) { return (_ptr == rhs._ptr); };
-		bool				operator!=(const __vector_c_iterator& rhs) { return (_ptr != rhs._ptr); };
+		__vector_c_iterator(pointer ptr = NULL) : __vector_iterator<T>(ptr) {};
+		__vector_c_iterator(__vector_iterator<T> src) : __vector_iterator<T>(src) {};
+		
+		const reference	operator*() const	{ return (*base::_ptr); };
 };
+
+// template < class T >
+// class __vector_c_iterator : public ft::iterator<std::random_access_iterator_tag, T>
+// {
+// 	private:
+// 		T	*_ptr;
+
+// 	public:
+// 		// using	ft::iterator<std::random_access_iterator_tag, T> = base;
+// 		// using typename	base::difference_type;
+// 		// using typename	base::value_type;
+// 		// using typename	base::pointer;
+// 		// using typename	base::reference;
+// 		// using typename	base::iterator_category;
+
+// 		typedef ptrdiff_t					difference_type;
+// 		typedef T							value_type;
+// 		typedef T*							pointer;
+// 		typedef T&							reference;
+// 		typedef std::random_access_iterator_tag	iterator_category;
+		
+// 		__vector_c_iterator(pointer ptr = NULL) : _ptr(ptr) {};
+// 		__vector_c_iterator(__vector_iterator<T> src = NULL) : _ptr(src.operator->()) {};
+
+// 		/*const*/reference		operator*() const { return (*_ptr); };
+// 		pointer				operator->()	  { return (_ptr);  };
+
+// 		__vector_c_iterator	&operator++()	{ ++_ptr; return (*this);								 };
+// 		__vector_c_iterator	operator++(int)	{ __vector_c_iterator tmp = *this; ++_ptr; return (tmp); };
+// 		__vector_c_iterator	&operator--()	{ --_ptr; return (*this);								 };
+// 		__vector_c_iterator	operator--(int)	{ __vector_c_iterator tmp = *this; --_ptr; return (tmp); };
+
+// 		__vector_c_iterator	operator+(difference_type delta) { return (__vector_c_iterator(_ptr + delta)); };
+// 		__vector_c_iterator	operator-(difference_type delta) { return (__vector_c_iterator(_ptr - delta)); };
+
+// 		bool				operator==(const __vector_c_iterator& rhs) { return (_ptr == rhs._ptr); };
+// 		bool				operator!=(const __vector_c_iterator& rhs) { return (_ptr != rhs._ptr); };
+// };
 
 
 template< class T, class Allocator = std::allocator<T> >
@@ -102,9 +147,15 @@ class vector
 
 		void	assign(size_type count, const T& value);
 		template<class InputIt>
-		void	assign(InputIt first, InputIt last);
+		typename std::enable_if
+		<
+			std::is_same<
+				typename InputIt::iterator_category,
+				std::random_access_iterator_tag>::value,
+			void
+		>::type	assign(InputIt first, InputIt last);
 
-		allocator_type	get_allocator() const;
+		allocator_type	get_allocator() const { return (_allocator); };
 
 	public:
 		reference		at(size_type n);
@@ -150,8 +201,7 @@ class vector
 		T				*_array;
 		size_type		_capacity;
 		size_type		_size;
-		// This might be fucking retarded. Yes, it allows not to construct
-		// an iterator each time, but it's pretty spaghetti-y right now.
+
 		iterator	_itrBegin;
 		iterator	_itrEnd;
 	
@@ -163,4 +213,4 @@ class vector
 
 }
 
-#include "ft_vector.tpp"
+#include "vector.tpp"

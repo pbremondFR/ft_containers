@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/17 01:11:15 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/18 16:50:25 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <iterator>
 #include <string>
 #include <vector>
-#include "vector/ft_vector.hpp"
+#include "vector.hpp"
 
 void	newtest(void)
 {
@@ -31,7 +31,7 @@ int	main(void)
 		std::vector<char>	test(9, 'a');
 		std::vector<char>	test2(8);
 		std::cout << "Capacity: " << test.capacity() << std::endl;
-		test2.assign(test.begin(), test.end());
+		test.assign(test.begin(), test.end());
 		std::cout << "Capacity: " << test2.capacity() << std::endl;
 		// test2.push_back('b');
 		std::cout << "Capacity: " << test2.capacity() << std::endl;
@@ -72,28 +72,42 @@ int	main(void)
 		ft::vector<char>	test(8, '0');
 
 		char	truc = 'a';
-		for (ft::vector<char>::iterator itr = test.begin(); itr != test.end(); ++itr)
+		for (ft::vector<char>::iterator itr = test.begin(); itr != test.end(); ++itr) {
 			*itr = truc++;
-		std::cout << "------------" << std::endl;
-		for (ft::vector<char>::const_iterator itr = test.begin(); itr != test.end(); ++itr)
 			std::cout << *itr << std::endl;
+		}
 		std::cout << "------------" << std::endl;
-		for (ft::vector<char>::iterator itr = test.end() - 1; itr != test.begin() - 1; --itr)
+		for (ft::vector<char>::const_iterator itr = test.end() - 1; itr != test.begin() - 1; --itr)
 			std::cout << *itr << std::endl;
 		std::cout << "------------" << std::endl;
 		test.push_back('j');
-		for (ft::vector<char>::const_iterator itr = test.begin(); itr != test.end(); ++itr)
-			std::cout << *itr << std::endl;
 		test.insert(test.end() - 1, 'i');
-		std::cout << "back: " << test.back() << std::endl;
+		test.insert(test.begin(), '0');
 		std::cout << "capacity: " << test.capacity() << std::endl;
-		std::cout << "end - 2: " << *(test.end() - 2) << std::endl;
 		for (ft::vector<char>::const_iterator itr = test.begin(); itr != test.end(); ++itr)
 			std::cout << *itr << std::endl;
+		std::cout << "begin: " << *test.begin() << std::endl;
 	}
 	catch (std::exception &e)
 	{
 		std::cout << "Exception caught: " << e.what() << std::endl;
 	}
+	newtest();
+	try
+	{
+		ft::vector<char>	test(8, '-');
+		ft::vector<char>	test2;
+
+		char	truc = '0';
+		for (ft::vector<char>::iterator itr = test.begin(); itr != test.end(); ++itr)
+			std::cout << (*itr = truc++) << std::endl;
+		test2.assign(test.begin(), test.end());
+		std::cout << "------------" << std::endl;
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "Exception caught: " << e.what() << std::endl;
+	}
+	
 	return (0);
 }

@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_vector.tpp                                      :+:      :+:    :+:   */
+/*   vector.tpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/17 01:13:43 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/18 16:54:59 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_vector.hpp"
+#include "vector.hpp"
 #include <memory>
 #include <iterator>
 #include <iostream>
@@ -105,11 +105,20 @@ void	ft::vector<T, Allocator>::assign(size_type count, const T& value)
 
 template < class T, class Allocator >
 template < class InputIt >
-void	ft::vector<T, Allocator>::assign(InputIt first, InputIt last)
+typename std::enable_if
+<
+	std::is_same<
+		typename InputIt::iterator_category,
+		std::random_access_iterator_tag>::value,
+	void
+>::type
+ft::vector<T, Allocator>::assign(InputIt first, InputIt last)
 {
 	difference_type	newSize = std::distance<InputIt>(first, last);
 	size_type		i = 0;
 
+	// std::cout << "newSize: " << newSize << '\n'
+	// 	<< "Casted: " << static_cast<size_type>(newSize) << std::endl;
 	if (static_cast<size_type>(newSize) > _capacity)
 		this->reserve(newSize);
 	for (InputIt itr = first; itr != last; ++itr)
@@ -118,11 +127,11 @@ void	ft::vector<T, Allocator>::assign(InputIt first, InputIt last)
 	_recalcIterators(false, true);
 }
 
-template < class T, class Allocator >
-typename ft::vector<T, Allocator>::allocator_type	ft::vector<T, Allocator>::get_allocator() const
-{
-	return (_allocator);
-}
+// template < class T, class Allocator >
+// typename ft::vector<T, Allocator>::allocator_type	ft::vector<T, Allocator>::get_allocator() const
+// {
+// 	return (_allocator);
+// }
 
 /* ************************************************************************** */
 /* ************************************************************************** */
@@ -172,11 +181,11 @@ void	ft::vector<T, Allocator>::clear()
 }
 
 template < class T, class Allocator >
-typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::insert(iterator pos, const T& value)
+typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::insert(iterator pos,
+	const T& value)
 {
 	if (_size + 1 > _capacity)
 	{
-		std::cout << "prout" << std::endl;
 		size_type	pos_index = pos.operator->() - _itrBegin.operator->();
 		this->reserve(_capacity * 2);
 		pos = _itrBegin.operator->() + pos_index;
@@ -185,10 +194,54 @@ typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::insert(ite
 		static_cast<size_type>((_itrEnd).operator->() - pos.operator->()));
 	*pos = value;
 	++_size;
-	if (pos == _itrBegin)
-		_recalcIterators(true, true);
-	else
-		_recalcIterators(false, true);
+	_recalcIterators(false, true);
+	return (pos);
+}
+
+template < class T, class Allocator >
+void	ft::vector<T, Allocator>::insert(iterator pos, size_type count, const T& value)
+{
+	if (_size + count > _capacity)
+	{
+		size_type	pos_index = pos.operator->() - _itrBegin.operator->();
+		this->reserve(_capacity * 2);
+		pos = _itrBegin.operator->() + pos_index;
+	}
+	std::memmove((pos + count).operator->(), pos.operator->(),
+		static_cast<size_type>((_itrEnd).operator->() - pos.operator->()));
+	for (int i = 0; i < count; ++i)
+		*pos++ = value;
+	_size += count;
+	_recalcIterators(false, true);
+}
+
+template < class T, class Allocator >
+template < class InputIt >
+void	ft::vector<T, Allocator>::insert(iterator pos, InputIt first, InputIt last)
+{
+	difference_type	count = std::distance(first, last);
+
+	if (_size + count > _capacity)
+	{
+		size_type	pos_index = pos.operator->() - _itrBegin.operator->();
+		this->reserve(_capacity * 2);
+		pos = _itrBegin.operator->() + pos_index;
+	}
+	std::memmove((pos + count).operator->(), pos.operator->(),
+		static_cast<size_type>((_itrEnd).operator->() - pos.operator->()));
+	for (; first != last; ++first)
+		*pos++ = *first++;
+	_size += count;
+	_recalcIterators(false, true);
+}
+
+template < class T, class Allocator >
+typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iterator pos)
+{
+	std::memmove(pos.operator->(), (pos + 1).operator->(),
+		static_cast<size_type>((_itrEnd).operator->() - (pos + 1).operator->()));
+	--_size;
+	_recalcIterators(false, true);
 	return (pos);
 }
 
