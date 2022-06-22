@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/19 00:17:17 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/22 20:31:41 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 #include <memory>
 #include "iterator.hpp"
-#include "enable_if.hpp"
+#include "type_traits.hpp"
 
 namespace ft
 {
@@ -35,7 +35,7 @@ class __vector_iterator : public ft::iterator<std::random_access_iterator_tag, T
 		
 		__vector_iterator(pointer ptr = NULL) : _ptr(ptr) {};
 
-		reference	operator* () const			  { return (*_ptr); };
+		reference	operator* ()				  { return (*_ptr); };
 		pointer		operator->()				  { return (_ptr);  };
 		reference	operator[](difference_type n) { return (*(_ptr + n)); };
 
@@ -65,21 +65,66 @@ __vector_iterator<T>	operator+(typename __vector_iterator<T>::difference_type lh
 	return (rhs + lhs);
 }
 
-template < class T >
-class __vector_c_iterator : public __vector_iterator<T>
-{
-	public:
-		typedef typename	ft::__vector_iterator<T>		base;
-		typedef				const typename base::pointer	pointer;
-		typedef 			const typename base::reference	reference;
-		using typename		base::iterator_category;
-		using typename		base::difference_type;
-		using typename		base::value_type;
+// template < class T >
+// class __vector_c_iterator : public __vector_iterator<T>
+// {
+// 	public:
+// 		typedef typename	ft::__vector_iterator<T>		base;
+// 		// typedef				const typename base::pointer	pointer;
+// 		// typedef 			const typename base::reference	reference;
+// 		using typename		base::iterator_category;
+// 		using typename		base::difference_type;
+// 		using typename		base::value_type;
+// 		using typename		base::pointer;
+// 		using typename		base::reference;
 
-		__vector_c_iterator(pointer ptr = NULL) : __vector_iterator<T>(ptr) {};
-		__vector_c_iterator(__vector_iterator<T> src) : __vector_iterator<T>(src) {};
+// 		__vector_c_iterator(pointer ptr = NULL) : __vector_iterator<T>(ptr) {};
+// 		__vector_c_iterator(__vector_iterator<T> src) : __vector_iterator<T>(src) {};
 		
-		reference	operator*() const	{ return (*base::_ptr); };
+// 		const reference	operator*() const	{ std::cout << "MERDE\n"; return (base::operator*()); };
+// 		// const pointer	operator->() const  { return (base::_ptr);  };
+// };
+
+template < class T >
+class __vector_c_iterator : public ft::iterator<std::random_access_iterator_tag, T>
+{
+	protected:
+		T	*_ptr;
+
+	public:
+		typedef typename	ft::iterator<std::random_access_iterator_tag, T>	base;
+		using typename	base::difference_type;
+		using typename	base::value_type;
+		using typename	base::pointer;
+		using typename	base::reference;
+		using typename	base::iterator_category;
+		
+		__vector_c_iterator(pointer ptr = NULL) : _ptr(ptr) {};
+		__vector_c_iterator(__vector_iterator<T>& src) : _ptr(src.operator->()) {};
+		__vector_c_iterator(__vector_iterator<T> src) : _ptr(src.operator->()) {};
+
+		const reference	operator* () const			  { return (*_ptr); };
+		const pointer	operator->() const			  { return (_ptr);  };
+		const reference	operator[](difference_type n) { return (*(_ptr + n)); };
+
+		__vector_c_iterator&	operator++()	{ ++_ptr; return (*this);							   };
+		__vector_c_iterator	operator++(int)	{ __vector_c_iterator tmp = *this; ++_ptr; return (tmp); };
+		__vector_c_iterator&	operator--()	{ --_ptr; return (*this);							   };
+		__vector_c_iterator	operator--(int)	{ __vector_c_iterator tmp = *this; --_ptr; return (tmp); };
+
+		__vector_c_iterator&	operator+=(difference_type n)	{ _ptr += n; return (*this); };
+		__vector_c_iterator&	operator-=(difference_type n)	{ _ptr -= n; return (*this); };
+
+		__vector_c_iterator	operator+(difference_type rhs) const	 { return (__vector_c_iterator(_ptr + rhs)); };
+		__vector_c_iterator	operator-(difference_type rhs) const	 { return (__vector_c_iterator(_ptr - rhs)); };
+		difference_type		operator-(__vector_c_iterator delta) const { return (difference_type(_ptr - delta._ptr)); };
+
+		inline bool		operator==(const __vector_c_iterator& rhs) const { return (_ptr == rhs._ptr); };
+		inline bool		operator!=(const __vector_c_iterator& rhs) const { return (_ptr != rhs._ptr); };
+		inline bool		operator> (const __vector_c_iterator& rhs) const { return (_ptr > rhs._ptr);  };
+		inline bool		operator< (const __vector_c_iterator& rhs) const { return (_ptr < rhs._ptr);  };
+		inline bool		operator>=(const __vector_c_iterator& rhs) const { return (_ptr >= rhs._ptr); };
+		inline bool		operator<=(const __vector_c_iterator& rhs) const { return (_ptr <= rhs._ptr); };
 };
 
 template< class T, class Allocator = std::allocator<T> >
@@ -95,7 +140,7 @@ class vector
 		typedef typename	Allocator::pointer			pointer;
 		typedef typename	Allocator::const_pointer	const_pointer;
 		typedef typename	ft::__vector_iterator<T>	iterator;
-		typedef typename	ft::__vector_c_iterator<T>	const_iterator;
+		typedef typename	ft::__vector_c_iterator<const T>	const_iterator;
 
 	public:
 		explicit vector(const Allocator& alloc = Allocator());
@@ -139,10 +184,10 @@ class vector
 		void		reserve(size_type new_cap);
 		size_type	capacity()	const { return (_capacity);				};
 
-		iterator		begin()		  { return (_itrBegin); };
-		const_iterator	begin() const { return (_itrBegin); };
-		iterator		end()	    { return (_itrEnd); };
-		const_iterator	end() const { return (_itrEnd); };
+		inline iterator			begin()		  { return (_itrBegin); };
+		inline const_iterator	begin() const { return (const_iterator(_array)); };
+		inline iterator			end()	    { return (_itrEnd); };
+		inline const_iterator	end() const { return (const_iterator(_array + _size)); };
 
 		void		clear();
 		iterator	insert(iterator pos, const T& value);
@@ -159,7 +204,7 @@ class vector
 		iterator	erase(iterator first, iterator last);
 		void		push_back(const T& value);
 		void		pop_back();
-		void		resize(size_type count);
+		void		resize(size_type count, T value = T());
 		void		swap(vector& other);
 
 	private:
@@ -176,8 +221,9 @@ class vector
 		iterator	_itrEnd;
 	
 	private:
+		void	_doubleCapacity();
 		void	_recalcIterators(bool begin, bool end);
-		// helo
+		void	_shallowCopyNoDealloc(vector& other);
 		
 };
 

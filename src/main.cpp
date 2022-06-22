@@ -6,13 +6,14 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/18 22:20:59 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/22 20:23:57 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
 #include <iterator>
 #include <string>
+// #include <type_traits>
 #include <vector>
 #include "vector.hpp"
 
@@ -86,7 +87,7 @@ int	main(void)
 		}
 		std::cout << "------------" << std::endl;
 		for (ft::vector<char>::const_iterator itr = test.end() - 1; itr != test.begin() - 1; --itr)
-			std::cout << *itr << std::endl;
+			std::cout << (*itr = 'z') << std::endl;
 		std::cout << "------------" << std::endl;
 		test.push_back('j');
 		test.insert(test.end() - 1, 'i');
@@ -116,24 +117,24 @@ int	main(void)
 	{
 		std::cerr << "Exception caught: " << e.what() << std::endl;
 	}
-	newtest();
-	try
-	{
-		std::string			truc = "0123456789";
-		ft::vector<char>	test(truc.begin(), truc.end());
+	// newtest();
+	// try
+	// {
+	// 	std::string			truc = "0123456789";
+	// 	ft::vector<char>	test(truc.begin(), truc.end());
 
-		fillWithAscii(test);
-		ft::vector<char>::iterator	itr1 = test.begin();
-		// ft::vector<char>::iterator	itr2 = itr1 + 5;
-		ft::vector<char>::iterator	itr2 = 5 + itr1;
-		std::cout << "itr1: " << *itr1 << '\n'
-			<< "itr2: " << *itr2 << std::endl;
+	// 	fillWithAscii(test);
+	// 	ft::vector<char>::iterator	itr1 = test.begin();
+	// 	// ft::vector<char>::iterator	itr2 = itr1 + 5;
+	// 	ft::vector<char>::iterator	itr2 = 5 + itr1;
+	// 	std::cout << "itr1: " << *itr1 << '\n'
+	// 		<< "itr2: " << *itr2 << std::endl;
 		
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << "Exception caught: " << e.what() << std::endl;
-	}
+	// }
+	// catch(const std::exception& e)
+	// {
+	// 	std::cerr << "Exception caught: " << e.what() << std::endl;
+	// }
 	
 	return (0);
 }
