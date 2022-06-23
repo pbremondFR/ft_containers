@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/22 20:23:57 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/23 19:27:13 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ int	main(void)
 		}
 		std::cout << "------------" << std::endl;
 		for (ft::vector<char>::const_iterator itr = test.end() - 1; itr != test.begin() - 1; --itr)
-			std::cout << (*itr = 'z') << std::endl;
+			std::cout << (*itr) << std::endl;
 		std::cout << "------------" << std::endl;
 		test.push_back('j');
 		test.insert(test.end() - 1, 'i');
