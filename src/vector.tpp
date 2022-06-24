@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/22 18:40:47 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/24 18:41:51 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,24 +42,25 @@ ft::vector<T, Allocator>::vector(size_type count,
 		_array[i] = value;
 }
 
-template < class T, class Allocator >
-template<class InputIt>
-ft::vector<T, Allocator>::vector(InputIt first,
-								InputIt last,
-								const Allocator& alloc)
-: _allocator(alloc)
-{
-	_init_size = std::distance(first, last);
-	_capacity = _init_size;
-	_size = _init_size;
-	_array = _allocator.allocate(_init_size);
-	_itrBegin = _array;
-	_itrEnd = _array + _capacity;
+// FIXME: template problems again. enable_if ?
+// template < class T, class Allocator >
+// template<class InputIt>
+// ft::vector<T, Allocator>::vector(InputIt first,
+// 								InputIt last,
+// 								const Allocator& alloc)
+// : _allocator(alloc)
+// {
+// 	_init_size = std::distance(first, last);
+// 	_capacity = _init_size;
+// 	_size = _init_size;
+// 	_array = _allocator.allocate(_init_size);
+// 	_itrBegin = _array;
+// 	_itrEnd = _array + _capacity;
 
-	size_type	i = 0;
-	for (InputIt itr = first; itr != last; ++itr)
-		_array[i++] = *itr;
-}
+// 	size_type	i = 0;
+// 	for (InputIt itr = first; itr != last; ++itr)
+// 		_array[i++] = *itr;
+// }
 
 // TODO: Make sure that assign updates iterators if needed
 template < class T, class Allocator >
@@ -255,7 +256,7 @@ typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iter
 
 template < class T, class Allocator >
 typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iterator first, iterator last)
-{	
+{
 	_size -= std::distance(first, last);
 	for (iterator it = first; it != last; ++it)
 		_allocator.destroy(it.operator->());
@@ -291,6 +292,7 @@ void	ft::vector<T, Allocator>::resize(size_type count, T value)
 		for (size_type i = _size; i < count; ++i)
 			_array[i] = value;
 		_size = count;
+		_recalcIterators(false, true);
 	}
 	else if (_size > count)
 	{
@@ -306,6 +308,7 @@ void	ft::vector<T, Allocator>::swap(vector& other)
 	tmp._shallowCopyNoDealloc(other);
 	other._shallowCopyNoDealloc(*this);
 	this->_shallowCopyNoDealloc(tmp);
+	tmp._array = NULL;
 }
 
 /* ************************************************************************** */

@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/23 19:45:28 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/24 18:29:12 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,9 +148,9 @@ class vector
 		explicit vector(size_type count,
 						const T& value = T(),
 						const Allocator& alloc = Allocator());
-		template<class InputIt>
-		vector(InputIt first, InputIt last,
-				const Allocator& alloc = Allocator());
+		// template<class InputIt>
+		// vector(InputIt first, InputIt last,
+		// 		const Allocator& alloc = Allocator());
 		vector(const vector& other);
 		vector &operator=(const vector& other);
 		~vector();
@@ -185,10 +185,10 @@ class vector
 		void		reserve(size_type new_cap);
 		size_type	capacity()	const { return (_capacity);				};
 
-		inline iterator			begin()		  { return (_itrBegin); };
 		inline const_iterator	begin() const { return (const_iterator(_array)); };
-		inline iterator			end()	    { return (_itrEnd); };
+		inline iterator			begin()		  { return (_itrBegin); };
 		inline const_iterator	end() const { return (const_iterator(_array + _size)); };
+		inline iterator			end()	    { return (_itrEnd); };
 
 		void		clear();
 		iterator	insert(iterator pos, const T& value);
@@ -214,9 +214,9 @@ class vector
 		allocator_type	_allocator;
 		size_type		_init_size;
 
-		T				*_array;
-		size_type		_capacity;
-		size_type		_size;
+		T			*_array;
+		size_type	_capacity;
+		size_type	_size;
 
 		iterator	_itrBegin;
 		iterator	_itrEnd;

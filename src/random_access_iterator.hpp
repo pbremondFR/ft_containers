@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 22:40:08 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/23 19:43:49 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/24 18:25:00 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,9 @@
 
 namespace ft
 {
+
+template < class T >
+class c_random_access_iterator;
 
 template < class T >
 class random_access_iterator : ft::iterator_traits<T*>
@@ -38,8 +41,8 @@ class random_access_iterator : ft::iterator_traits<T*>
 		using typename		base::iterator_category;
 		
 		random_access_iterator(pointer ptr = NULL) : _ptr(ptr) {};
-		random_access_iterator(const random_access_iterator<T>& src) : _ptr(src.operator->()) {};
-		random_access_iterator(random_access_iterator<T>& src) : _ptr(src.operator->()) {};
+		random_access_iterator(random_access_iterator<T> const& src) : _ptr(src.operator->()) {};
+		// random_access_iterator(random_access_iterator<T>& src) : _ptr(src.operator->()) {};
 		// random_access_iterator(random_access_iterator<const T> src) : _ptr(src.operator->()) {};
 
 		reference	operator* () 					{ return (*_ptr); };
@@ -48,6 +51,8 @@ class random_access_iterator : ft::iterator_traits<T*>
 		const reference	operator* () const					{ return (*_ptr); };
 		const pointer	operator->() const					{ return (_ptr);  };
 		const reference	operator[](difference_type n) const { return (*(_ptr + n)); };
+
+		operator c_random_access_iterator<T>() { return (c_random_access_iterator<T>(_ptr)); };
 
 		this_type&	operator++()	{ ++_ptr; return (*this);					   };
 		this_type	operator++(int)	{ this_type tmp = *this; ++_ptr; return (tmp); };
@@ -76,6 +81,19 @@ random_access_iterator<T>	operator+(typename random_access_iterator<T>::differen
 	return (rhs + lhs);
 }
 
+// template < class T>
+// class c_random_access_iterator : ft::random_access_iterator<const T>
+// {
+
+// };
+
+// template < class T >
+// c_random_access_iterator<T>	operator+(typename c_random_access_iterator<T>::difference_type lhs,
+// 	c_random_access_iterator<T> const& rhs)
+// {
+// 	return (rhs + lhs);
+// }
+
 template < class T >
 class c_random_access_iterator : ft::iterator_traits<const T*>
 {
@@ -98,8 +116,8 @@ class c_random_access_iterator : ft::iterator_traits<const T*>
 		
 		c_random_access_iterator(pointer ptr = NULL) : _ptr(ptr) {};
 		// random_access_iterator(const random_access_iterator<T>& src) : _ptr(src.operator->()) {};
-		c_random_access_iterator(c_random_access_iterator<const T>& src) : _ptr(src.operator->()) {};
-		c_random_access_iterator(random_access_iterator<T> src) : _ptr(src.operator->()) {};
+		c_random_access_iterator(c_random_access_iterator<const T> const& src) : _ptr(src.operator->()) {};
+		c_random_access_iterator(random_access_iterator<T> const& src) : _ptr(src.operator->()) {};
 
 		reference	operator* () const					{ return (*_ptr); };
 		pointer		operator->() const					{ return (_ptr);  };
@@ -130,6 +148,78 @@ c_random_access_iterator<T>	operator+(typename c_random_access_iterator<T>::diff
 	c_random_access_iterator<T> const& rhs)
 {
 	return (rhs + lhs);
+}
+
+template < class T >
+bool	operator!=(random_access_iterator<T> const& lhs, c_random_access_iterator<T> const& rhs)
+{
+	return (lhs.operator->() != rhs.operator->());
+}
+
+template < class T >
+bool	operator!=(c_random_access_iterator<T> const& lhs, random_access_iterator<T> const& rhs)
+{
+	return (lhs.operator->() != rhs.operator->());
+}
+
+template < class T >
+bool	operator==(random_access_iterator<T> const& lhs, c_random_access_iterator<T> const& rhs)
+{
+	return (lhs.operator->() == rhs.operator->());
+}
+
+template < class T >
+bool	operator==(c_random_access_iterator<T> const& lhs, random_access_iterator<T> const& rhs)
+{
+	return (lhs.operator->() == rhs.operator->());
+}
+
+template < class T >
+bool	operator<=(random_access_iterator<T> const& lhs, c_random_access_iterator<T> const& rhs)
+{
+	return (lhs.operator->() <= rhs.operator->());
+}
+
+template < class T >
+bool	operator<=(c_random_access_iterator<T> const& lhs, random_access_iterator<T> const& rhs)
+{
+	return (lhs.operator->() <= rhs.operator->());
+}
+
+template < class T >
+bool	operator>=(random_access_iterator<T> const& lhs, c_random_access_iterator<T> const& rhs)
+{
+	return (lhs.operator->() >= rhs.operator->());
+}
+
+template < class T >
+bool	operator>=(c_random_access_iterator<T> const& lhs, random_access_iterator<T> const& rhs)
+{
+	return (lhs.operator->() >= rhs.operator->());
+}
+
+template < class T >
+bool	operator>(random_access_iterator<T> const& lhs, c_random_access_iterator<T> const& rhs)
+{
+	return (lhs.operator->() > rhs.operator->());
+}
+
+template < class T >
+bool	operator>(c_random_access_iterator<T> const& lhs, random_access_iterator<T> const& rhs)
+{
+	return (lhs.operator->() > rhs.operator->());
+}
+
+template < class T >
+bool	operator<(random_access_iterator<T> const& lhs, c_random_access_iterator<T> const& rhs)
+{
+	return (lhs.operator->() < rhs.operator->());
+}
+
+template < class T >
+bool	operator<(c_random_access_iterator<T> const& lhs, random_access_iterator<T> const& rhs)
+{
+	return (lhs.operator->() < rhs.operator->());
 }
 
 }
