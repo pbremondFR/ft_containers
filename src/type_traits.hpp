@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 06:44:44 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/22 17:58:25 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/24 22:55:55 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,11 @@ struct is_fundamental
 		ft::is_integral<T>::value
 		|| ft::is_floating_point<T>::value
 	>
-{
-};
+{};
+
+// TODO
+template < class T, class U >
+struct is_convertible : false_type
+{};
 
 }

@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/24 18:29:12 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/24 21:04:46 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,20 +148,22 @@ class vector
 		explicit vector(size_type count,
 						const T& value = T(),
 						const Allocator& alloc = Allocator());
-		// template<class InputIt>
-		// vector(InputIt first, InputIt last,
-		// 		const Allocator& alloc = Allocator());
+		template<class InputIt>
+		vector( InputIt first,
+				InputIt last,
+				const Allocator& alloc = Allocator(),
+				typename enable_if< !is_fundamental<InputIt>::value, int >::type = 0);
 		vector(const vector& other);
 		vector &operator=(const vector& other);
 		~vector();
 
 		void	assign(size_type count, const T& value);
 		template<class InputIt>
-		typename std::enable_if
-		<
-			std::is_same<
+		typename ft::enable_if <
+			ft::is_same<
 				typename InputIt::iterator_category,
-				std::random_access_iterator_tag>::value,
+				std::random_access_iterator_tag
+			>::value,
 			void
 		>::type	assign(InputIt first, InputIt last);
 
@@ -194,11 +196,11 @@ class vector
 		iterator	insert(iterator pos, const T& value);
 		void		insert(iterator pos, size_type count, const T& value);
 		template<class InputIt>
-		typename std::enable_if
-		<
+		typename std::enable_if <
 			std::is_same<
 				typename InputIt::iterator_category,
-				std::random_access_iterator_tag>::value,
+				std::random_access_iterator_tag
+			>::value,
 			void
 		>::type		insert(iterator pos, InputIt first, InputIt last);
 		iterator	erase(iterator pos);

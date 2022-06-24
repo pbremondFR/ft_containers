@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/24 18:41:51 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/24 21:49:05 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,24 +43,25 @@ ft::vector<T, Allocator>::vector(size_type count,
 }
 
 // FIXME: template problems again. enable_if ?
-// template < class T, class Allocator >
-// template<class InputIt>
-// ft::vector<T, Allocator>::vector(InputIt first,
-// 								InputIt last,
-// 								const Allocator& alloc)
-// : _allocator(alloc)
-// {
-// 	_init_size = std::distance(first, last);
-// 	_capacity = _init_size;
-// 	_size = _init_size;
-// 	_array = _allocator.allocate(_init_size);
-// 	_itrBegin = _array;
-// 	_itrEnd = _array + _capacity;
+template < class T, class Allocator >
+template<class InputIt>
+ft::vector<T, Allocator>::vector(InputIt first,
+								InputIt last,
+								const Allocator& alloc,
+								typename enable_if< !is_fundamental<InputIt>::value, int >::type)
+: _allocator(alloc)
+{
+	_init_size = std::distance(first, last);
+	_capacity = _init_size;
+	_size = _init_size;
+	_array = _allocator.allocate(_init_size);
+	_itrBegin = _array;
+	_itrEnd = _array + _capacity;
 
-// 	size_type	i = 0;
-// 	for (InputIt itr = first; itr != last; ++itr)
-// 		_array[i++] = *itr;
-// }
+	size_type	i = 0;
+	for (InputIt itr = first; itr != last; ++itr)
+		_array[i++] = *itr;
+}
 
 // TODO: Make sure that assign updates iterators if needed
 template < class T, class Allocator >
@@ -108,11 +109,12 @@ void	ft::vector<T, Allocator>::assign(size_type count, const T& value)
 
 template < class T, class Allocator >
 template < class InputIt >
-typename std::enable_if
+typename ft::enable_if
 <
-	std::is_same<
+	ft::is_same<
 		typename InputIt::iterator_category,
-		std::random_access_iterator_tag>::value,
+		std::random_access_iterator_tag
+	>::value,
 	void
 >::type
 ft::vector<T, Allocator>::assign(InputIt first, InputIt last)
@@ -120,8 +122,6 @@ ft::vector<T, Allocator>::assign(InputIt first, InputIt last)
 	difference_type	newSize = std::distance<InputIt>(first, last);
 	size_type		i = 0;
 
-	// std::cout << "newSize: " << newSize << '\n'
-	// 	<< "Casted: " << static_cast<size_type>(newSize) << std::endl;
 	if (static_cast<size_type>(newSize) > _capacity)
 		this->reserve(newSize);
 	for (InputIt itr = first; itr != last; ++itr)
@@ -309,6 +309,12 @@ void	ft::vector<T, Allocator>::swap(vector& other)
 	other._shallowCopyNoDealloc(*this);
 	this->_shallowCopyNoDealloc(tmp);
 	tmp._array = NULL;
+}
+
+template< class T, class Alloc >
+void std::swap(ft::vector<T,Alloc>& lhs, ft::vector<T,Alloc>& rhs)
+{
+	lhs.swap(rhs);
 }
 
 /* ************************************************************************** */
