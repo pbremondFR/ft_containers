@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/24 21:04:46 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/27 20:04:27 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,10 +160,7 @@ class vector
 		void	assign(size_type count, const T& value);
 		template<class InputIt>
 		typename ft::enable_if <
-			ft::is_same<
-				typename InputIt::iterator_category,
-				std::random_access_iterator_tag
-			>::value,
+			!ft::is_fundamental<InputIt>::value,
 			void
 		>::type	assign(InputIt first, InputIt last);
 
@@ -197,10 +194,7 @@ class vector
 		void		insert(iterator pos, size_type count, const T& value);
 		template<class InputIt>
 		typename std::enable_if <
-			std::is_same<
-				typename InputIt::iterator_category,
-				std::random_access_iterator_tag
-			>::value,
+			!ft::is_fundamental<InputIt>::value,
 			void
 		>::type		insert(iterator pos, InputIt first, InputIt last);
 		iterator	erase(iterator pos);

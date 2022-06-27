@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/23 19:27:13 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/27 20:27:37 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 // #include <type_traits>
 #include <vector>
 #include "vector.hpp"
+
+#define NAMESP	std
 
 void	newtest(void)
 {
@@ -37,8 +39,8 @@ int	main(void)
 {
 	try
 	{
-		std::vector<char>	test(9, 'a');
-		std::vector<char>	test2(8);
+		NAMESP::vector<char>	test(9, 'a');
+		NAMESP::vector<char>	test2(8);
 		std::cout << "Capacity: " << test.capacity() << std::endl;
 		test.assign(test.begin(), test.end());
 		std::cout << "Capacity: " << test2.capacity() << std::endl;
@@ -78,22 +80,22 @@ int	main(void)
 	newtest();
 	try
 	{
-		ft::vector<char>	test(8, '0');
+		NAMESP::vector<char>	test(8, '0');
 
 		char	truc = 'a';
-		for (ft::vector<char>::iterator itr = test.begin(); itr != test.end(); ++itr) {
+		for (NAMESP::vector<char>::iterator itr = test.begin(); itr != test.end(); ++itr) {
 			*itr = truc++;
 			std::cout << *itr << std::endl;
 		}
-		std::cout << "------------" << std::endl;
-		for (ft::vector<char>::const_iterator itr = test.end() - 1; itr != test.begin() - 1; --itr)
+		std::cout << "---------------------------------" << std::endl;
+		for (NAMESP::vector<char>::const_iterator itr = test.end() - 1; itr != test.begin() - 1; --itr)
 			std::cout << (*itr) << std::endl;
-		std::cout << "------------" << std::endl;
+		std::cout << "---------------------------------" << std::endl;
 		test.push_back('j');
 		test.insert(test.end() - 1, 'i');
 		test.insert(test.begin(), '0');
 		std::cout << "capacity: " << test.capacity() << std::endl;
-		for (ft::vector<char>::const_iterator itr = test.begin(); itr != test.end(); ++itr)
+		for (NAMESP::vector<char>::const_iterator itr = test.begin(); itr != test.end(); ++itr)
 			std::cout << *itr << std::endl;
 		std::cout << "begin: " << *test.begin() << std::endl;
 	}
@@ -104,11 +106,11 @@ int	main(void)
 	newtest();
 	try
 	{
-		ft::vector<char>	test(8, '-');
-		ft::vector<char>	test2;
+		NAMESP::vector<char>	test(8, '-');
+		NAMESP::vector<char>	test2;
 
 		char	truc = '0';
-		for (ft::vector<char>::iterator itr = test.begin(); itr != test.end(); ++itr)
+		for (NAMESP::vector<char>::iterator itr = test.begin(); itr != test.end(); ++itr)
 			std::cout << (*itr = truc++) << std::endl;
 		test2.assign(test.begin(), test.end());
 		std::cout << "------------" << std::endl;
@@ -117,24 +119,24 @@ int	main(void)
 	{
 		std::cerr << "Exception caught: " << e.what() << std::endl;
 	}
-	// newtest();
-	// try
-	// {
-	// 	std::string			truc = "0123456789";
-	// 	ft::vector<char>	test(truc.begin(), truc.end());
+	newtest();
+	try
+	{
+		std::string			truc = "0123456789";
+		NAMESP::vector<char>	test(truc.begin(), truc.end());
 
-	// 	fillWithAscii(test);
-	// 	ft::vector<char>::iterator	itr1 = test.begin();
-	// 	// ft::vector<char>::iterator	itr2 = itr1 + 5;
-	// 	ft::vector<char>::iterator	itr2 = 5 + itr1;
-	// 	std::cout << "itr1: " << *itr1 << '\n'
-	// 		<< "itr2: " << *itr2 << std::endl;
+		fillWithAscii(test);
+		NAMESP::vector<char>::iterator	itr1 = test.begin();
+		// ft::vector<char>::iterator	itr2 = itr1 + 5;
+		NAMESP::vector<char>::iterator	itr2 = 5 + itr1;
+		std::cout << "itr1: " << *itr1 << '\n'
+			<< "itr2: " << *itr2 << std::endl;
 		
-	// }
-	// catch(const std::exception& e)
-	// {
-	// 	std::cerr << "Exception caught: " << e.what() << std::endl;
-	// }
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "Exception caught: " << e.what() << std::endl;
+	}	
 	
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 06:44:44 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/24 22:55:55 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/27 19:20:49 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,41 @@ struct is_fundamental
 		bool,
 		ft::is_integral<T>::value
 		|| ft::is_floating_point<T>::value
+	>
+{};
+
+template < class I >
+struct is_input_iterator
+	: ft::integral_constant
+	<
+		bool,
+		ft::is_same<typename I::iterator_category, std::input_iterator_tag>::value
+		|| ft::is_same<typename I::iterator_category, std::forward_iterator_tag>::value
+		|| ft::is_same<typename I::iterator_category, std::bidirectional_iterator_tag>::value
+		|| ft::is_same<typename I::iterator_category, std::random_access_iterator_tag>::value
+	>
+{};
+
+template < class I >
+struct is_output_iterator
+	: ft::integral_constant
+	<
+		bool,
+		ft::is_same<typename I::iterator_category, std::output_iterator_tag>::value
+		|| ft::is_same<typename I::iterator_category, std::forward_iterator_tag>::value
+		|| ft::is_same<typename I::iterator_category, std::bidirectional_iterator_tag>::value
+		|| ft::is_same<typename I::iterator_category, std::random_access_iterator_tag>::value
+	>
+{};
+
+template < class I >
+struct is_forward_iterator
+	: ft::integral_constant
+	<
+		bool,
+		ft::is_same<typename I::iterator_category, std::forward_iterator_tag>::value
+		|| ft::is_same<typename I::iterator_category, std::bidirectional_iterator_tag>::value
+		|| ft::is_same<typename I::iterator_category, std::random_access_iterator_tag>::value
 	>
 {};
 

@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/24 21:49:05 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/27 20:05:00 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,10 +111,7 @@ template < class T, class Allocator >
 template < class InputIt >
 typename ft::enable_if
 <
-	ft::is_same<
-		typename InputIt::iterator_category,
-		std::random_access_iterator_tag
-	>::value,
+	!ft::is_fundamental<InputIt>::value,
 	void
 >::type
 ft::vector<T, Allocator>::assign(InputIt first, InputIt last)
@@ -216,10 +213,7 @@ template < class T, class Allocator >
 template < class InputIt >
 typename std::enable_if
 <
-	std::is_same<
-		typename InputIt::iterator_category,
-		std::random_access_iterator_tag
-	>::value,
+	!ft::is_fundamental<InputIt>::value,
 	void
 >::type
 ft::vector<T, Allocator>::insert(iterator pos, InputIt first, InputIt last)
@@ -311,11 +305,11 @@ void	ft::vector<T, Allocator>::swap(vector& other)
 	tmp._array = NULL;
 }
 
-template< class T, class Alloc >
-void std::swap(ft::vector<T,Alloc>& lhs, ft::vector<T,Alloc>& rhs)
-{
-	lhs.swap(rhs);
-}
+// template< class T, class Alloc >
+// void std::swap(ft::vector<T,Alloc>& lhs, ft::vector<T,Alloc>& rhs)
+// {
+// 	lhs.swap(rhs);
+// }
 
 /* ************************************************************************** */
 /* ************************************************************************** */
