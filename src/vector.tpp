@@ -6,14 +6,15 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/27 20:05:00 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/27 23:24:41 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#pragma once
+
 #include "vector.hpp"
-#include <memory>
-#include <iterator>
-#include <iostream>
+
+#define DEBUG_VERBOSE	false
 
 template < class T, class Allocator >
 ft::vector<T, Allocator>::vector(const Allocator& alloc): _allocator(alloc)
@@ -42,7 +43,6 @@ ft::vector<T, Allocator>::vector(size_type count,
 		_array[i] = value;
 }
 
-// FIXME: template problems again. enable_if ?
 template < class T, class Allocator >
 template<class InputIt>
 ft::vector<T, Allocator>::vector(InputIt first,
@@ -63,7 +63,6 @@ ft::vector<T, Allocator>::vector(InputIt first,
 		_array[i++] = *itr;
 }
 
-// TODO: Make sure that assign updates iterators if needed
 template < class T, class Allocator >
 ft::vector<T, Allocator>::vector(const ft::vector<T, Allocator>& src)
 : _allocator(src._allocator)
@@ -76,7 +75,6 @@ ft::vector<T, Allocator>::vector(const ft::vector<T, Allocator>& src)
 	this->assign(src.begin(), src.end());
 }
 
-// TODO: Make sure that assign() updates iterators
 template < class T, class Allocator >
 ft::vector<T, Allocator>	&ft::vector<T, Allocator>::operator=(const ft::vector<T, Allocator>& rhs)
 {
@@ -299,17 +297,40 @@ void	ft::vector<T, Allocator>::swap(vector& other)
 {
 	vector	tmp;
 
+	if (_verbose)
+		std::cout << "DEBUG: INSIDE MEMBER SWAP FUNC" << std::endl;
 	tmp._shallowCopyNoDealloc(other);
 	other._shallowCopyNoDealloc(*this);
 	this->_shallowCopyNoDealloc(tmp);
 	tmp._array = NULL;
 }
 
-// template< class T, class Alloc >
-// void std::swap(ft::vector<T,Alloc>& lhs, ft::vector<T,Alloc>& rhs)
+// namespace ft
 // {
-// 	lhs.swap(rhs);
+// 	// using std::swap;
+// 	template< class T, class Alloc >
+// 	void	swap(ft::vector<T, Alloc>& lhs, ft::vector<T, Alloc>& rhs)
+// 	{
+// 		std::cout << "DEBUG: SWAP IS SPECIALIZED (IN FT)" << std::endl;
+// 		lhs.swap(rhs);
+// 	}
 // }
+
+// NOTE: Apparently this is the wrong way to do it, orthodox way is commented out above.
+// However, only with that solution can I specialize std::swap for both these cases:
+// - `using std::swap; swap(a, b);`
+// - `std::swap(a, b);`
+namespace std
+{
+	// using std::swap;
+	template< class T, class Alloc >
+	void	swap(ft::vector<T, Alloc>& lhs, ft::vector<T, Alloc>& rhs)
+	{
+		if (DEBUG_VERBOSE)
+			std::cout << "DEBUG: SWAP IS SPECIALIZED (IN STD)" << std::endl;
+		lhs.swap(rhs);
+	}
+}
 
 /* ************************************************************************** */
 /* ************************************************************************** */

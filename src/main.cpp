@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/27 20:27:37 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/27 21:25:40 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <vector>
 #include "vector.hpp"
 
-#define NAMESP	std
+#define NAMESP	ft
 
 void	newtest(void)
 {
@@ -33,6 +33,14 @@ void	fillWithAscii(T container)
 	char	truc = '0';
 	for (typename T::iterator itr = container.begin(); itr != container.end(); ++itr)
 		*itr = truc++;
+}
+
+template < class T >
+void	printContainer(std::string const& name, T container)
+{
+	std::cout << name << ": " << std::endl;
+	for (typename T::const_iterator itr = container.begin(); itr != container.end(); ++itr)
+		std::cout << "- " << *itr << std::endl;
 }
 
 int	main(void)
@@ -132,6 +140,24 @@ int	main(void)
 		std::cout << "itr1: " << *itr1 << '\n'
 			<< "itr2: " << *itr2 << std::endl;
 		
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "Exception caught: " << e.what() << std::endl;
+	}	
+	newtest();
+	try
+	{
+		NAMESP::vector<char>	test1(3, 'a');
+		NAMESP::vector<char>	test2(3, 'b');
+
+		printContainer("test1", test1);
+		printContainer("test2", test2);
+		std::swap(test1, test2);
+		// using std::swap;
+		// swap(test1, test2);
+		printContainer("test1", test1);
+		printContainer("test2", test2);
 	}
 	catch(const std::exception& e)
 	{
