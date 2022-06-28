@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/27 23:24:41 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/28 03:38:23 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,8 @@ ft::vector<T, Allocator>::vector(const Allocator& alloc): _allocator(alloc)
 
 template < class T, class Allocator >
 ft::vector<T, Allocator>::vector(size_type count,
-								const T& value,
-								const Allocator& alloc)
+								 const T& value,
+								 const Allocator& alloc)
 : _allocator(alloc)
 {
 	_init_size = count;
@@ -46,9 +46,9 @@ ft::vector<T, Allocator>::vector(size_type count,
 template < class T, class Allocator >
 template<class InputIt>
 ft::vector<T, Allocator>::vector(InputIt first,
-								InputIt last,
-								const Allocator& alloc,
-								typename enable_if< !is_fundamental<InputIt>::value, int >::type)
+								 InputIt last,
+								 const Allocator& alloc,
+								 typename enable_if< !is_fundamental<InputIt>::value, int >::type)
 : _allocator(alloc)
 {
 	_init_size = std::distance(first, last);

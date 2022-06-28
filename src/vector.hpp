@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/27 23:35:41 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/28 06:40:57 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "iterator.hpp"
 #include "type_traits.hpp"
 #include "random_access_iterator.hpp"
+#include "reverse_iterator.hpp"
 #include "algorithm.hpp"
 
 namespace ft
@@ -26,16 +27,18 @@ template< class T, class Allocator = std::allocator<T> >
 class vector
 {
 	public:
-		typedef 			T											value_type;
-		typedef 			Allocator									allocator_type;
-		typedef typename	std::size_t									size_type;
-		typedef typename	std::ptrdiff_t								difference_type;
-		typedef 			value_type&									reference;
-		typedef 			value_type const&							const_reference;
-		typedef typename	Allocator::pointer							pointer;
-		typedef typename	Allocator::const_pointer					const_pointer;
+		typedef 			T										value_type;
+		typedef 			Allocator								allocator_type;
+		typedef typename	std::size_t								size_type;
+		typedef typename	std::ptrdiff_t							difference_type;
+		typedef 			value_type&								reference;
+		typedef 			value_type const&						const_reference;
+		typedef typename	Allocator::pointer						pointer;
+		typedef typename	Allocator::const_pointer				const_pointer;
 		typedef typename	ft::random_access_iterator<T>			iterator;
-		typedef typename	ft::c_random_access_iterator<T>	const_iterator;
+		typedef typename	ft::c_random_access_iterator<T>			const_iterator;	
+		typedef typename	ft::reverse_iterator<iterator>			reverse_iterator;
+		typedef typename	ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 
 	public:
 		explicit vector(const Allocator& alloc = Allocator());
@@ -82,6 +85,11 @@ class vector
 		inline iterator			begin()		  { return (_itrBegin); };
 		inline const_iterator	end() const { return (const_iterator(_array + _size)); };
 		inline iterator			end()	    { return (_itrEnd); };
+
+		inline const_reverse_iterator	rbegin() const { return (const_reverse_iterator(_itrBegin)); };
+		inline reverse_iterator			rbegin()	   { return (_itrBegin); };
+		inline const_reverse_iterator	rend() const { return (const_reverse_iterator(_itrEnd)); };
+		inline reverse_iterator			rend()	     { return (_itrEnd); };
 
 		void		clear();
 		iterator	insert(iterator pos, const T& value);

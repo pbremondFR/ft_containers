@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 22:40:08 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/24 18:25:00 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/28 06:21:13 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class random_access_iterator : ft::iterator_traits<T*>
 		T*	_ptr;
 
 	public:
-		typedef typename	ft::iterator_traits<T*>	base;
+		typedef typename	ft::iterator_traits<T*>		base;
 		typedef				random_access_iterator		this_type;
 		// typedef ptrdiff_t							difference_type;
 		// typedef T									value_type;

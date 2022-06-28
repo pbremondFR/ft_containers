@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/27 21:25:40 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/28 03:54:10 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,7 +162,6 @@ int	main(void)
 	catch(const std::exception& e)
 	{
 		std::cerr << "Exception caught: " << e.what() << std::endl;
-	}	
-	
+	}
 	return (0);
 }
