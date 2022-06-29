@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/28 12:01:58 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/29 11:10:02 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -271,7 +271,7 @@ void	ft::vector<T, Allocator>::push_back(const T& value)
 template < class T, class Allocator >
 void	ft::vector<T, Allocator>::pop_back()
 {
-	_array[_size--].~T();
+	_allocator.destroy((_array + _size--) - 1);
 	_recalcIterators(false, true);
 }
 
@@ -296,14 +296,16 @@ void	ft::vector<T, Allocator>::resize(size_type count, T value)
 template < class T, class Allocator >
 void	ft::vector<T, Allocator>::swap(vector& other)
 {
-	vector	tmp;
+	vector			tmp;
+	vector::pointer	tmp_ptr = tmp._array;
 
 	if (_verbose)
 		std::cout << "DEBUG: INSIDE MEMBER SWAP FUNC" << std::endl;
 	tmp._shallowCopyNoDealloc(other);
 	other._shallowCopyNoDealloc(*this);
 	this->_shallowCopyNoDealloc(tmp);
-	tmp._array = NULL;
+	tmp._init_size = 0;
+	tmp._array = tmp_ptr;
 }
 
 // namespace ft
