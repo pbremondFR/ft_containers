@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/28 05:19:12 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/29 08:37:34 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/29 09:21:53 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,42 +108,42 @@ template <class Iter1, class Iter2>
 bool operator==(const reverse_iterator<Iter1>& lhs,
 				const reverse_iterator<Iter2>& rhs)
 {
-	return (rhs.base() == lhs.base());
+	return (lhs.base() == rhs.base());
 }
 
 template <class Iter1, class Iter2>
 bool operator!=(const reverse_iterator<Iter1>& lhs,
 				const reverse_iterator<Iter2>& rhs)
 {
-	return (rhs.base() != lhs.base());
+	return (lhs.base() != rhs.base());
 }
 
 template <class Iter1, class Iter2>
 bool operator< (const reverse_iterator<Iter1>& lhs,
 				const reverse_iterator<Iter2>& rhs)
 {
-	return (rhs.base() < lhs.base());
+	return (lhs.base() > rhs.base());
 }
 
 template <class Iter1, class Iter2>
 bool operator> (const reverse_iterator<Iter1>& lhs,
 				const reverse_iterator<Iter2>& rhs)
 {
-	return (rhs.base() > lhs.base());
+	return (lhs.base() < rhs.base());
 }
 
 template <class Iter1, class Iter2>
 bool operator<=(const reverse_iterator<Iter1>& lhs,
 				const reverse_iterator<Iter2>& rhs)
 {
-	return (rhs.base() <= lhs.base());
+	return (lhs.base() >= rhs.base());
 }
 
 template <class Iter1, class Iter2>
 bool operator>=(const reverse_iterator<Iter1>& lhs,
 				const reverse_iterator<Iter2>& rhs)
 {
-	return (rhs.base() >= lhs.base());
+	return (lhs.base() <= rhs.base());
 }
 
 }

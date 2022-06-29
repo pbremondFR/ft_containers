@@ -6,18 +6,22 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/28 03:54:10 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/29 10:09:13 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
-#include <iterator>
 #include <string>
-// #include <type_traits>
+
 #include <vector>
 #include "vector.hpp"
 
-#define NAMESP	ft
+#include <utility>
+#include "utility.hpp"
+
+#ifndef NAMESP
+# define NAMESP	ft
+#endif
 
 void	newtest(void)
 {
@@ -158,6 +162,22 @@ int	main(void)
 		// swap(test1, test2);
 		printContainer("test1", test1);
 		printContainer("test2", test2);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "Exception caught: " << e.what() << std::endl;
+	}
+	newtest();
+	try
+	{
+		NAMESP::pair<int, char>		pair1('a', 'a');
+		NAMESP::pair<int, char>		pair2(pair1);
+		
+		std::cout << "First: " << pair1.first << '\n'
+			<< "Second: " << pair1.second << std::endl;
+		std::cout << (pair1 == pair2 ? "TRUE" : "FALSE") << std::endl;
+		pair2.first++;
+		std::cout << (pair1 == pair2 ? "TRUE" : "FALSE") << std::endl;
 	}
 	catch(const std::exception& e)
 	{
