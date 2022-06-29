@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 20:03:49 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/23 16:02:48 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/29 08:43:35 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ struct iterator_traits<const T*>
 	typedef T									value_type;
 	typedef const T*							pointer;
 	typedef const T&							reference;
-	typedef std::random_access_iterator_tag 	iterator_category;
+	typedef std::random_access_iterator_tag		iterator_category;
 };
 
 }

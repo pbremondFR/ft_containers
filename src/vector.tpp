@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/28 03:38:23 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/28 12:01:58 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ ft::vector<T, Allocator>::vector(size_type count,
 	_size = count;
 	_array = _allocator.allocate(_init_size);
 	_itrBegin = _array;
-	_itrEnd = _array + _capacity;
+	_itrEnd = _array + _size;
 	for (size_type i = 0; i < count; ++i)
 		_array[i] = value;
 }
@@ -56,7 +56,7 @@ ft::vector<T, Allocator>::vector(InputIt first,
 	_size = _init_size;
 	_array = _allocator.allocate(_init_size);
 	_itrBegin = _array;
-	_itrEnd = _array + _capacity;
+	_itrEnd = _array + _size;
 
 	size_type	i = 0;
 	for (InputIt itr = first; itr != last; ++itr)
@@ -272,6 +272,7 @@ template < class T, class Allocator >
 void	ft::vector<T, Allocator>::pop_back()
 {
 	_array[_size--].~T();
+	_recalcIterators(false, true);
 }
 
 template < class T, class Allocator >
