@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 22:40:08 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/29 08:39:44 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/06/29 12:29:58 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,6 @@
 
 namespace ft
 {
-
-template < class T >
-class c_random_access_iterator;
 
 template < class Tp >
 class random_access_iterator

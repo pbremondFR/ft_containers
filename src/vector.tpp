@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/29 11:10:02 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/07/12 10:08:00 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,7 +209,7 @@ void	ft::vector<T, Allocator>::insert(iterator pos, size_type count, const T& va
 
 template < class T, class Allocator >
 template < class InputIt >
-typename std::enable_if
+typename ft::enable_if
 <
 	!ft::is_fundamental<InputIt>::value,
 	void

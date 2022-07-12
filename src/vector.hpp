@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/29 08:42:48 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/07/12 11:15:21 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 namespace ft
 {
 
-template< class T, class Allocator = std::allocator<T> >
+template < class T, class Allocator = std::allocator<T> >
 class vector
 {
 	public:
@@ -95,7 +95,7 @@ class vector
 		iterator	insert(iterator pos, const T& value);
 		void		insert(iterator pos, size_type count, const T& value);
 		template<class InputIt>
-		typename std::enable_if <
+		typename ft::enable_if <
 			!ft::is_fundamental<InputIt>::value,
 			void
 		>::type		insert(iterator pos, InputIt first, InputIt last);
