@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/07/12 11:39:07 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/06 17:42:07 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,10 @@
 #include <utility>
 #include "utility.hpp"
 
-#include <map>
-#include "map.hpp"
+// #include <map>
+// #include "map.hpp"
+
+#include "optional.hpp"
 
 #ifndef NAMESP
 # define NAMESP	ft
@@ -185,6 +187,26 @@ int	main(void)
 	catch(const std::exception& e)
 	{
 		std::cerr << "Exception caught: " << e.what() << std::endl;
+	}
+	newtest();
+	{
+		ft::optional<int>	opt(21);
+		std::cout << "Has value: " << opt.has_value() << std::endl;
+		std::cout << "value_or(-42): " << opt.value_or(-42) << std::endl;
+		opt = ft::nullopt;
+		std::cout << "Has value: " << opt.has_value() << std::endl;
+		opt.reset();
+		std::cout << "Has value: " << opt.has_value() << std::endl;
+	}
+	newtest();
+	{
+		ft::optional<std::string>	opt("Hello world");
+		std::cout << "Has value: " << opt.has_value() << std::endl;
+		std::cout << "value_or(\"merde\"): " << opt.value_or("merde") << std::endl;
+		opt = ft::nullopt;
+		std::cout << "Has value: " << opt.has_value() << std::endl;
+		opt.reset();
+		std::cout << "Has value: " << opt.has_value() << std::endl;
 	}
 	return (0);
 }
