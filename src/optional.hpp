@@ -6,9 +6,11 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/06 16:26:23 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/06 17:44:53 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/06 18:57:41 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#pragma once
 
 #include <exception>
 
@@ -46,7 +48,7 @@ class optional
 
 		optional&	operator=(nullopt_t) throw() {
 			if (_hasData) {
-				_data.~T();
+				_data.~T(); // I don't even know how that doesn't fuck up with primitives, but it's a good thing it doesn't
 				_hasData = false;
 			}
 			return (*this);

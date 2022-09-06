@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/06 17:51:17 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/06 18:36:36 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,6 +207,22 @@ int	main(void)
 		std::cout << "Has value: " << opt.has_value() << std::endl;
 		opt.reset();
 		std::cout << "Has value: " << opt.has_value() << std::endl;
+	}
+	newtest();
+	{
+		ft::optional<std::string*>	opt = new std::string("Hello world");
+		std::cout << "Has value: " << opt.has_value() << std::endl;
+		if (opt)
+			std::cout << "value(): " << opt.value() << std::endl;
+		delete *opt;
+		opt = ft::nullopt;
+		std::cout << "Has value: " << opt.has_value() << std::endl;
+		opt.reset();
+		std::cout << "Has value: " << opt.has_value() << std::endl;
+	}
+	newtest();
+	{
+		ft::map<int, char>	test;
 	}
 	return (0);
 }
