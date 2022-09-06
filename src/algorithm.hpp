@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 22:45:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/27 23:40:08 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/06 13:31:21 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ bool	equal(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2,
 template < class InputIt1, class InputIt2 >
 bool	lexicographical_compare(InputIt1 first1, InputIt1 last1,
 								InputIt2 first2, InputIt2 last2)
-{
+{ // TESTME: different behaviour from the next overload
 	while (first1 != last1 && first2 != last2)
 	{
 		if (*first1 < *first2)
@@ -73,7 +73,7 @@ template < class InputIt1, class InputIt2, class Compare >
 bool	lexicographical_compare(InputIt1 first1, InputIt1 last1,
 								InputIt2 first2, InputIt2 last2,
 								Compare comp)
-{
+{ // TESTME: different behaviour from the previous overload
 	while (first1 != last1 && first2 != last2 && *first1 == *first2)
 	{
 		if (comp(*first1, *first2))

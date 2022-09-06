@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/07/14 19:23:29 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/06 17:54:26 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,27 +25,25 @@ template <
     class Compare = std::less<Key>, // TODO: ft::less ?
     class Allocator = std::allocator< ft::pair<const Key, T> >
 		>
-class __map_iterator
-{
-	private:
-		
-	public:
-		typedef std::bidirectional_iterator_tag	iterator_type;
-		typedef T								value_type;
-		typedef	T*								pointer;
-		typedef	T&								reference;
-		typedef	ptrdiff_t						difference_type;
-};
-
-
-template <
-    class Key,
-    class T,
-    class Compare = std::less<Key>, // TODO: ft::less ?
-    class Allocator = std::allocator< ft::pair<const Key, T> >
-		>
 class map
 {
+	private:
+		template <class U>
+		class __map_iterator
+		{
+			private:
+				struct s_node;
+				
+			public:
+				typedef std::bidirectional_iterator_tag	iterator_vategory;
+				typedef ptrdiff_t						difference_type;
+				typedef U								value_type;
+				typedef U*								pointer;
+				typedef U&								reference;
+				
+				__map_iterator(s_node *node);
+		};
+		
 	public:
 		typedef				Key										key_type;
 		typedef				T										mapped_type;
@@ -58,8 +56,8 @@ class map
 		typedef				value_type const&						const_reference;
 		typedef	typename	Allocator::pointer						pointer;
 		typedef	typename	Allocator::const_pointer				const_pointer;
-		typedef 			void									iterator;
-		typedef 			void									const_iterator;
+		typedef 			__map_iterator<value_type>				iterator;
+		typedef 			__map_iterator<const value_type>		const_iterator;
 		typedef typename	ft::reverse_iterator<iterator>			reverse_iterator;
 		typedef typename	ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 
@@ -81,7 +79,6 @@ class map
 				}
 		};
 		
-	
 	public:
 		explicit map(Compare const& comp = Compare(),
 					 Allocator const& alloc = Allocator());
@@ -96,23 +93,6 @@ class map
 		map&	operator=(map const& src);
 		
 		allocator_type	get_allocator() const { return (allocator_type()); }
-	
-	private:
-		struct s_node
-		{
-			s_node	*parent;
-			s_node	*left;
-			s_node	*right;
-
-			value_type	val;
-			enum { RED, BLACK }	colour;
-
-			s_node(value_type const& src, s_node *_parent) : val(src),
-					parent(_parent), left(NULL), right(NULL), colour(RED) {}
-		};
-
-		s_node	*_root;
-		friend __map_iterator<Key, T, Compare, Allocator>;
 	
 	public:
 		T&			at(Key const& key);
@@ -153,6 +133,23 @@ class map
 
 		key_compare		key_comp() const;
 		value_compare	value_comp() const;
+	
+	private:
+		struct s_node
+		{
+			s_node	*parent;
+			s_node	*left;
+			s_node	*right;
+
+			value_type	val;
+			enum { RED, BLACK }	colour;
+
+			s_node(value_type const& src_val, s_node *_parent) : val(src_val),
+					parent(_parent), left(NULL), right(NULL), colour(RED) {}
+		};
+
+	private:
+		s_node	*_root;
 };
 
 }
