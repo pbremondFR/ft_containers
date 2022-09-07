@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/07 15:30:37 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/07 18:48:16 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include "utility.hpp"
 #include "type_traits.hpp"
 // #include "optional.hpp"
+
+#define MAP_DEBUG_VERBOSE	true
 
 // TODO: Should maybe switch all of the logic behind the RBtree to a RBtree class,
 // and derive it in there ? Same goes for its iterator...
@@ -51,15 +53,32 @@ class map
 			__s_node	*parent;
 			__s_node	*left;
 			__s_node	*right;
+			Allocator	_allocator2;
 
-			value_type	val;
+			value_type	*val;
 			enum { RED, BLACK }	colour;
 
-			__s_node(value_type const& value, __s_node *_parent) : val(value),
-					parent(_parent), left(NULL), right(NULL), colour(RED) {}
+			__s_node(value_type const& value, __s_node *_parent) : parent(_parent), left(NULL), right(NULL), colour(RED) {
+				val = _allocator2.allocate(1);
+				_allocator2.construct(val, value);
+			}
+			__s_node(__s_node const& src) : parent(src.parent), left(src.left), right(src.right), colour(src.colour) {
+				val = _allocator2.allocate(1);
+				_allocator2.construct(val, *src.val);
+			}
+			~__s_node() {
+				_allocator2.destroy(val);
+				_allocator2.deallocate(val, 1);
+				val = NULL;
+				if (MAP_DEBUG_VERBOSE)
+					std::cerr << "\e[0;30;41m NODE DESTROYED \e[0m" << std::endl;
+			}
 		};
 
 		__s_node	*_root;
+		Compare		_compare;
+		Allocator	_allocator;
+		std::allocator<__s_node>	_node_allocator;
 
 	private:
 		template <class U>
@@ -67,11 +86,8 @@ class map
 		{
 			private:
 				__s_node	*_node;
-				__s_node	*_prev;
 
-				inline void	go_left()  throw() { _prev = _node; _node = _node->left;  }
-				inline void	go_right() throw() { _prev = _node; _node = _node->right; }
-				inline void	go_up()    throw() { _prev = _node; _node = _node->up;    }
+				inline void goto_start() throw() { for (; _node->left != NULL; _node = _node->left) ; }
 				
 			public:
 				typedef std::bidirectional_iterator_tag	iterator_vategory;
@@ -80,24 +96,37 @@ class map
 				typedef U*								pointer;
 				typedef U&								reference;
 				
-				__map_iterator(__s_node *node = NULL) : _node(node), _prev(NULL) {} // default
+				__map_iterator(__s_node *node = NULL, bool goto_begin = false) : _node(node) {
+					if (goto_begin == true && node != NULL)
+						this->goto_start();
+				}
 
 				inline operator __map_iterator<const U>() const { return (this->_node); }
 
-				inline reference	operator*()  const { return(_node->val);  }
-				inline pointer		operator->() const { return(&_node->val); }
+				inline reference	operator*()  const { return(*_node->val);  }
+				inline pointer		operator->() const { return(_node->val); }
 
-				reference	operator++() {
+				__map_iterator&	operator++()
+				{
 					if (_node->right != NULL) {
-						go_right();
-						while (_node->left != NULL)
-							go_left();
+						_node = _node->right;
+						while (_node->left != NULL) {
+							_node = _node->left;
+						}
 					}
 					else {
-						while (_prev != _node->left)
-							go_up();
+						__s_node	*parent = _node->parent;
+						while (parent != NULL && _node == parent->right) {
+							_node = _node->parent;
+							parent = parent->parent;
+						}
+						_node = parent;
 					}
+					return (*this);
 				}
+
+				bool	operator==(__map_iterator const& rhs) { return (this->_node == rhs._node); }
+				bool	operator!=(__map_iterator const& rhs) { return (this->_node != rhs._node); }
 		};
 		
 	public:
@@ -136,14 +165,14 @@ class map
 		
 	public:
 		explicit map(Compare const& comp = Compare(),
-					 Allocator const& alloc = Allocator());
+					 Allocator const& alloc = Allocator()) : _root(NULL), _compare(comp), _allocator(alloc) {}
 		template<class InputIt>
 		map(InputIt first, InputIt last,
 			Compare const& comp = Compare(),
 			Allocator const& alloc = Allocator(),
 			typename enable_if< !is_fundamental<InputIt>::value, int >::type = 0);
 		map(map const& src);
-		~map();
+		~map() { this->clear(); }
 
 		map&	operator=(map const& src);
 		
@@ -189,22 +218,22 @@ class map
 		key_compare		key_comp() const;
 		value_compare	value_comp() const;
 
-		iterator		begin() {
-			__s_node	*target;
-			for (target = _root;
-				target != NULL && target->left != NULL;
-				target = target->left)
-				;
-			return (iterator(target));
-		}
-		const_iterator	begin() const {
-			const __s_node	*target = _root;
-			while (target != NULL && target->left != NULL)
-				target = target->left;
-			return (const_iterator(target));
-		}
+		iterator		begin()		  { return (iterator(_root, true)); }
+		const_iterator	begin() const { return (iterator(_root, true)); }
 		iterator		end()		{ return (iterator(NULL)); }
 		const_iterator	end() const { return (iterator(NULL)); }
+
+	private:
+		void	_postfix_clear(__s_node *root) {
+			if (root == NULL)
+				return ;
+			_postfix_clear(root->left);
+			_postfix_clear(root->right);
+			if (MAP_DEBUG_VERBOSE)
+				std::cerr << "DEBUG: " << root->val->first << '\n' << root->val->second << std::endl;
+			_node_allocator.destroy(root);
+			_node_allocator.deallocate(root, 1);
+		}
 };
 
 }

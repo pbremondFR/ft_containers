@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/07/12 10:08:00 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/07 18:23:28 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 #include "vector.hpp"
 
-#define DEBUG_VERBOSE	false
+#define VEC_DEBUG_VERBOSE	false
 
 template < class T, class Allocator >
 ft::vector<T, Allocator>::vector(const Allocator& alloc): _allocator(alloc)
@@ -329,7 +329,7 @@ namespace std
 	template< class T, class Alloc >
 	void	swap(ft::vector<T, Alloc>& lhs, ft::vector<T, Alloc>& rhs)
 	{
-		if (DEBUG_VERBOSE)
+		if (VEC_DEBUG_VERBOSE)
 			std::cout << "DEBUG: SWAP IS SPECIALIZED (IN STD)" << std::endl;
 		lhs.swap(rhs);
 	}
