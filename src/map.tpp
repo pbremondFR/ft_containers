@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/06 18:38:47 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/07 13:30:02 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,12 @@ template <class Key, class T, class Compare, class Allocator>
 ft::pair<typename ft::map<Key, T, Compare, Allocator>::iterator, bool>
 ft::map<Key, T, Compare, Allocator>::insert(value_type const& val) // NOTE: value_type is a key/value pair!!!
 {
-	s_node	*tree = _root;
-	s_node	*prev = NULL;
+	__s_node	*tree = _root;
+	__s_node	*prev = NULL;
 	bool	go_left = false; // Avoids extra comparison
 
 	if (_root == NULL) { // No tree exists
-		_root = new s_node(val, NULL);
+		_root = new __s_node(val, NULL);
 		return (ft::make_pair(iterator(_root), true));
 	}
 	while (tree != NULL)
@@ -38,14 +38,14 @@ ft::map<Key, T, Compare, Allocator>::insert(value_type const& val) // NOTE: valu
 			go_left = false;
 		}
 		else // If two keys are equal, unable to insert
-			return (ft::make_pair(iterator(tree->val), false));
+			return (ft::make_pair(iterator(tree), false));
 	}
 	if (go_left) {
-		prev->left = new s_node(val, prev);
+		prev->left = new __s_node(val, prev);
 		return (ft::make_pair(iterator(prev->left), true));
 	}
 	else {
-		prev->right = new s_node(val, prev);
+		prev->right = new __s_node(val, prev);
 		return (ft::make_pair(iterator(prev->right), true));
 	}
 }
@@ -54,12 +54,12 @@ ft::map<Key, T, Compare, Allocator>::insert(value_type const& val) // NOTE: valu
 // ft::pair<typename ft::map<Key, T, Compare, Allocator>::iterator, bool>
 // ft::map<Key, T, Compare, Allocator>::insert(value_type const& val) // NOTE: value_type is a key/value pair!!!
 // {
-// 	optional<s_node>	tree = _root;
-// 	optional<s_node>	prev;
+// 	optional<__s_node>	tree = _root;
+// 	optional<__s_node>	prev;
 // 	bool				go_left = false; // Avoids extra comparison
 
 // 	if (!_root) { // No tree exists
-// 		_root = s_node(val, NULL);
+// 		_root = __s_node(val, NULL);
 // 		return (ft::make_pair(iterator(_root), true));
 // 	}
 // 	while (tree.has_value())
@@ -77,11 +77,11 @@ ft::map<Key, T, Compare, Allocator>::insert(value_type const& val) // NOTE: valu
 // 			return (ft::make_pair(iterator(tree->val), false));
 // 	}
 // 	if (go_left) {
-// 		prev->left = s_node(val, prev);
+// 		prev->left = __s_node(val, prev);
 // 		return (ft::make_pair(iterator(prev->left), true));
 // 	}
 // 	else {
-// 		prev->right = s_node(val, prev);
+// 		prev->right = __s_node(val, prev);
 // 		return (ft::make_pair(iterator(prev->right), true));
 // 	}
 // }

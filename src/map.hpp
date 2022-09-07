@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/06 18:38:37 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/07 15:30:37 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,23 +17,61 @@
 #include "type_traits.hpp"
 // #include "optional.hpp"
 
+// TODO: Should maybe switch all of the logic behind the RBtree to a RBtree class,
+// and derive it in there ? Same goes for its iterator...
+
+// template <
+// 	class Key,
+// 	class T,
+// 	class Compare = std::less<Key>, // TODO: ft::less ?
+// 	class Allocator = std::allocator< ft::pair<const Key, T> >
+// 		>
+// class map : public __RBtree<ft::pair<const Key, T>, Compare, Allocator >
+
+// Something like that... Except how would Compare() work ?
+// Can't use ft::pair comparison operators because they compare both first and second values.
+// Can't use default Compare() because it only uses the Key and disregards T.
+
 namespace ft
 {
 
 template <
-    class Key,
-    class T,
-    class Compare = std::less<Key>, // TODO: ft::less ?
-    class Allocator = std::allocator< ft::pair<const Key, T> >
+	class Key,
+	class T,
+	class Compare = std::less<Key>, // TODO: ft::less ?
+	class Allocator = std::allocator< ft::pair<const Key, T> >
 		>
 class map
 {
+	private:
+		struct __s_node
+		{
+			typedef typename	ft::pair<const Key, T>	value_type;
+			
+			__s_node	*parent;
+			__s_node	*left;
+			__s_node	*right;
+
+			value_type	val;
+			enum { RED, BLACK }	colour;
+
+			__s_node(value_type const& value, __s_node *_parent) : val(value),
+					parent(_parent), left(NULL), right(NULL), colour(RED) {}
+		};
+
+		__s_node	*_root;
+
 	private:
 		template <class U>
 		class __map_iterator
 		{
 			private:
-				struct s_node;
+				__s_node	*_node;
+				__s_node	*_prev;
+
+				inline void	go_left()  throw() { _prev = _node; _node = _node->left;  }
+				inline void	go_right() throw() { _prev = _node; _node = _node->right; }
+				inline void	go_up()    throw() { _prev = _node; _node = _node->up;    }
 				
 			public:
 				typedef std::bidirectional_iterator_tag	iterator_vategory;
@@ -42,7 +80,24 @@ class map
 				typedef U*								pointer;
 				typedef U&								reference;
 				
-				__map_iterator(s_node *node);
+				__map_iterator(__s_node *node = NULL) : _node(node), _prev(NULL) {} // default
+
+				inline operator __map_iterator<const U>() const { return (this->_node); }
+
+				inline reference	operator*()  const { return(_node->val);  }
+				inline pointer		operator->() const { return(&_node->val); }
+
+				reference	operator++() {
+					if (_node->right != NULL) {
+						go_right();
+						while (_node->left != NULL)
+							go_left();
+					}
+					else {
+						while (_prev != _node->left)
+							go_up();
+					}
+				}
 		};
 		
 	public:
@@ -74,8 +129,7 @@ class map
 			protected:
 				Compare		comp;
 				value_compare(Compare c) : comp(c) {}
-				bool operator()(value_type const& lhs,value_type const& rhs) const
-				{
+				inline bool operator()(value_type const& lhs,value_type const& rhs) const {
 					return (comp(lhs.first, rhs.first));
 				}
 		};
@@ -134,23 +188,23 @@ class map
 
 		key_compare		key_comp() const;
 		value_compare	value_comp() const;
-	
-	private:
-		struct s_node
-		{
-			s_node	*parent;
-			s_node	*left;
-			s_node	*right;
 
-			value_type	val;
-			enum { RED, BLACK }	colour;
-
-			s_node(value_type const& src_val, s_node *_parent) : val(src_val),
-					parent(_parent), left(NULL), right(NULL), colour(RED) {}
-		};
-
-	private:
-		s_node	*_root;
+		iterator		begin() {
+			__s_node	*target;
+			for (target = _root;
+				target != NULL && target->left != NULL;
+				target = target->left)
+				;
+			return (iterator(target));
+		}
+		const_iterator	begin() const {
+			const __s_node	*target = _root;
+			while (target != NULL && target->left != NULL)
+				target = target->left;
+			return (const_iterator(target));
+		}
+		iterator		end()		{ return (iterator(NULL)); }
+		const_iterator	end() const { return (iterator(NULL)); }
 };
 
 }

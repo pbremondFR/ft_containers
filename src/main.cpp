@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/06 18:36:36 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/07 14:27:12 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,7 +222,27 @@ int	main(void)
 	}
 	newtest();
 	{
+		std::map<int, char>	test;
+		test.insert(std::make_pair(42, 'a'));
+		std::map<int, char>::iterator it = test.begin();
+		std::cout << (*it).second << std::endl;
+		std::cout << it.operator->() << std::endl;
+		std::cout << it.operator*().first << std::endl;
+		it->second = 'b';
+		std::cout << it->second << std::endl;
+		// it->first = 'b';
+	}
+	newtest();
+	{
 		ft::map<int, char>	test;
+		// test.insert(std::make_pair(42, 'a'));
+		ft::map<int, char>::iterator it = test.begin();
+		std::cout << (*it).second << std::endl;
+		std::cout << it.operator->() << std::endl;
+		std::cout << it.operator*().first << std::endl;
+		it->second = 'b';
+		std::cout << it->second << std::endl;
+		// it->first = 'b';
 	}
 	return (0);
 }
