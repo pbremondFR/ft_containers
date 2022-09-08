@@ -6,13 +6,17 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/06 16:26:23 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/06 18:57:41 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/08 20:42:44 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include <exception>
+
+#if __cplusplus == 199711L
+# define noexcept	throw()
+#endif
 
 namespace ft
 {
@@ -22,8 +26,7 @@ namespace ft
 class bad_optional_access : public std::exception
 {
 	public:
-		bad_optional_access() throw() {}
-		virtual const char* what() const throw() { return ("bad optional access"); }
+		virtual const char* what() const noexcept { return ("bad optional access"); }
 };
 
 struct nullopt_t
@@ -31,7 +34,8 @@ struct nullopt_t
 	explicit nullopt_t(int) {}
 };
 
-const nullopt_t nullopt(0);
+const nullopt_t __nullopt(0);
+#define nullopt	__nullopt
 
 template <class T>
 class optional
@@ -46,9 +50,9 @@ class optional
 		optional(T const& src) : _hasData(true), _data(src) {}
 		optional(optional const& src) : _hasData(src._hasData), _data(src._data) {}
 
-		optional&	operator=(nullopt_t) throw() {
+		optional&	operator=(nullopt_t) noexcept {
 			if (_hasData) {
-				_data.~T(); // I don't even know how that doesn't fuck up with primitives, but it's a good thing it doesn't
+				_data.~T(); // I don't even know how that doesn't fuck up with primitives, but I'm glad thing it doesn't
 				_hasData = false;
 			}
 			return (*this);
@@ -68,31 +72,31 @@ class optional
 		}
 	
 	public:
-		operator bool() const throw() { return (_hasData); }
-		bool	has_value() const throw() { return (_hasData); }
+		inline operator bool() const noexcept { return (_hasData); }
+		inline bool	has_value() const noexcept { return (_hasData); }
 
-		T const* operator->() const throw() { return (&_data); }
-		T*		 operator->() throw()		{ return (&_data); }
-		T const& operator*() const throw()	{ return (_data); }
-		T& 		 operator*() throw()		{ return (_data); }
+		inline T const* operator->() const noexcept { return (&_data); }
+		inline T*		operator->() noexcept		{ return (&_data); }
+		inline T const& operator*() const noexcept	{ return (_data); }
+		inline T& 		operator*() noexcept		{ return (_data); }
 
-		T&			value() {
+		inline T&		value() {
 			if (_hasData)
 				return (_data);
 			else
 				throw (bad_optional_access());
 		}
-		T const&	value() const {
+		inline T const&	value() const {
 			if (_hasData)
 				return (_data);
 			else
 				throw (bad_optional_access());
 		}
 
-		T	value_or(T const& default_value) const { return (_hasData ? _data : default_value); }
+		inline T	value_or(T const& default_value) const { return (_hasData ? _data : default_value); }
 
-		void	reset() throw() { *this = ft::nullopt; }
-		void	swap(optional& src) throw() {
+		inline void	reset() noexcept { *this = ft::nullopt; }
+		inline void	swap(optional& src) noexcept {
 			optional tmp(src);
 			src = *this;
 			*this = tmp;

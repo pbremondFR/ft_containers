@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/08 18:35:11 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/08 21:37:41 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <memory>
 #include "utility.hpp"
 #include "type_traits.hpp"
+#include "optional.hpp"
 
 #define MAP_DEBUG_VERBOSE	true
 
@@ -62,9 +63,37 @@ class map
 			__s_node(__s_node const& src) : parent(src.parent), left(src.left), right(src.right),
 			val(src.val), colour(src.colour) {}
 			
-			~__s_node() {
+			~__s_node()
+			{
 				if (MAP_DEBUG_VERBOSE)
 					std::cerr << "\e[0;30;41m NODE DESTROYED \e[0m" << std::endl;
+			}
+
+			inline void		toggleColour() { colour = (colour == RED ? BLACK : RED); }
+			inline __s_node	*brother() // OK
+			{
+				if (parent == NULL)
+					return (NULL);
+				return (this == parent->left ? parent->right : parent->left);
+			}
+			inline __s_node	*uncle() // OK, or I commit sudoku
+			{
+				if (parent == NULL || parent->parent == NULL)
+					return (NULL);
+				return (parent == parent->parent->left ? parent->parent->right : parent->parent->left);
+			}
+			inline optional<__s_node*>	optbrother() // OK
+			{
+				if (parent == NULL || parent->left == NULL || parent->right == NULL)
+					return (nullopt);
+				return (this == parent->left ? parent->right : parent->left);
+			}
+			inline optional<__s_node*>	optuncle() // OK, or I commit sudoku
+			{
+				if (parent == NULL || parent->parent == NULL
+					|| parent->parent->left == NULL || parent->parent->right == NULL)
+					return (nullopt);
+				return (parent == parent->parent->left ? parent->parent->right : parent->parent->left);
 			}
 		};
 
@@ -80,7 +109,7 @@ class map
 			private:
 				__s_node	*_node;
 
-				inline void goto_start() throw() { for (; _node->left != NULL; _node = _node->left) ; }
+				inline void goto_start() throw() { for (; _node->left != NULL; _node = _node->left) ; } // OK
 				
 			public:
 				typedef std::bidirectional_iterator_tag	iterator_vategory;
@@ -89,37 +118,24 @@ class map
 				typedef U*								pointer;
 				typedef U&								reference;
 				
-				__map_iterator(__s_node *node = NULL, bool goto_begin = false) : _node(node) {
+				__map_iterator(__s_node *node = NULL, bool goto_begin = false) : _node(node)
+				{
 					if (goto_begin == true && node != NULL)
 						this->goto_start();
 				}
 
 				inline operator __map_iterator<const U>() const { return (this->_node); }
 
-				inline reference	operator*()  const { return(_node->val);  }
-				inline pointer		operator->() const { return(&_node->val); }
+				inline reference	operator*()  const { return(_node->val);  } // OK
+				inline pointer		operator->() const { return(&_node->val); } // OK
 
-				__map_iterator&	operator++()
-				{
-					if (_node->right != NULL) {
-						_node = _node->right;
-						while (_node->left != NULL) {
-							_node = _node->left;
-						}
-					}
-					else {
-						__s_node	*parent = _node->parent;
-						while (parent != NULL && _node == parent->right) {
-							_node = _node->parent;
-							parent = parent->parent;
-						}
-						_node = parent;
-					}
-					return (*this);
-				}
+				__map_iterator&	operator++(); // OK
+				__map_iterator	operator++(int); // TESTME
+				__map_iterator&	operator--(); // TESTME
+				__map_iterator	operator--(int); // TESTME
 
-				bool	operator==(__map_iterator const& rhs) { return (this->_node == rhs._node); }
-				bool	operator!=(__map_iterator const& rhs) { return (this->_node != rhs._node); }
+				inline bool	operator==(__map_iterator const& rhs) { return (this->_node == rhs._node); } // OK
+				inline bool	operator!=(__map_iterator const& rhs) { return (this->_node != rhs._node); } // OK
 		};
 		
 	public:
@@ -151,7 +167,8 @@ class map
 			protected:
 				Compare		comp;
 				value_compare(Compare c) : comp(c) {}
-				inline bool operator()(value_type const& lhs,value_type const& rhs) const {
+				inline bool operator()(value_type const& lhs,value_type const& rhs) const
+				{
 					return (comp(lhs.first, rhs.first));
 				}
 		};
@@ -172,15 +189,15 @@ class map
 		allocator_type	get_allocator() const { return (allocator_type()); }
 	
 	public:
-		T&			at(Key const& key);
-		T const&	at(Key const& key) const;
-		T&			operator[](Key const& key);
+		T&			at(Key const& key); // TESTME
+		T const&	at(Key const& key) const; // TESTME
+		T&			operator[](Key const& key); // TESTME
 
-		bool		empty() const { return (_root == NULL); }
+		bool		empty() const { return (_root == NULL); } // OK
 		size_type	size() const;
 		size_type	max_size() const { return (std::numeric_limits<difference_type>::max()); } // NOTE: Is this allowed?
 
-		void		clear();
+		void		clear(); // OK
 
 		ft::pair<iterator, bool>	insert(value_type const& val);
 		iterator					insert(iterator hint, value_type const& val);
@@ -196,9 +213,9 @@ class map
 
 		void		swap(map& src);
 
-		size_type		count(Key const& key) const;
-		iterator		find(Key const& key);
-		const_iterator	find(Key const& key) const;
+		size_type		count(Key const& key) const; // OK
+		iterator		find(Key const& key); // OK
+		const_iterator	find(Key const& key) const; // OK
 
 		std::pair<iterator,iterator>				equal_range(Key const& key);
 		std::pair<const_iterator,const_iterator>	equal_range(Key const& key) const;
@@ -208,25 +225,16 @@ class map
 		iterator		upper_bound(Key const& key);
 		const_iterator	upper_bound(Key const& key) const;
 
-		key_compare		key_comp() const;
+		key_compare		key_comp() const { return (_compare); } // OK
 		value_compare	value_comp() const;
 
-		iterator		begin()		  { return (iterator(_root, true)); }
-		const_iterator	begin() const { return (iterator(_root, true)); }
-		iterator		end()		{ return (iterator(NULL)); }
-		const_iterator	end() const { return (iterator(NULL)); }
+		inline iterator			begin()		  { return (iterator(_root, true)); } // OK
+		inline const_iterator	begin() const { return (iterator(_root, true)); } // OK
+		inline iterator			end()		{ return (iterator(NULL)); } // OK
+		inline const_iterator	end() const { return (iterator(NULL)); } // OK
 
 	private:
-		void	_postfix_clear(__s_node *root) {
-			if (root == NULL)
-				return ;
-			_postfix_clear(root->left);
-			_postfix_clear(root->right);
-			if (MAP_DEBUG_VERBOSE)
-				std::cerr << "DEBUG: " << root->val.first << '\n' << root->val.second << std::endl;
-			_allocator.destroy(root);
-			_allocator.deallocate(root, 1);
-		}
+		void	_postfix_clear(__s_node *root);
 };
 
 }
