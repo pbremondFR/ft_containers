@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/08 21:05:03 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/09 00:27:42 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,11 +45,19 @@ void	fillWithAscii(T container)
 }
 
 template < class T >
-void	printContainer(std::string const& name, T container)
+void	printContainer(std::string const& name, T const& container)
 {
 	std::cout << name << ": " << std::endl;
 	for (typename T::const_iterator itr = container.begin(); itr != container.end(); ++itr)
 		std::cout << "- " << *itr << std::endl;
+}
+
+template < class T >
+void	printMap(std::string const& name, T const& container)
+{
+	std::cout << name << ": " << std::endl;
+	for (typename T::const_iterator itr = container.begin(); itr != container.end(); ++itr)
+		std::cout << "- " << itr->first << " | " << itr->second << std::endl;
 }
 
 int	main(void)
@@ -246,13 +254,40 @@ int	main(void)
 	}
 	newtest();
 	{
-		ft::map<int, char>	test;
-		test.insert(ft::make_pair(42, 'b'));
-		test.insert(ft::make_pair(21, 'a'));
-		test.insert(ft::make_pair(84, 'c'));
+		ft::map<int, std::string>	test;
+		test.insert(ft::make_pair(30, "30"));
+		test.insert(ft::make_pair(20, "20"));
+		test.insert(ft::make_pair(70, "70"));
+		test.insert(ft::make_pair(10, "10"));
+		test.insert(ft::make_pair(50, "50"));
+		test.insert(ft::make_pair(40, "40"));
+		test.insert(ft::make_pair(60, "60"));
 		
-		for (ft::map<int, char>::iterator it = test.begin(); it != test.end(); ++it)
-			std::cout << it->first << '\t' << it->second << std::endl;
+		printMap("ft::map", test);
+	}
+	newtest();
+	{
+		ft::map<int, std::string>	test;
+		test.insert(ft::make_pair(10, "10"));
+		test.insert(ft::make_pair(5, "5"));
+		test.insert(ft::make_pair(15, "15"));
+		test.insert(ft::make_pair(2, "2"));
+		test.insert(ft::make_pair(7, "7"));
+		test.insert(ft::make_pair(6, "6"));
+		test.insert(ft::make_pair(8, "8"));
+		
+		printMap("ft::map - test", test);
+		test.debug_printByLevel();
+
+		test.debug_leftRotate(5);
+
+		printMap("ft::map - test", test);
+		test.debug_printByLevel();
+
+		test.debug_rightRotate(7);
+
+		printMap("ft::map - test", test);
+		test.debug_printByLevel();
 	}
 	return (0);
 }

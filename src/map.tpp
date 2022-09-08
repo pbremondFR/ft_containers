@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/08 21:36:33 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/09 00:47:46 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,7 @@ ft::map<Key, T, Compare, Allocator>::insert(value_type const& val) // NOTE: valu
 	if (_root == NULL) {
 		_root = _allocator.allocate(1);
 		_allocator.construct(_root, __s_node(val, NULL));
+		_root->colour = __s_node::BLACK; // NOTE: Should this be done there or in the correction later ?
 		return (ft::make_pair(iterator(_root), true));
 	}
 	while (tree != NULL)
@@ -223,13 +224,14 @@ void	ft::map<Key, T, Compare, Allocator>::_postfix_clear(__s_node *root)
 	_postfix_clear(root->left);
 	_postfix_clear(root->right);
 	if (MAP_DEBUG_VERBOSE) {
-		std::cerr << "DEBUG: _postfix_clear(): " << root->val.first << '\t' << root->val.second << std::endl;
-		if (root->optbrother().has_value()) {
-			std::cerr << "brother has value !\t" << root->optbrother().value()->val.first << std::endl;
-		}
-		else
-			std::cerr << "brother has NO value !\n";
-	}
+		std::cerr << BBLU"DEBUG: _postfix_clear(): "RESET
+			<< root->val.first << '\t' << root->val.second << std::endl;
+		// if (root->optbrother().has_value()) {
+		// 	std::cerr << "brother has value !\t" << root->optbrother().value()->val.first << std::endl;
+		// }
+		// else
+		// 	std::cerr << "brother has NO value !\n";
+	} // BUG: These brother debug options produce invalid reads. That's OK, they won't be there for long.
 	_allocator.destroy(root);
 	_allocator.deallocate(root, 1);
 }

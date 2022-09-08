@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/08 21:37:41 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/09 00:31:39 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,9 @@
 #include "utility.hpp"
 #include "type_traits.hpp"
 #include "optional.hpp"
+
+#include "ansi_color.h"
+#include <queue>
 
 #define MAP_DEBUG_VERBOSE	true
 
@@ -88,12 +91,50 @@ class map
 					return (nullopt);
 				return (this == parent->left ? parent->right : parent->left);
 			}
-			inline optional<__s_node*>	optuncle() // OK, or I commit sudoku
+			inline optional<__s_node*>	optuncle() // OK
 			{
 				if (parent == NULL || parent->parent == NULL
 					|| parent->parent->left == NULL || parent->parent->right == NULL)
 					return (nullopt);
 				return (parent == parent->parent->left ? parent->parent->right : parent->parent->left);
+			}
+
+			void	rotateLeft(__s_node **treeRoot) // TESTME
+			{ // Oh fuck it looks like it works
+				__s_node	*son = this->right;
+				if (son == NULL)
+					throw (std::logic_error("map: attempted to left-rotate with no right child"));
+				this->right = son->left;
+				if (this->right != NULL)
+					this->right->parent = this;
+				if (this->parent == NULL)
+					*treeRoot = son;
+				else if (this->parent->left == this)
+					this->parent->left = son;
+				else
+					this->parent->right = son;
+				son->parent = this->parent;
+				son->left = this;
+				this->parent = son;
+			}
+
+			void	rotateRight(__s_node **treeRoot) // TESTME
+			{ // Oh fuck it looks like it works
+				__s_node	*son = this->left;
+				if (son == NULL)
+					throw (std::logic_error("map: attempted to right-rotate with no left child"));
+				this->left = son->right;
+				if (this->left != NULL)
+					this->left->parent = this;
+				if (this->parent == NULL)
+					*treeRoot = son;
+				else if (this->parent->right == this)
+					this->parent->right = son;
+				else
+					this->parent->left = son;
+				son->parent = this->parent;
+				son->right = this;
+				this->parent = son;
 			}
 		};
 
@@ -107,6 +148,7 @@ class map
 		class __map_iterator
 		{
 			private:
+				friend class map; // KO maybe, are you SURE ? Only needed for debug for now
 				__s_node	*_node;
 
 				inline void goto_start() throw() { for (; _node->left != NULL; _node = _node->left) ; } // OK
@@ -232,6 +274,40 @@ class map
 		inline const_iterator	begin() const { return (iterator(_root, true)); } // OK
 		inline iterator			end()		{ return (iterator(NULL)); } // OK
 		inline const_iterator	end() const { return (iterator(NULL)); } // OK
+
+		void	debug_leftRotate(Key const& key)
+		{
+			iterator	target = this->find(key);
+			if (target == this->end())
+				throw (std::logic_error("DEBUG: debug_leftRotate: invalid key"));
+			std::cout << BBLU"DEBUG:"BRED" left rotate ("<<key<<')'<<RESET << std::endl;
+			target._node->rotateLeft(&_root);
+		}
+
+		void	debug_rightRotate(Key const& key)
+		{
+			iterator	target = this->find(key);
+			if (target == this->end())
+				throw (std::logic_error("DEBUG: debug_rightRotate: invalid key"));
+			std::cout << BBLU"DEBUG:"BGRN" right rotate ("<<key<<')'<<RESET << std::endl;
+			target._node->rotateRight(&_root);
+		}
+		void	debug_printByLevel()
+		{
+			std::queue<__s_node *>	queue;
+			queue.push(_root);
+			std::cout << BLUB"  "RESET BBLU"DEBUG: Print by level"RESET << std::endl;
+			while (!queue.empty())
+			{
+				std::cout << BLUB" "RESET" "
+					<< queue.front()->val.first << " | " << queue.front()->val.second << std::endl;
+				if (queue.front()->left)
+					queue.push(queue.front()->left);
+				if (queue.front()->right)
+					queue.push(queue.front()->right);
+				queue.pop();
+			}
+		}
 
 	private:
 		void	_postfix_clear(__s_node *root);
