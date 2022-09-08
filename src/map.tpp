@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/07 18:10:04 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/08 18:35:32 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,19 +39,18 @@ ft::map<Key, T, Compare, Allocator>::insert(value_type const& val) // NOTE: valu
 	bool	go_left = false; // Avoids extra Compare() call
 
 	if (_root == NULL) { // No tree exists
-		_root = _node_allocator.allocate(1);
-		_node_allocator.construct(_root, __s_node(val, NULL));
-		// _root = new __s_node(val, NULL);
+		_root = _allocator.allocate(1);
+		_allocator.construct(_root, __s_node(val, NULL));
 		return (ft::make_pair(iterator(_root), true));
 	}
 	while (tree != NULL)
 	{
 		prev = tree;
-		if (this->_compare(val.first, tree->val->first) == true) {
+		if (this->_compare(val.first, tree->val.first) == true) {
 			tree = tree->left;
 			go_left = true;
 		}
-		else if (this->_compare(tree->val->first, val.first) == true) {
+		else if (this->_compare(tree->val.first, val.first) == true) {
 			tree = tree->right;
 			go_left = false;
 		}
@@ -59,16 +58,13 @@ ft::map<Key, T, Compare, Allocator>::insert(value_type const& val) // NOTE: valu
 			return (ft::make_pair(iterator(tree), false));
 	}
 	if (go_left) {
-		prev->left = _node_allocator.allocate(1);
-		_node_allocator.construct(prev->left, __s_node(val, prev));
-		// *(prev->left) = __s_node(val, prev);
-		// prev->left = new __s_node(val, prev);
+		prev->left = _allocator.allocate(1);
+		_allocator.construct(prev->left, __s_node(val, prev));
 		return (ft::make_pair(iterator(prev->left), true));
 	}
 	else {
-		prev->right = _node_allocator.allocate(1);
-		_node_allocator.construct(prev->right, __s_node(val, prev));
-		// prev->right = new __s_node(val, prev);
+		prev->right = _allocator.allocate(1);
+		_allocator.construct(prev->right, __s_node(val, prev));
 		return (ft::make_pair(iterator(prev->right), true));
 	}
 }

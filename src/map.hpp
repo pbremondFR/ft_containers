@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/07 18:48:16 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/08 18:35:11 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 #include <memory>
 #include "utility.hpp"
 #include "type_traits.hpp"
-// #include "optional.hpp"
 
 #define MAP_DEBUG_VERBOSE	true
 
@@ -53,32 +52,26 @@ class map
 			__s_node	*parent;
 			__s_node	*left;
 			__s_node	*right;
-			Allocator	_allocator2;
 
-			value_type	*val;
+			value_type	val;
 			enum { RED, BLACK }	colour;
 
-			__s_node(value_type const& value, __s_node *_parent) : parent(_parent), left(NULL), right(NULL), colour(RED) {
-				val = _allocator2.allocate(1);
-				_allocator2.construct(val, value);
-			}
-			__s_node(__s_node const& src) : parent(src.parent), left(src.left), right(src.right), colour(src.colour) {
-				val = _allocator2.allocate(1);
-				_allocator2.construct(val, *src.val);
-			}
+			__s_node(value_type const& value, __s_node *_parent) : parent(_parent), left(NULL),
+			right(NULL), val(value), colour(RED) {}
+
+			__s_node(__s_node const& src) : parent(src.parent), left(src.left), right(src.right),
+			val(src.val), colour(src.colour) {}
+			
 			~__s_node() {
-				_allocator2.destroy(val);
-				_allocator2.deallocate(val, 1);
-				val = NULL;
 				if (MAP_DEBUG_VERBOSE)
 					std::cerr << "\e[0;30;41m NODE DESTROYED \e[0m" << std::endl;
 			}
 		};
 
+		typedef typename	Allocator::template rebind<__s_node>::other	_Alloc;
 		__s_node	*_root;
 		Compare		_compare;
-		Allocator	_allocator;
-		std::allocator<__s_node>	_node_allocator;
+		_Alloc		_allocator;
 
 	private:
 		template <class U>
@@ -103,8 +96,8 @@ class map
 
 				inline operator __map_iterator<const U>() const { return (this->_node); }
 
-				inline reference	operator*()  const { return(*_node->val);  }
-				inline pointer		operator->() const { return(_node->val); }
+				inline reference	operator*()  const { return(_node->val);  }
+				inline pointer		operator->() const { return(&_node->val); }
 
 				__map_iterator&	operator++()
 				{
@@ -230,9 +223,9 @@ class map
 			_postfix_clear(root->left);
 			_postfix_clear(root->right);
 			if (MAP_DEBUG_VERBOSE)
-				std::cerr << "DEBUG: " << root->val->first << '\n' << root->val->second << std::endl;
-			_node_allocator.destroy(root);
-			_node_allocator.deallocate(root, 1);
+				std::cerr << "DEBUG: " << root->val.first << '\n' << root->val.second << std::endl;
+			_allocator.destroy(root);
+			_allocator.deallocate(root, 1);
 		}
 };
 
