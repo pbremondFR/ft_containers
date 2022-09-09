@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/09 00:47:46 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/09 15:41:43 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,8 +107,9 @@ ft::map<Key, T, Compare, Allocator>::insert(value_type const& val) // NOTE: valu
 	if (_root == NULL) {
 		_root = _allocator.allocate(1);
 		_allocator.construct(_root, __s_node(val, NULL));
-		_root->colour = __s_node::BLACK; // NOTE: Should this be done there or in the correction later ?
-		return (ft::make_pair(iterator(_root), true));
+		// _root->colour = __s_node::BLACK; // NOTE: Should this be done there or in the correction later ?
+		// return (ft::make_pair(iterator(_root), true));
+		return (_correctInsertion(_root, iterator(_root)));
 	}
 	while (tree != NULL)
 	{
@@ -127,12 +128,14 @@ ft::map<Key, T, Compare, Allocator>::insert(value_type const& val) // NOTE: valu
 	if (go_left) {
 		prev->left = _allocator.allocate(1);
 		_allocator.construct(prev->left, __s_node(val, prev));
-		return (ft::make_pair(iterator(prev->left), true));
+		// return (ft::make_pair(iterator(prev->left), true));
+		return (_correctInsertion(prev->left, iterator(prev->left)));
 	}
 	else {
 		prev->right = _allocator.allocate(1);
 		_allocator.construct(prev->right, __s_node(val, prev));
-		return (ft::make_pair(iterator(prev->right), true));
+		// return (ft::make_pair(iterator(prev->right), true));
+		return (_correctInsertion(prev->right, iterator(prev->right)));
 	}
 }
 
@@ -184,7 +187,7 @@ ft::map<Key, T, Compare, Allocator>::find(Key const& key)
 		if (_compare(key, node->val.first) == true)
 			node = node->left;
 		else if (_compare(node->val.first, key) == true)
-			node = node->left;
+			node = node->right;
 		else
 			return (iterator(node));
 	}
@@ -202,7 +205,7 @@ ft::map<Key, T, Compare, Allocator>::find(Key const& key) const
 		if (_compare(key, node->val.first) == true)
 			node = node->left;
 		else if (_compare(node->val.first, key) == true)
-			node = node->left;
+			node = node->right;
 		else
 			return (const_iterator(node));
 	}
@@ -212,19 +215,19 @@ ft::map<Key, T, Compare, Allocator>::find(Key const& key) const
 template <class Key, class T, class Compare, class Allocator>
 void	ft::map<Key, T, Compare, Allocator>::clear(void)
 {
-	this->_postfix_clear(_root);
+	this->_postfix_dealloc(_root);
 	_root = NULL;
 }
 
 template <class Key, class T, class Compare, class Allocator>
-void	ft::map<Key, T, Compare, Allocator>::_postfix_clear(__s_node *root)
+void	ft::map<Key, T, Compare, Allocator>::_postfix_dealloc(__s_node *root)
 {
 	if (root == NULL)
 		return ;
-	_postfix_clear(root->left);
-	_postfix_clear(root->right);
+	_postfix_dealloc(root->left);
+	_postfix_dealloc(root->right);
 	if (MAP_DEBUG_VERBOSE) {
-		std::cerr << BBLU"DEBUG: _postfix_clear(): "RESET
+		std::cerr << BBLU"DEBUG: _postfix_dealloc(): "RESET
 			<< root->val.first << '\t' << root->val.second << std::endl;
 		// if (root->optbrother().has_value()) {
 		// 	std::cerr << "brother has value !\t" << root->optbrother().value()->val.first << std::endl;
@@ -234,4 +237,69 @@ void	ft::map<Key, T, Compare, Allocator>::_postfix_clear(__s_node *root)
 	} // BUG: These brother debug options produce invalid reads. That's OK, they won't be there for long.
 	_allocator.destroy(root);
 	_allocator.deallocate(root, 1);
+}
+
+template <class Key, class T, class Compare, class Allocator>
+ft::pair<typename ft::map<Key, T, Compare, Allocator>::iterator, bool>
+ft::map<Key, T, Compare, Allocator>::_correctInsertion(__s_node *node, iterator const& retval)
+{
+	std::cout << std::endl;
+	debug_printByLevel(node->val.first);
+	switch (_checkInsertValidity(node))
+	{
+		case 1:
+			std::cout << _BLU"DEBUG: insert case 1 for node " << node->val.first
+				<< " (recolor root)" << RESET << std::endl;
+
+			node->colour = __s_node::BLACK;
+			return (ft::pair<iterator, bool>(retval, true));
+		case 2:
+			std::cout << _BLU"DEBUG: insert case 2 for node " << node->val.first
+				<< " (do nothing)" << RESET << std::endl;
+
+			return (ft::pair<iterator, bool>(retval, true));
+		case 3:
+			std::cout << _BLU"DEBUG: insert case 3 for node " << node->val.first
+				<< " (recolor parent, uncle and grandparent)" << RESET << std::endl;
+
+			node->parent->colour = __s_node::BLACK;
+			node->uncle()->colour = __s_node::BLACK;
+			node->parent->parent->colour = __s_node::RED;
+			return (_correctInsertion(node->parent->parent, retval));
+		case 4:
+			std::cout << _BLU"DEBUG: insert case 4 for node " << node->val.first
+				<< " (rotations and stuff)" << RESET << std::endl;
+
+			__s_node	*grandparent = node->parent->parent;
+			if (grandparent->left->right && node == grandparent->left->right) {
+				node->parent->rotateLeft(&_root);
+				node = node->left;
+			}
+			else if (grandparent->left->right && node == grandparent->right->left) {
+				node->parent->rotateRight(&_root);
+				node = node->right;
+			}
+			grandparent = node->parent->parent;
+			if (node == node->parent->left)
+				grandparent->rotateRight(&_root);
+			else
+				grandparent->rotateLeft(&_root);
+			node->parent->colour = __s_node::BLACK;
+			grandparent->colour = __s_node::RED;
+			return (ft::pair<iterator, bool>(retval, true));
+	}
+	throw (std::logic_error("what the fuck"));
+}
+
+template <class Key, class T, class Compare, class Allocator>
+int	ft::map<Key, T, Compare, Allocator>::_checkInsertValidity(__s_node *node) const
+{
+	if (node->parent == NULL)
+		return (1);
+	else if (node->parent->colour == __s_node::BLACK)
+		return (2);
+	else if (node->uncle() != NULL && node->uncle()->colour == __s_node::RED)
+		return (3);
+	else // Uncle is black when it is NULL
+		return (4);
 }

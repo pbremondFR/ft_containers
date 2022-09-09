@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/09 00:31:39 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/09 15:13:14 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,8 +68,8 @@ class map
 			
 			~__s_node()
 			{
-				if (MAP_DEBUG_VERBOSE)
-					std::cerr << "\e[0;30;41m NODE DESTROYED \e[0m" << std::endl;
+				// if (MAP_DEBUG_VERBOSE)
+				// 	std::cerr << "\e[0;30;41m NODE DESTROYED \e[0m" << std::endl;
 			}
 
 			inline void		toggleColour() { colour = (colour == RED ? BLACK : RED); }
@@ -300,7 +300,9 @@ class map
 			while (!queue.empty())
 			{
 				std::cout << BLUB" "RESET" "
-					<< queue.front()->val.first << " | " << queue.front()->val.second << std::endl;
+					<< (queue.front()->colour == __s_node::RED ? REDB : BLKB)
+					<< queue.front()->val.first << " | " << queue.front()->val.second
+					<< RESET << std::endl;
 				if (queue.front()->left)
 					queue.push(queue.front()->left);
 				if (queue.front()->right)
@@ -308,9 +310,45 @@ class map
 				queue.pop();
 			}
 		}
+		void	debug_printByLevel(Key const& key)
+		{
+			std::queue<__s_node *>	queue;
+			queue.push(_root);
+			std::cout << BLUB"  "RESET BBLU"DEBUG: Print by level"RESET << std::endl;
+			while (!queue.empty())
+			{
+				std::cout << BLUB" "RESET" "
+					<< (queue.front()->colour == __s_node::RED ? REDB : BLKB)
+					<< queue.front()->val.first << " | " << queue.front()->val.second
+					<< RESET << (queue.front()->val.first == key ? BGRN"*"RESET : "")
+					<< std::endl;
+				if (queue.front()->left)
+					queue.push(queue.front()->left);
+				if (queue.front()->right)
+					queue.push(queue.front()->right);
+				queue.pop();
+			}
+		}
+		void	debug_printFamily(Key const& key)
+		{
+			iterator	target = this->find(key);
+			if (target == this->end())
+				throw (std::logic_error("DEBUG: debug_printFamily: invalid key"));
+			std::cout << BBLU"DEBUG: Family of node " << key << ": \n"RESET
+				// << _YEL"Parent: "RESET << target._node->parent << '\n'
+				<< _YEL"Parent: "RESET
+					<< (target._node->parent ? target._node->parent->val.first : 99999) << '\n'
+				<< _RED"Left: "RESET
+					<< (target._node->left ? target._node->left->val.first : 99999) << '\n'
+				<< _GRN"Right: "RESET
+					<< (target._node->right ? target._node->right->val.first : 99999) << std::endl;
+				// << _GRN"Right: "RESET << target._node->right << std::endl;
+		}
 
 	private:
-		void	_postfix_clear(__s_node *root);
+		void	_postfix_dealloc(__s_node *root);
+		int		_checkInsertValidity(__s_node *node) const;
+		ft::pair<iterator, bool>	_correctInsertion(__s_node *node, iterator const& retval);
 };
 
 }
