@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/07 18:23:28 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/09 18:36:57 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ ft::vector<T, Allocator>::vector(InputIt first,
 								 typename enable_if< !is_fundamental<InputIt>::value, int >::type)
 : _allocator(alloc)
 {
-	_init_size = std::distance(first, last);
+	_init_size = std::distance(first, last); // FIXME: Input iterator is invalidated after this call
 	_capacity = _init_size;
 	_size = _init_size;
 	_array = _allocator.allocate(_init_size);
@@ -114,7 +114,7 @@ typename ft::enable_if
 >::type
 ft::vector<T, Allocator>::assign(InputIt first, InputIt last)
 {
-	difference_type	newSize = std::distance<InputIt>(first, last);
+	difference_type	newSize = std::distance<InputIt>(first, last); // FIXME
 	size_type		i = 0;
 
 	if (static_cast<size_type>(newSize) > _capacity)
@@ -216,7 +216,7 @@ typename ft::enable_if
 >::type
 ft::vector<T, Allocator>::insert(iterator pos, InputIt first, InputIt last)
 {
-	difference_type	count = std::distance(first, last);
+	difference_type	count = std::distance(first, last); // FIXME
 
 	if (_size + count > _capacity)
 	{
@@ -249,7 +249,7 @@ typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iter
 template < class T, class Allocator >
 typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iterator first, iterator last)
 {
-	_size -= std::distance(first, last);
+	_size -= ft::distance(first, last);
 	for (iterator it = first; it != last; ++it)
 		_allocator.destroy(it.operator->());
 	std::memmove(first.operator->(), last.operator->(),

@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/09 15:13:14 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/09 20:11:06 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,12 @@
 #include "utility.hpp"
 #include "type_traits.hpp"
 #include "optional.hpp"
+#include "reverse_iterator.hpp"
 
 #include "ansi_color.h"
 #include <queue>
 
-#define MAP_DEBUG_VERBOSE	true
+#define MAP_DEBUG_VERBOSE	false
 
 // TODO: Should maybe switch all of the logic behind the RBtree to a RBtree class,
 // and derive it in there ? Same goes for its iterator...
@@ -216,8 +217,7 @@ class map
 		};
 		
 	public:
-		explicit map(Compare const& comp = Compare(),
-					 Allocator const& alloc = Allocator()) : _root(NULL), _compare(comp), _allocator(alloc) {}
+		explicit map(Compare const& comp = Compare(), Allocator const& alloc = Allocator());
 		template<class InputIt>
 		map(InputIt first, InputIt last,
 			Compare const& comp = Compare(),
@@ -226,9 +226,9 @@ class map
 		map(map const& src);
 		~map() { this->clear(); }
 
-		map&	operator=(map const& src);
+		map&	operator=(map const& src); // TODO
 		
-		allocator_type	get_allocator() const { return (allocator_type()); }
+		allocator_type	get_allocator() const { return (_allocator); }
 	
 	public:
 		T&			at(Key const& key); // TESTME
@@ -242,7 +242,7 @@ class map
 		void		clear(); // OK
 
 		ft::pair<iterator, bool>	insert(value_type const& val);
-		iterator					insert(iterator hint, value_type const& val);
+		iterator					insert(iterator hint, value_type const& val); // TODO
 		template<class InputIt>
 		typename ft::enable_if <
 			!ft::is_fundamental<InputIt>::value,
@@ -275,80 +275,25 @@ class map
 		inline iterator			end()		{ return (iterator(NULL)); } // OK
 		inline const_iterator	end() const { return (iterator(NULL)); } // OK
 
-		void	debug_leftRotate(Key const& key)
-		{
-			iterator	target = this->find(key);
-			if (target == this->end())
-				throw (std::logic_error("DEBUG: debug_leftRotate: invalid key"));
-			std::cout << BBLU"DEBUG:"BRED" left rotate ("<<key<<')'<<RESET << std::endl;
-			target._node->rotateLeft(&_root);
-		}
-
-		void	debug_rightRotate(Key const& key)
-		{
-			iterator	target = this->find(key);
-			if (target == this->end())
-				throw (std::logic_error("DEBUG: debug_rightRotate: invalid key"));
-			std::cout << BBLU"DEBUG:"BGRN" right rotate ("<<key<<')'<<RESET << std::endl;
-			target._node->rotateRight(&_root);
-		}
-		void	debug_printByLevel()
-		{
-			std::queue<__s_node *>	queue;
-			queue.push(_root);
-			std::cout << BLUB"  "RESET BBLU"DEBUG: Print by level"RESET << std::endl;
-			while (!queue.empty())
-			{
-				std::cout << BLUB" "RESET" "
-					<< (queue.front()->colour == __s_node::RED ? REDB : BLKB)
-					<< queue.front()->val.first << " | " << queue.front()->val.second
-					<< RESET << std::endl;
-				if (queue.front()->left)
-					queue.push(queue.front()->left);
-				if (queue.front()->right)
-					queue.push(queue.front()->right);
-				queue.pop();
-			}
-		}
-		void	debug_printByLevel(Key const& key)
-		{
-			std::queue<__s_node *>	queue;
-			queue.push(_root);
-			std::cout << BLUB"  "RESET BBLU"DEBUG: Print by level"RESET << std::endl;
-			while (!queue.empty())
-			{
-				std::cout << BLUB" "RESET" "
-					<< (queue.front()->colour == __s_node::RED ? REDB : BLKB)
-					<< queue.front()->val.first << " | " << queue.front()->val.second
-					<< RESET << (queue.front()->val.first == key ? BGRN"*"RESET : "")
-					<< std::endl;
-				if (queue.front()->left)
-					queue.push(queue.front()->left);
-				if (queue.front()->right)
-					queue.push(queue.front()->right);
-				queue.pop();
-			}
-		}
-		void	debug_printFamily(Key const& key)
-		{
-			iterator	target = this->find(key);
-			if (target == this->end())
-				throw (std::logic_error("DEBUG: debug_printFamily: invalid key"));
-			std::cout << BBLU"DEBUG: Family of node " << key << ": \n"RESET
-				// << _YEL"Parent: "RESET << target._node->parent << '\n'
-				<< _YEL"Parent: "RESET
-					<< (target._node->parent ? target._node->parent->val.first : 99999) << '\n'
-				<< _RED"Left: "RESET
-					<< (target._node->left ? target._node->left->val.first : 99999) << '\n'
-				<< _GRN"Right: "RESET
-					<< (target._node->right ? target._node->right->val.first : 99999) << std::endl;
-				// << _GRN"Right: "RESET << target._node->right << std::endl;
-		}
+	#if MAP_DEBUG_VERBOSE == true
+		void	debug_leftRotate(Key const& key);	
+		void	debug_rightRotate(Key const& key);
+		void	debug_printByLevel() const;
+		void	debug_printByLevel(Key const& key) const;
+		void	debug_printFamily(Key const& key) const;
+	#endif
 
 	private:
 		void	_postfix_dealloc(__s_node *root);
 		int		_checkInsertValidity(__s_node *node) const;
 		ft::pair<iterator, bool>	_correctInsertion(__s_node *node, iterator const& retval);
+		void	_correctInsertion_rotate(__s_node *node);
+		enum _e_correctAction {
+			CORRECT_ROOT,
+			CORRECT_NOTHING,
+			CORRECT_COLOR,
+			CORRECT_ROTATE
+		};
 };
 
 }

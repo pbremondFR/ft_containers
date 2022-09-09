@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 19:27:37 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/22 22:48:51 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/09 19:10:54 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 
 // #include <memory>
 #include <stddef.h>
+#include "iterator_traits.hpp"
+#include "ansi_color.h"
 
 namespace ft
 {
@@ -63,18 +65,31 @@ struct iterator
 	typedef _Pointer	pointer;
 	typedef _Reference	reference;
 	typedef _Category	iterator_category;
-
-	// iterator(pointer ptr) : _ptr(ptr) {};
-
-	// reference	operator*() const	{ return (*_ptr); };
-	// pointer		operator->()		{ return (_ptr);  };
-	// iterator	&operator++()		{ return (*(++_ptr));						  };
-	// iterator	operator++(int)		{ iterator tmp = *this; ++_ptr; return (tmp); };
-	// bool		operator==(const iterator& rhs) { return (_ptr == rhs._ptr); };
-	// bool		operator!=(const iterator& rhs) { return (_ptr != rhs._ptr); };
-
-	// private:
-	// 	pointer*	_ptr;
 };
+ 
+template<class It>
+static typename ft::iterator_traits<It>::difference_type 
+do_distance(It first, It last, ::std::input_iterator_tag)
+{
+    typename ft::iterator_traits<It>::difference_type retval = 0;
+
+    for (; first != last; ++first, ++retval)
+		;
+    return (retval);
+}
+ 
+template<class It>
+static typename ft::iterator_traits<It>::difference_type 
+    do_distance(It first, It last, ::std::random_access_iterator_tag)
+{
+    return (last - first);
+}
+ 
+template<class It>
+typename ft::iterator_traits<It>::difference_type 
+    distance(It first, It last)
+{
+    return do_distance(first, last, typename std::iterator_traits<It>::iterator_category());
+}
 
 }

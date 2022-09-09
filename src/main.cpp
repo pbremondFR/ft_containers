@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/09 15:42:54 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/09 20:10:26 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,6 +183,19 @@ int	main(void)
 	newtest();
 	try
 	{
+		NAMESP::vector<char>	test1(10, 'o');
+		NAMESP::vector<char>	test2(test1);
+
+		test1.erase(test1.begin() + 1, test1.end() - 1);
+		printContainer("test1", test1);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "Exception caught: " << e.what() << std::endl;
+	}
+	newtest();
+	try
+	{
 		NAMESP::pair<int, char>		pair1('a', 'a');
 		NAMESP::pair<int, char>		pair2(pair1);
 		
@@ -217,7 +230,7 @@ int	main(void)
 		std::cout << "Has value: " << opt.has_value() << std::endl;
 	}
 	newtest();
-	{
+	{ // Just random tests, not needed by subject
 		ft::optional<std::string*>	opt = new std::string("Hello world");
 		std::cout << "Has value: " << opt.has_value() << std::endl;
 		if (opt)
@@ -230,9 +243,9 @@ int	main(void)
 	}
 	newtest();
 	{
-		std::map<int, char>	test;
-		test.insert(std::make_pair(42, 'a'));
-		std::map<int, char>::iterator it = test.begin();
+		NAMESP::map<int, char>	test;
+		test.insert(NAMESP::make_pair(42, 'a'));
+		NAMESP::map<int, char>::iterator it = test.begin();
 		std::cout << (*it).second << std::endl;
 		std::cout << it.operator->() << std::endl;
 		std::cout << it.operator*().first << std::endl;
@@ -242,70 +255,77 @@ int	main(void)
 	}
 	newtest();
 	{
-		ft::map<int, char>	test;
-		test.insert(ft::make_pair(42, 'a'));
-		ft::map<int, char>::iterator it = test.begin();
-		std::cout << (*it).second << std::endl;
-		std::cout << it.operator->() << std::endl;
-		std::cout << it.operator*().first << std::endl;
-		it->second = 'b';
-		std::cout << it->second << std::endl;
-		// it->first = 'b';
+		NAMESP::map<int, std::string>	test;
+		test.insert(NAMESP::make_pair(30, "30"));
+		test.insert(NAMESP::make_pair(20, "20"));
+		test.insert(NAMESP::make_pair(70, "70"));
+		test.insert(NAMESP::make_pair(10, "10"));
+		test.insert(NAMESP::make_pair(50, "50"));
+		test.insert(NAMESP::make_pair(40, "40"));
+		test.insert(NAMESP::make_pair(60, "60"));
+		
+		printMap("map", test);
 	}
 	newtest();
 	{
-		ft::map<int, std::string>	test;
-		test.insert(ft::make_pair(30, "30"));
-		test.insert(ft::make_pair(20, "20"));
-		test.insert(ft::make_pair(70, "70"));
-		test.insert(ft::make_pair(10, "10"));
-		test.insert(ft::make_pair(50, "50"));
-		test.insert(ft::make_pair(40, "40"));
-		test.insert(ft::make_pair(60, "60"));
+		NAMESP::map<int, std::string>	test;
+		test.insert(NAMESP::make_pair(10, "10"));
+		test.insert(NAMESP::make_pair(5, "5"));
+		test.insert(NAMESP::make_pair(15, "15"));
+		test.insert(NAMESP::make_pair(2, "2"));
+		test.insert(NAMESP::make_pair(7, "7"));
+		test.insert(NAMESP::make_pair(6, "6"));
+		test.insert(NAMESP::make_pair(8, "8"));
 		
-		printMap("ft::map", test);
+		printMap("map - test", test);
+		// test.debug_printByLevel();
+
+		// test.debug_leftRotate(5);
+
+		printMap("map - test", test);
+		// test.debug_printByLevel();
+
+		// test.debug_rightRotate(7);
+
+		printMap("map - test", test);
+		// test.debug_printByLevel();
 	}
 	newtest();
 	{
-		ft::map<int, std::string>	test;
-		test.insert(ft::make_pair(10, "10"));
-		test.insert(ft::make_pair(5, "5"));
-		test.insert(ft::make_pair(15, "15"));
-		test.insert(ft::make_pair(2, "2"));
-		test.insert(ft::make_pair(7, "7"));
-		test.insert(ft::make_pair(6, "6"));
-		test.insert(ft::make_pair(8, "8"));
+		NAMESP::map<int, std::string>	test;
+		test.insert(NAMESP::make_pair(10, "10"));
+		test.insert(NAMESP::make_pair(5, "5"));
+		test.insert(NAMESP::make_pair(15, "15"));
+		test.insert(NAMESP::make_pair(2, "2"));
+		test.insert(NAMESP::make_pair(7, "7"));
+		test.insert(NAMESP::make_pair(6, "6"));
+		test.insert(NAMESP::make_pair(8, "8"));
+		test.insert(NAMESP::make_pair(1, "1"));
+		test.insert(NAMESP::make_pair(0, "0"));
 		
-		printMap("ft::map - test", test);
-		test.debug_printByLevel();
-
-		test.debug_leftRotate(5);
-
-		printMap("ft::map - test", test);
-		test.debug_printByLevel();
-
-		test.debug_rightRotate(7);
-
-		printMap("ft::map - test", test);
-		test.debug_printByLevel();
+		printMap("map - test", test);
+		// test.debug_printByLevel();
+		// test.debug_printFamily(10);
+		// test.debug_printFamily(15);
 	}
 	newtest();
 	{
-		ft::map<int, std::string>	test;
-		test.insert(ft::make_pair(10, "10"));
-		test.insert(ft::make_pair(5, "5"));
-		test.insert(ft::make_pair(15, "15"));
-		test.insert(ft::make_pair(2, "2"));
-		test.insert(ft::make_pair(7, "7"));
-		test.insert(ft::make_pair(6, "6"));
-		test.insert(ft::make_pair(8, "8"));
-		test.insert(ft::make_pair(1, "1"));
-		test.insert(ft::make_pair(0, "0"));
+		NAMESP::map<int, std::string>	test;
+		test.insert(NAMESP::make_pair(10, "10"));
+		test.insert(NAMESP::make_pair(5, "5"));
+		test.insert(NAMESP::make_pair(15, "15"));
+		test.insert(NAMESP::make_pair(2, "2"));
+		test.insert(NAMESP::make_pair(7, "7"));
+		test.insert(NAMESP::make_pair(6, "6"));
+		test.insert(NAMESP::make_pair(8, "8"));
+		test.insert(NAMESP::make_pair(1, "1"));
+		printMap("map - test", test);
+		std::cout << test.insert(test.find(1), ft::make_pair(0, "0"))->first << std::endl;
 		
-		printMap("ft::map - test", test);
-		test.debug_printByLevel();
-		test.debug_printFamily(10);
-		test.debug_printFamily(15);
+		printMap("map - test", test);
+		// test.debug_printByLevel();
+		// test.debug_printFamily(10);
+		// test.debug_printFamily(15);
 	}
 	return (0);
 }
