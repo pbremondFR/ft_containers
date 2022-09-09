@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 19:27:37 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/09 19:10:54 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/09 20:48:50 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ template<class It>
 typename ft::iterator_traits<It>::difference_type 
     distance(It first, It last)
 {
-    return do_distance(first, last, typename std::iterator_traits<It>::iterator_category());
+    return do_distance(first, last, typename ft::iterator_traits<It>::iterator_category());
 }
 
 }

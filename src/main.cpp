@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/09 20:10:26 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/09 21:00:52 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -326,6 +326,14 @@ int	main(void)
 		// test.debug_printByLevel();
 		// test.debug_printFamily(10);
 		// test.debug_printFamily(15);
+	}
+	newtest();
+	{
+		NAMESP::map<int, int>	test;
+		test.insert(NAMESP::make_pair(1, 1));
+		test.insert(NAMESP::make_pair(2, 2));
+		test.insert(NAMESP::make_pair(3, 3));
+		printMap("map - test", test);
 	}
 	return (0);
 }

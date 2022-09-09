@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/09 20:09:23 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/09 21:41:13 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 template <class Key, class T, class Compare, class Allocator>
 template <class U>
 typename ft::map<Key, T, Compare, Allocator>::template __map_iterator<U>&
-ft::map<Key, T, Compare, Allocator>::__map_iterator<U>::operator++()
+	ft::map<Key, T, Compare, Allocator>::__map_iterator<U>::operator++()
 {
 	if (_node->right != NULL)
 	{
@@ -44,7 +44,7 @@ ft::map<Key, T, Compare, Allocator>::__map_iterator<U>::operator++()
 template <class Key, class T, class Compare, class Allocator>
 template <class U>
 typename ft::map<Key, T, Compare, Allocator>::template __map_iterator<U>
-ft::map<Key, T, Compare, Allocator>::__map_iterator<U>::operator++(int)
+	ft::map<Key, T, Compare, Allocator>::__map_iterator<U>::operator++(int)
 {
 	__map_iterator<U>	tmp(*this);
 	this->operator++();
@@ -54,7 +54,7 @@ ft::map<Key, T, Compare, Allocator>::__map_iterator<U>::operator++(int)
 template <class Key, class T, class Compare, class Allocator>
 template <class U>
 typename ft::map<Key, T, Compare, Allocator>::template __map_iterator<U>&
-ft::map<Key, T, Compare, Allocator>::__map_iterator<U>::operator--()
+	ft::map<Key, T, Compare, Allocator>::__map_iterator<U>::operator--()
 {
 	if (_node->left != NULL)
 	{
@@ -77,7 +77,7 @@ ft::map<Key, T, Compare, Allocator>::__map_iterator<U>::operator--()
 template <class Key, class T, class Compare, class Allocator>
 template <class U>
 typename ft::map<Key, T, Compare, Allocator>::template __map_iterator<U>
-ft::map<Key, T, Compare, Allocator>::__map_iterator<U>::operator--(int)
+	ft::map<Key, T, Compare, Allocator>::__map_iterator<U>::operator--(int)
 {
 	__map_iterator<U>	tmp(*this);
 	this->operator--();
@@ -116,8 +116,18 @@ ft::map<Key, T, Compare, Allocator>::map(map const& src) : _root(NULL), _compare
 }
 
 template <class Key, class T, class Compare, class Allocator>
+ft::map<Key, T, Compare, Allocator>&
+	ft::map<Key, T, Compare, Allocator>::operator=(map const& src)
+{
+	this->clear();
+	this->_allocator = src._allocator;
+	this->_compare = src._compare;
+	this->insert(src.begin(), src.end());
+}
+
+template <class Key, class T, class Compare, class Allocator>
 ft::pair<typename ft::map<Key, T, Compare, Allocator>::iterator, bool>
-ft::map<Key, T, Compare, Allocator>::insert(value_type const& val) // NOTE: value_type is a key/value pair!!!
+	ft::map<Key, T, Compare, Allocator>::insert(value_type const& val) // NOTE: value_type is a key/value pair!!!
 {
 	__s_node	*tree = _root;
 	__s_node	*prev = NULL;
@@ -183,12 +193,29 @@ typename ft::enable_if
 	!ft::is_fundamental<InputIt>::value,
 	void
 >::type
-ft::map<Key, T, Compare, Allocator>::insert(InputIt first, InputIt last)
+	ft::map<Key, T, Compare, Allocator>::insert(InputIt first, InputIt last)
 {
 	for (; first != last; ++first)
 	{
 		this->insert(*first);
 	}
+}
+
+template <class Key, class T, class Compare, class Allocator>
+void	ft::map<Key, T, Compare, Allocator>::swap(map& other)
+{
+	__s_node	*tmpRoot = other._root;
+	_Alloc		tmpAlloc = other._allocator;
+	Compare		tmpComp = other._compare;
+
+	other._root = this->_root;
+	this->_root = tmpRoot;
+
+	other._allocator = this->_allocator;
+	this->_allocator = tmpAlloc;
+
+	other._compare = this->_compare;
+	this->_compare = tmpComp;
 }
 
 template <class Key, class T, class Compare, class Allocator>
@@ -223,14 +250,14 @@ T&	ft::map<Key, T, Compare, Allocator>::operator[](Key const& key)
 
 template <class Key, class T, class Compare, class Allocator>
 typename ft::map<Key, T, Compare, Allocator>::size_type
-ft::map<Key, T, Compare, Allocator>::count(Key const& key) const
+	ft::map<Key, T, Compare, Allocator>::count(Key const& key) const
 {
 	return (this->find(key) == this->end() ? 0 : 1);
 }
 
 template <class Key, class T, class Compare, class Allocator>
 typename ft::map<Key, T, Compare, Allocator>::iterator
-ft::map<Key, T, Compare, Allocator>::find(Key const& key)
+	ft::map<Key, T, Compare, Allocator>::find(Key const& key)
 {
 	__s_node	*node = _root;
 
@@ -248,7 +275,7 @@ ft::map<Key, T, Compare, Allocator>::find(Key const& key)
 
 template <class Key, class T, class Compare, class Allocator>
 typename ft::map<Key, T, Compare, Allocator>::const_iterator
-ft::map<Key, T, Compare, Allocator>::find(Key const& key) const
+	ft::map<Key, T, Compare, Allocator>::find(Key const& key) const
 {
 	__s_node	*node = _root;
 
@@ -269,6 +296,50 @@ void	ft::map<Key, T, Compare, Allocator>::clear(void)
 {
 	this->_postfix_dealloc(_root);
 	_root = NULL;
+}
+
+template <class Key, class T, class Compare, class Allocator>
+typename ft::map<Key, T, Compare, Allocator>::iterator
+	ft::map<Key, T, Compare, Allocator>::lower_bound(Key const& key)
+{
+	for (iterator it = this->begin(); it != this->end(); ++it) {
+		if (_compare(it->first, key) == false)
+			return (it);
+	}
+	return (this->end());
+}
+
+template <class Key, class T, class Compare, class Allocator>
+typename ft::map<Key, T, Compare, Allocator>::const_iterator
+	ft::map<Key, T, Compare, Allocator>::lower_bound(Key const& key) const
+{
+	for (const_iterator it = this->begin(); it != this->end(); ++it) {
+		if (_compare(it->first, key) == false)
+			return (it);
+	}
+	return (this->end());
+}
+
+template <class Key, class T, class Compare, class Allocator>
+typename ft::map<Key, T, Compare, Allocator>::iterator
+	ft::map<Key, T, Compare, Allocator>::upper_bound(Key const& key)
+{
+	for (iterator it = this->begin(); it != this->end(); ++it) {
+		if (_compare(key, it->first) == true)
+			return (it);
+	}
+	return (this->end());
+}
+
+template <class Key, class T, class Compare, class Allocator>
+typename ft::map<Key, T, Compare, Allocator>::const_iterator
+	ft::map<Key, T, Compare, Allocator>::upper_bound(Key const& key) const
+{
+	for (const_iterator it = this->begin(); it != this->end(); ++it) {
+		if (_compare(key, it->first) == true)
+			return (it);
+	}
+	return (this->end());
 }
 
 // ============================================================================================== //
@@ -356,11 +427,13 @@ void	ft::map<Key, T, Compare, Allocator>::_correctInsertion_rotate(__s_node *nod
 {
 	__s_node	*grandparent = node->parent->parent;
 
-	if (grandparent->left->right && node == grandparent->left->right) {
+	if (grandparent->left && grandparent->left->right
+		&& node == grandparent->left->right) {
 		node->parent->rotateLeft(&_root);
 		node = node->left;
 	}
-	else if (grandparent->left->right && node == grandparent->right->left) {
+	else if (grandparent->right && grandparent->right->left
+		&& node == grandparent->right->left) {
 		node->parent->rotateRight(&_root);
 		node = node->right;
 	}

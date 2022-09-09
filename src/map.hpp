@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/09 20:11:06 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/09 21:43:44 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ class map
 			}
 
 			void	rotateLeft(__s_node **treeRoot) // TESTME
-			{ // Oh fuck it looks like it works
+			{
 				__s_node	*son = this->right;
 				if (son == NULL)
 					throw (std::logic_error("map: attempted to left-rotate with no right child"));
@@ -120,7 +120,7 @@ class map
 			}
 
 			void	rotateRight(__s_node **treeRoot) // TESTME
-			{ // Oh fuck it looks like it works
+			{
 				__s_node	*son = this->left;
 				if (son == NULL)
 					throw (std::logic_error("map: attempted to right-rotate with no left child"));
@@ -149,13 +149,13 @@ class map
 		class __map_iterator
 		{
 			private:
-				friend class map; // KO maybe, are you SURE ? Only needed for debug for now
+				friend class map; // KO maybe, are you SURE ?
 				__s_node	*_node;
 
 				inline void goto_start() throw() { for (; _node->left != NULL; _node = _node->left) ; } // OK
 				
 			public:
-				typedef std::bidirectional_iterator_tag	iterator_vategory;
+				typedef std::bidirectional_iterator_tag	iterator_category;
 				typedef ptrdiff_t						difference_type;
 				typedef U								value_type;
 				typedef U*								pointer;
@@ -217,18 +217,18 @@ class map
 		};
 		
 	public:
-		explicit map(Compare const& comp = Compare(), Allocator const& alloc = Allocator());
+		explicit map(Compare const& comp = Compare(), Allocator const& alloc = Allocator()); // OK
 		template<class InputIt>
 		map(InputIt first, InputIt last,
 			Compare const& comp = Compare(),
 			Allocator const& alloc = Allocator(),
-			typename enable_if< !is_fundamental<InputIt>::value, int >::type = 0);
-		map(map const& src);
-		~map() { this->clear(); }
+			typename enable_if< !is_fundamental<InputIt>::value, int >::type = 0); // TESTME
+		map(map const& src); // TESTME
+		~map() { this->clear(); } // OK
 
-		map&	operator=(map const& src); // TODO
+		map&	operator=(map const& src); // TESTME
 		
-		allocator_type	get_allocator() const { return (_allocator); }
+		allocator_type	get_allocator() const { return (_allocator); } // OK
 	
 	public:
 		T&			at(Key const& key); // TESTME
@@ -236,39 +236,46 @@ class map
 		T&			operator[](Key const& key); // TESTME
 
 		bool		empty() const { return (_root == NULL); } // OK
-		size_type	size() const;
-		size_type	max_size() const { return (std::numeric_limits<difference_type>::max()); } // NOTE: Is this allowed?
+		size_type	size() const { return std::distance(this->begin(), this->end()); }
+		// NOTE: Why the FUCK do I have to divide it by 20 to match std::map ???
+		size_type	max_size() const { return (std::numeric_limits<difference_type>::max() / 20); } // NOTE: Is this allowed?
 
 		void		clear(); // OK
 
-		ft::pair<iterator, bool>	insert(value_type const& val);
-		iterator					insert(iterator hint, value_type const& val); // TODO
+		ft::pair<iterator, bool>	insert(value_type const& val); // TESTME
+		iterator					insert(iterator hint, value_type const& val); // TESTME
 		template<class InputIt>
 		typename ft::enable_if <
 			!ft::is_fundamental<InputIt>::value,
 			void
-		>::type						insert(InputIt first, InputIt last);
+		>::type						insert(InputIt first, InputIt last); // TESTME
 
-		void		erase(iterator pos);
-		void		erase(iterator first, iterator last);
-		size_type	erase(Key const& key);
+		void		erase(iterator pos); // TODO
+		void		erase(iterator first, iterator last); // TODO
+		size_type	erase(Key const& key); // TODO
 
-		void		swap(map& src);
+		void		swap(map& src); // TESTME
 
 		size_type		count(Key const& key) const; // OK
 		iterator		find(Key const& key); // OK
 		const_iterator	find(Key const& key) const; // OK
 
-		std::pair<iterator,iterator>				equal_range(Key const& key);
-		std::pair<const_iterator,const_iterator>	equal_range(Key const& key) const;
+		ft::pair<iterator,iterator>				equal_range(Key const& key) // TESTME
+		{
+			return (make_pair(lower_bound(key), upper_bound(key)));
+		}
+		ft::pair<const_iterator,const_iterator>	equal_range(Key const& key) const // TESTME
+		{
+			return (make_pair(lower_bound(key), upper_bound(key)));
+		}
 
-		iterator		lower_bound(Key const& key);
-		const_iterator	lower_bound(Key const& key) const;
-		iterator		upper_bound(Key const& key);
-		const_iterator	upper_bound(Key const& key) const;
+		iterator		lower_bound(Key const& key); // TESTME
+		const_iterator	lower_bound(Key const& key) const; // TESTME
+		iterator		upper_bound(Key const& key); // TESTME
+		const_iterator	upper_bound(Key const& key) const; // TESTME
 
 		key_compare		key_comp() const { return (_compare); } // OK
-		value_compare	value_comp() const;
+		value_compare	value_comp() const; // TODO
 
 		inline iterator			begin()		  { return (iterator(_root, true)); } // OK
 		inline const_iterator	begin() const { return (iterator(_root, true)); } // OK
