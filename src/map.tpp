@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/09 21:41:13 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/09 22:15:35 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,10 @@ template <class U>
 typename ft::map<Key, T, Compare, Allocator>::template __map_iterator<U>&
 	ft::map<Key, T, Compare, Allocator>::__map_iterator<U>::operator--()
 {
+	if (_node == NULL) {
+		_node = _root;
+		this->goto_start();
+	}
 	if (_node->left != NULL)
 	{
 		_node = _node->left;
@@ -109,7 +113,7 @@ template <class Key, class T, class Compare, class Allocator>
 ft::map<Key, T, Compare, Allocator>::map(map const& src) : _root(NULL), _compare(src._compare),
 	_allocator(src._allocator)
 {
-	for (map::iterator it = src.begin(); it != src.end(); ++it)
+	for (map::const_iterator it = src.begin(); it != src.end(); ++it)
 	{
 		this->insert(*it);
 	}
@@ -123,6 +127,7 @@ ft::map<Key, T, Compare, Allocator>&
 	this->_allocator = src._allocator;
 	this->_compare = src._compare;
 	this->insert(src.begin(), src.end());
+	return (*this);
 }
 
 template <class Key, class T, class Compare, class Allocator>
@@ -223,7 +228,7 @@ T&	ft::map<Key, T, Compare, Allocator>::at(Key const& key)
 {
 	iterator	target = this->find(key);
 	if (target != this->end())
-		return (target.second);
+		return (target->second);
 	else
 		throw (std::out_of_range("map::at: key not found"));
 }
@@ -233,7 +238,7 @@ T const&	ft::map<Key, T, Compare, Allocator>::at(Key const& key) const
 {
 	const_iterator	target = this->find(key);
 	if (target != this->end())
-		return (target.second);
+		return (target->second);
 	else
 		throw (std::out_of_range("map::at: key not found"));
 }
@@ -243,9 +248,9 @@ T&	ft::map<Key, T, Compare, Allocator>::operator[](Key const& key)
 {
 	iterator	target = this->find(key);
 	if (target != this->end())
-		return (target.second);
+		return (target->second);
 	else
-		return (this->insert(key, T()).first->second);
+		return (this->insert(ft::make_pair(key, T())).first->second);
 }
 
 template <class Key, class T, class Compare, class Allocator>

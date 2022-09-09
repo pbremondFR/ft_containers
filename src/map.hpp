@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/09 21:43:44 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/09 22:17:51 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,13 @@
 // Something like that... Except how would Compare() work ?
 // Can't use ft::pair comparison operators because they compare both first and second values.
 // Can't use default Compare() because it only uses the Key and disregards T.
+
+namespace _ft_impl
+{
+
+// TODO: Move iterator, maybe node too, here
+
+}
 
 namespace ft
 {
@@ -206,14 +213,14 @@ class map
 				using typename std::binary_function<value_type, value_type, bool>::result_type;
 				using typename std::binary_function<value_type, value_type, bool>::first_argument_type;
 				using typename std::binary_function<value_type, value_type, bool>::second_argument_type;
-
-			protected:
-				Compare		comp;
-				value_compare(Compare c) : comp(c) {}
 				inline bool operator()(value_type const& lhs,value_type const& rhs) const
 				{
 					return (comp(lhs.first, rhs.first));
 				}
+
+			protected:
+				Compare		comp;
+				value_compare(Compare c) : comp(c) {}
 		};
 		
 	public:
@@ -275,7 +282,7 @@ class map
 		const_iterator	upper_bound(Key const& key) const; // TESTME
 
 		key_compare		key_comp() const { return (_compare); } // OK
-		value_compare	value_comp() const; // TODO
+		value_compare	value_comp() const { return (value_compare(_compare)); } // TESTME
 
 		inline iterator			begin()		  { return (iterator(_root, true)); } // OK
 		inline const_iterator	begin() const { return (iterator(_root, true)); } // OK
