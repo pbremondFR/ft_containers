@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/11 16:59:44 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/11 17:56:51 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,14 +90,14 @@ typename ft::map<Key, T, Compare, Allocator>::template __map_iterator<U>
 
 template <class Key, class T, class Compare, class Allocator>
 ft::map<Key, T, Compare, Allocator>::map(Compare const& comp, Allocator const& alloc)
-	: _root(NULL), _compare(comp), _allocator(alloc)
+	: _compare(comp), _allocator(alloc), _endLeaf(_allocator.allocate(1)), _root(_endLeaf)
 {
-	_endLeaf = _allocator.allocate(1); // No need to construct object, just initialize pointers and color
+	// _endLeaf = _allocator.allocate(1); // No need to construct object, just initialize pointers and color
 	_endLeaf->colour = __s_node::BLACK;
 	_endLeaf->parent = NULL;
 	_endLeaf->left = NULL;
 	_endLeaf->right = NULL;
-	_root = _endLeaf; // Maybe this is the solution to avoid ugly size checking with begin() ?
+	// _root = _endLeaf; // Maybe this is the solution to avoid ugly size checking with begin() ?
 					  // Since I'd need to return end() with size 0...
 }
 
@@ -107,15 +107,23 @@ ft::map<Key, T, Compare, Allocator>::map(InputIt first, InputIt last,
 										 Compare const& comp,
 										 Allocator const& alloc,
 										 typename enable_if< !is_fundamental<InputIt>::value, int >::type)
-	: _root(NULL), _compare(comp), _allocator(alloc)
+	: _compare(comp), _allocator(alloc), _endLeaf(_allocator.allocate(1)), _root(_endLeaf)
 {
+	_endLeaf->colour = __s_node::BLACK;
+	_endLeaf->parent = NULL;
+	_endLeaf->left = NULL;
+	_endLeaf->right = NULL;
 	this->insert(first, last);
 }
 
 template <class Key, class T, class Compare, class Allocator>
-ft::map<Key, T, Compare, Allocator>::map(map const& src) : _root(NULL), _compare(src._compare),
-	_allocator(src._allocator)
+ft::map<Key, T, Compare, Allocator>::map(map const& src)
+	: _compare(src._compare), _allocator(src._allocator), _endLeaf(_allocator.allocate(1)), _root(_endLeaf)
 {
+	_endLeaf->colour = __s_node::BLACK;
+	_endLeaf->parent = NULL;
+	_endLeaf->left = NULL;
+	_endLeaf->right = NULL;
 	for (map::const_iterator it = src.begin(); it != src.end(); ++it)
 	{
 		this->insert(*it);
@@ -179,19 +187,27 @@ template <class Key, class T, class Compare, class Allocator>
 typename ft::map<Key, T, Compare, Allocator>::iterator
 	ft::map<Key, T, Compare, Allocator>::insert(iterator hint, value_type const& val)
 {
-	if (_compare(val.first, hint->first) == true && hint._node->left == NULL)
+	__s_node	*hintedNode = hint._node;
+
+	if (hint == this->end() || hintedNode->parent == NULL)
+		return (this->insert(val).first);
+	else if (_compare(val.first, hint->first) == true
+		&& _compare(val.first, hintedNode->parent->val.first) == false
+		&& hintedNode->left == NULL)
 	{
-		hint._node->left = _allocator.allocate(1);
-		_allocator.construct(hint._node->left, __s_node(val, hint._node));
-		return (_correctInsertion(hint._node->left, hint._node->left).first);
+		hintedNode->left = _allocator.allocate(1);
+		_allocator.construct(hintedNode->left, __s_node(val, hintedNode));
+		return (_correctInsertion(hintedNode->left, hintedNode->left).first);
 	}
-	else if (_compare(hint->first, val.first) == true && hint._node->right == NULL)
+	else if (_compare(hint->first, val.first) == true
+		&& _compare(hintedNode->parent->val.first, val.first) == false
+		&& (hintedNode->right == NULL || hintedNode->right == _endLeaf))
 	{
-		hint._node->right = _allocator.allocate(1);
-		_allocator.construct(hint._node->right, __s_node(val, hint._node));
-		if (hint._node == _endLeaf)
-			_repositionEndLeaf(hint._node);
-		return (_correctInsertion(hint._node->right, hint._node->right).first);
+		hintedNode->right = _allocator.allocate(1);
+		_allocator.construct(hintedNode->right, __s_node(val, hintedNode));
+		if (_endLeaf->parent == hintedNode)
+			_repositionEndLeaf(hintedNode->right);
+		return (_correctInsertion(hintedNode->right, hintedNode->right).first);
 	}
 	else
 		return (this->insert(val).first);

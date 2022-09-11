@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/11 17:04:12 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/11 17:06:35 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -335,6 +335,14 @@ int	main(void)
 				_GRN"PASSED: begin() == end()"RESET
 				: _RED"FAILED: begin() != end()"RESET)
 			<< std::endl;
+	}
+	newtest();
+	{
+		NAMESP::map<int, int>	test;
+		test.insert(NAMESP::make_pair(42, 42));
+		NAMESP::map<int, int>::iterator	it = test.end();
+		it--;
+		std::cout << it->first << " | " << it->second << std::endl;
 	}
 	return (0);
 }

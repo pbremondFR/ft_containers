@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/11 16:55:13 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/11 18:04:47 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,28 +22,6 @@
 #include <queue>
 
 #define MAP_DEBUG_VERBOSE	false
-
-// TODO: Should maybe switch all of the logic behind the RBtree to a RBtree class,
-// and derive it in there ? Same goes for its iterator...
-
-// template <
-// 	class Key,
-// 	class T,
-// 	class Compare = std::less<Key>, // TODO: ft::less ?
-// 	class Allocator = std::allocator< ft::pair<const Key, T> >
-// 		>
-// class map : public __RBtree<ft::pair<const Key, T>, Compare, Allocator >
-
-// Something like that... Except how would Compare() work ?
-// Can't use ft::pair comparison operators because they compare both first and second values.
-// Can't use default Compare() because it only uses the Key and disregards T.
-
-namespace _ft_impl
-{
-
-// TODO: Move iterator, maybe node too, here
-
-}
 
 namespace ft
 {
@@ -109,7 +87,7 @@ class map
 				return (parent == parent->parent->left ? parent->parent->right : parent->parent->left);
 			}
 
-			void	rotateLeft(__s_node **treeRoot) // TESTME
+			void	rotateLeft(__s_node **treeRoot) // OK
 			{
 				__s_node	*son = this->right;
 				if (son == NULL)
@@ -128,7 +106,7 @@ class map
 				this->parent = son;
 			}
 
-			void	rotateRight(__s_node **treeRoot) // TESTME
+			void	rotateRight(__s_node **treeRoot) // OK
 			{
 				__s_node	*son = this->left;
 				if (son == NULL)
@@ -149,10 +127,10 @@ class map
 		};
 
 		typedef typename	Allocator::template rebind<__s_node>::other	_Alloc;
-		__s_node	*_root;
 		Compare		_compare;
 		_Alloc		_allocator;
 		__s_node	*_endLeaf;
+		__s_node	*_root;
 
 	private:
 		template <class U>
@@ -173,7 +151,7 @@ class map
 				{
 					for (; _node->right != NULL; _node = _node->right) ;
 					return *this;
-				} // TESTME
+				} // OK
 				
 			public:
 				typedef std::bidirectional_iterator_tag	iterator_category;
@@ -193,10 +171,10 @@ class map
 				inline reference	operator*()  const { return(_node->val);  } // OK
 				inline pointer		operator->() const { return(&_node->val); } // OK
 
-				__map_iterator&	operator++(); // TESTME
-				__map_iterator	operator++(int); // TESTME
-				__map_iterator&	operator--(); // TESTME
-				__map_iterator	operator--(int); // TESTME
+				__map_iterator&	operator++(); // OK
+				__map_iterator	operator++(int); // OK
+				__map_iterator&	operator--(); // OK
+				__map_iterator	operator--(int); // OK
 
 				inline bool	operator==(__map_iterator const& rhs) { return (this->_node == rhs._node); } // OK
 				inline bool	operator!=(__map_iterator const& rhs) { return (this->_node != rhs._node); } // OK
@@ -243,65 +221,64 @@ class map
 		map(InputIt first, InputIt last,
 			Compare const& comp = Compare(),
 			Allocator const& alloc = Allocator(),
-			typename enable_if< !is_fundamental<InputIt>::value, int >::type = 0); // TESTME
-		map(map const& src); // TESTME
+			typename enable_if< !is_fundamental<InputIt>::value, int >::type = 0); // OK
+		map(map const& src); // OK
 		~map() { this->clear(); _allocator.deallocate(_endLeaf, 1); } // OK
 
-		map&	operator=(map const& src); // TESTME
+		map&	operator=(map const& src); // OK
 		
 		allocator_type	get_allocator() const { return (_allocator); } // OK
 	
 	public:
-		T&			at(Key const& key); // TESTME
-		T const&	at(Key const& key) const; // TESTME
-		T&			operator[](Key const& key); // TESTME
+		T&			at(Key const& key); // OK
+		T const&	at(Key const& key) const; // OK
+		T&			operator[](Key const& key); // OK
 
-		bool		empty() const { return (_root == NULL); } // OK
-		size_type	size() const { return ft::distance(this->begin(), this->end()); }
-		// NOTE: Why the FUCK do I have to divide it by 20 to match std::map ???
-		size_type	max_size() const { return (std::numeric_limits<difference_type>::max() / 20); } // NOTE: Is this allowed?
+		bool		empty() const { return (_root == _endLeaf); } // OK
+		size_type	size() const { return ft::distance(this->begin(), this->end()); } // FIXME: Inefficient as hell
+		size_type	max_size() const { return (_allocator.max_size()); } // OK
 
 		void		clear(); // OK
 
-		ft::pair<iterator, bool>	insert(value_type const& val); // TESTME
-		iterator					insert(iterator hint, value_type const& val); // TESTME
+		ft::pair<iterator, bool>	insert(value_type const& val); // OK
+		iterator					insert(iterator hint, value_type const& val); // OK
 		template<class InputIt>
 		typename ft::enable_if <
 			!ft::is_fundamental<InputIt>::value,
 			void
-		>::type						insert(InputIt first, InputIt last); // TESTME
+		>::type						insert(InputIt first, InputIt last); // OK
 
 		void		erase(iterator pos); // TODO
 		void		erase(iterator first, iterator last); // TODO
 		size_type	erase(Key const& key); // TODO
 
-		void		swap(map& src); // TESTME
+		void		swap(map& src); // OK
 
 		size_type		count(Key const& key) const; // OK
 		iterator		find(Key const& key); // OK
 		const_iterator	find(Key const& key) const; // OK
 
-		ft::pair<iterator,iterator>				equal_range(Key const& key) // TESTME
+		ft::pair<iterator,iterator>				equal_range(Key const& key) // OK
 		{
 			return (make_pair(lower_bound(key), upper_bound(key)));
 		}
-		ft::pair<const_iterator,const_iterator>	equal_range(Key const& key) const // TESTME
+		ft::pair<const_iterator,const_iterator>	equal_range(Key const& key) const // OK
 		{
 			return (make_pair(lower_bound(key), upper_bound(key)));
 		}
 
-		iterator		lower_bound(Key const& key); // TESTME
-		const_iterator	lower_bound(Key const& key) const; // TESTME
-		iterator		upper_bound(Key const& key); // TESTME
-		const_iterator	upper_bound(Key const& key) const; // TESTME
+		iterator		lower_bound(Key const& key); // OK
+		const_iterator	lower_bound(Key const& key) const; // OK
+		iterator		upper_bound(Key const& key); // OK
+		const_iterator	upper_bound(Key const& key) const; // OK
 
 		key_compare		key_comp() const { return (_compare); } // OK
-		value_compare	value_comp() const { return (value_compare(_compare)); } // TESTME
+		value_compare	value_comp() const { return (value_compare(_compare)); } // OK
 
-		inline iterator			begin()		  { return (iterator(_root).goto_begin()); } // TODO
-		inline const_iterator	begin() const { return (iterator(_root).goto_begin()); } // TODO
-		inline iterator			end()		{ return (iterator(_endLeaf)); } // TODO
-		inline const_iterator	end() const { return (iterator(_endLeaf)); } // TODO
+		inline iterator			begin()		  { return (iterator(_root).goto_begin()); } // OK
+		inline const_iterator	begin() const { return (iterator(_root).goto_begin()); } // OK
+		inline iterator			end()		{ return (iterator(_endLeaf)); } // OK
+		inline const_iterator	end() const { return (iterator(_endLeaf)); } // OK
 
 	#if MAP_DEBUG_VERBOSE == true
 		void	debug_leftRotate(Key const& key);	
