@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 19:27:37 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/11 18:56:51 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/11 21:35:10 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,11 +82,14 @@ template<class BidirIt>
 static void	_do_advance(BidirIt& it, typename iterator_traits<BidirIt>::difference_type n,
 						std::bidirectional_iterator_tag)
 {
-	while (n-- > 0)
-		++it;
-	
-	while (n++ < 0)
-		--it;
+	while (n > 0) {
+        --n;
+        ++it;
+    }
+    while (n < 0) {
+        ++n;
+        --it;
+    }
 }
  
 template<class RandomIt>
@@ -110,7 +113,7 @@ void advance(It& it, Distance n)
 template<class BidirIt>
 BidirIt	prev(BidirIt it, typename iterator_traits<BidirIt>::difference_type n = 1)
 {
-    advance(it, -n);
+    std::advance(it, -n);
     return it;
 }
 

@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/11 21:11:40 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/11 21:26:59 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,8 +194,8 @@ class map
 		typedef	typename	Allocator::const_pointer				const_pointer;
 		typedef 			__map_iterator<value_type>				iterator;
 		typedef 			__map_iterator<const value_type>		const_iterator;
-		typedef typename	std::reverse_iterator<iterator>			reverse_iterator;
-		typedef typename	std::reverse_iterator<const_iterator>	const_reverse_iterator;
+		typedef typename	ft::reverse_iterator<iterator>			reverse_iterator;
+		typedef typename	ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 
 		class value_compare : public std::binary_function<value_type, value_type, bool>
 		{ // TODO: ft::binary_function ?
