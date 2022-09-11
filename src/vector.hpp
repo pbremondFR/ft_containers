@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2022/07/12 11:15:21 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/11 19:44:44 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,15 +81,15 @@ class vector
 		void		reserve(size_type new_cap);
 		size_type	capacity()	const { return (_capacity);				};
 
-		inline const_iterator	begin() const { return (const_iterator(_itrBegin)); };
-		inline iterator			begin()		  { return (_itrBegin); };
-		inline const_iterator	end() const { return (const_iterator(_itrEnd)); };
-		inline iterator			end()	    { return (_itrEnd); };
+		inline iterator			begin()		  { return _itrBegin; };
+		inline const_iterator	begin() const { return const_iterator(_itrBegin); };
+		inline iterator			end()	    { return _itrEnd; };
+		inline const_iterator	end() const { return const_iterator(_itrEnd); };
 
-		inline const_reverse_iterator	rbegin() const { return (const_reverse_iterator(_array + _size)); };
-		inline reverse_iterator			rbegin()	   { return (_array + _size); };
-		inline const_reverse_iterator	rend() const { return (const_reverse_iterator(_array)); };
-		inline reverse_iterator			rend()	     { return (_array); };
+		inline reverse_iterator			rbegin()	   { return reverse_iterator(end()); };
+		inline const_reverse_iterator	rbegin() const { return reverse_iterator(end()); };
+		inline reverse_iterator			rend()	     { return reverse_iterator(begin()); };
+		inline const_reverse_iterator	rend() const { return reverse_iterator(begin()); };
 
 		void		clear();
 		iterator	insert(iterator pos, const T& value);

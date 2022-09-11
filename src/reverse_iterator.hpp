@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/28 05:19:12 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/29 09:21:53 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/11 19:58:54 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,17 +49,16 @@ class reverse_iterator
 		using typename	base_t::pointer;
 		using typename	base_t::reference;
 
-		reverse_iterator(pointer ptr = NULL) : _itCurrent(ptr) {};
-		explicit reverse_iterator(iterator_type src) : _itCurrent(src) {};
+		explicit reverse_iterator(iterator_type src = iterator_type()) : _itCurrent(src) {};
 		reverse_iterator(reverse_iterator const& src) : _itCurrent(src._itCurrent) {};
 		template <class Iter>
 		reverse_iterator(reverse_iterator<Iter> const& src) : _itCurrent(src.base()) {};
 
 		iterator_type	base() const { return (_itCurrent); }
 		
-		reference	operator* () const { return (*(_itCurrent - 1)); }
+		reference	operator* () const { return (*prev(_itCurrent)); }
 		pointer		operator->() const { return (&(operator*()));    }
-		reference	operator[](difference_type n) const { return (*(_itCurrent - 1 - n)); }
+		reference	operator[](difference_type n) const { return (*prev(_itCurrent, n + 1)); }
 		
 		this_type&	operator++()	{ --_itCurrent; return (*this);						 };
 		this_type	operator++(int)	{ this_type tmp = *this; --_itCurrent; return (tmp); };
@@ -68,6 +67,10 @@ class reverse_iterator
 
 		this_type	operator+(difference_type n) const { return (this_type(_itCurrent - n)); }
 		this_type	operator-(difference_type n) const { return (this_type(_itCurrent + n)); }
+		// NOTE: Commented out just for now. It might not be necessary to have these operators
+		// changed as they are only required by random access ?
+		// this_type	operator+(difference_type n) const { this_type tmp(_itCurrent); advance(tmp, -n); return tmp; }
+		// this_type	operator-(difference_type n) const { this_type tmp(_itCurrent); advance(tmp, n ); return tmp; }
 
 		this_type&	operator+=(difference_type n) { _itCurrent -= n; return (*this); }
 		this_type&	operator-=(difference_type n) { _itCurrent += n; return (*this); }
