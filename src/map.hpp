@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/11 18:04:47 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/11 21:11:40 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,8 +194,8 @@ class map
 		typedef	typename	Allocator::const_pointer				const_pointer;
 		typedef 			__map_iterator<value_type>				iterator;
 		typedef 			__map_iterator<const value_type>		const_iterator;
-		typedef typename	ft::reverse_iterator<iterator>			reverse_iterator;
-		typedef typename	ft::reverse_iterator<const_iterator>	const_reverse_iterator;
+		typedef typename	std::reverse_iterator<iterator>			reverse_iterator;
+		typedef typename	std::reverse_iterator<const_iterator>	const_reverse_iterator;
 
 		class value_compare : public std::binary_function<value_type, value_type, bool>
 		{ // TODO: ft::binary_function ?
@@ -279,6 +279,11 @@ class map
 		inline const_iterator	begin() const { return (iterator(_root).goto_begin()); } // OK
 		inline iterator			end()		{ return (iterator(_endLeaf)); } // OK
 		inline const_iterator	end() const { return (iterator(_endLeaf)); } // OK
+
+		inline reverse_iterator			rbegin()	   { return reverse_iterator(end()); }
+		inline const_reverse_iterator	rbegin() const { return reverse_iterator(end()); }
+		inline reverse_iterator			rend()		 { return reverse_iterator(begin()); }
+		inline const_reverse_iterator	rend() const { return reverse_iterator(begin()); }
 
 	#if MAP_DEBUG_VERBOSE == true
 		void	debug_leftRotate(Key const& key);	
