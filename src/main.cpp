@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/09 21:00:52 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/11 17:04:12 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -330,10 +330,11 @@ int	main(void)
 	newtest();
 	{
 		NAMESP::map<int, int>	test;
-		test.insert(NAMESP::make_pair(1, 1));
-		test.insert(NAMESP::make_pair(2, 2));
-		test.insert(NAMESP::make_pair(3, 3));
-		printMap("map - test", test);
+		std::cout << "With size 0, expecting begin() == end()\n"
+			<< (test.begin() == test.end() ?
+				_GRN"PASSED: begin() == end()"RESET
+				: _RED"FAILED: begin() != end()"RESET)
+			<< std::endl;
 	}
 	return (0);
 }

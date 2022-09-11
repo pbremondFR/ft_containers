@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/09 22:17:51 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/11 16:55:13 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,8 @@ class map
 
 			value_type	val;
 			enum { RED, BLACK }	colour;
+
+			__s_node() : parent(NULL), left(NULL), right(NULL), val(value_type()), colour(BLACK) {}
 
 			__s_node(value_type const& value, __s_node *_parent) : parent(_parent), left(NULL),
 			right(NULL), val(value), colour(RED) {}
@@ -150,6 +152,7 @@ class map
 		__s_node	*_root;
 		Compare		_compare;
 		_Alloc		_allocator;
+		__s_node	*_endLeaf;
 
 	private:
 		template <class U>
@@ -157,9 +160,20 @@ class map
 		{
 			private:
 				friend class map; // KO maybe, are you SURE ?
+				typedef __map_iterator<U>	self;
+				
 				__s_node	*_node;
 
-				inline void goto_start() throw() { for (; _node->left != NULL; _node = _node->left) ; } // OK
+				inline self& goto_begin()
+				{
+					for (; _node->left != NULL; _node = _node->left) ;
+					return *this;
+				} // OK
+				inline self& goto_end()
+				{
+					for (; _node->right != NULL; _node = _node->right) ;
+					return *this;
+				} // TESTME
 				
 			public:
 				typedef std::bidirectional_iterator_tag	iterator_category;
@@ -171,7 +185,7 @@ class map
 				__map_iterator(__s_node *node = NULL, bool goto_begin = false) : _node(node)
 				{
 					if (goto_begin == true && node != NULL)
-						this->goto_start();
+						this->goto_begin();
 				}
 
 				inline operator __map_iterator<const U>() const { return (this->_node); }
@@ -179,7 +193,7 @@ class map
 				inline reference	operator*()  const { return(_node->val);  } // OK
 				inline pointer		operator->() const { return(&_node->val); } // OK
 
-				__map_iterator&	operator++(); // OK
+				__map_iterator&	operator++(); // TESTME
 				__map_iterator	operator++(int); // TESTME
 				__map_iterator&	operator--(); // TESTME
 				__map_iterator	operator--(int); // TESTME
@@ -231,7 +245,7 @@ class map
 			Allocator const& alloc = Allocator(),
 			typename enable_if< !is_fundamental<InputIt>::value, int >::type = 0); // TESTME
 		map(map const& src); // TESTME
-		~map() { this->clear(); } // OK
+		~map() { this->clear(); _allocator.deallocate(_endLeaf, 1); } // OK
 
 		map&	operator=(map const& src); // TESTME
 		
@@ -243,7 +257,7 @@ class map
 		T&			operator[](Key const& key); // TESTME
 
 		bool		empty() const { return (_root == NULL); } // OK
-		size_type	size() const { return std::distance(this->begin(), this->end()); }
+		size_type	size() const { return ft::distance(this->begin(), this->end()); }
 		// NOTE: Why the FUCK do I have to divide it by 20 to match std::map ???
 		size_type	max_size() const { return (std::numeric_limits<difference_type>::max() / 20); } // NOTE: Is this allowed?
 
@@ -284,10 +298,10 @@ class map
 		key_compare		key_comp() const { return (_compare); } // OK
 		value_compare	value_comp() const { return (value_compare(_compare)); } // TESTME
 
-		inline iterator			begin()		  { return (iterator(_root, true)); } // OK
-		inline const_iterator	begin() const { return (iterator(_root, true)); } // OK
-		inline iterator			end()		{ return (iterator(NULL)); } // OK
-		inline const_iterator	end() const { return (iterator(NULL)); } // OK
+		inline iterator			begin()		  { return (iterator(_root).goto_begin()); } // TODO
+		inline const_iterator	begin() const { return (iterator(_root).goto_begin()); } // TODO
+		inline iterator			end()		{ return (iterator(_endLeaf)); } // TODO
+		inline const_iterator	end() const { return (iterator(_endLeaf)); } // TODO
 
 	#if MAP_DEBUG_VERBOSE == true
 		void	debug_leftRotate(Key const& key);	
@@ -308,6 +322,11 @@ class map
 			CORRECT_COLOR,
 			CORRECT_ROTATE
 		};
+		void	_repositionEndLeaf(__s_node *newNode)
+		{
+			newNode->right = _endLeaf;
+			_endLeaf->parent = newNode;
+		}
 };
 
 }
