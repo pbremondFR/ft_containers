@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/11 21:26:59 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/12 18:02:14 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "type_traits.hpp"
 #include "optional.hpp"
 #include "reverse_iterator.hpp"
+#include "algorithm.hpp"
 
 #include "ansi_color.h"
 #include <queue>
@@ -54,11 +55,7 @@ class map
 			__s_node(__s_node const& src) : parent(src.parent), left(src.left), right(src.right),
 			val(src.val), colour(src.colour) {}
 			
-			~__s_node()
-			{
-				// if (MAP_DEBUG_VERBOSE)
-				// 	std::cerr << "\e[0;30;41m NODE DESTROYED \e[0m" << std::endl;
-			}
+			~__s_node() {}
 
 			inline void		toggleColour() { colour = (colour == RED ? BLACK : RED); }
 			inline __s_node	*brother() // OK
@@ -126,13 +123,6 @@ class map
 			}
 		};
 
-		typedef typename	Allocator::template rebind<__s_node>::other	_Alloc;
-		Compare		_compare;
-		_Alloc		_allocator;
-		__s_node	*_endLeaf;
-		__s_node	*_root;
-
-	private:
 		template <class U>
 		class __map_iterator
 		{
@@ -179,7 +169,16 @@ class map
 				inline bool	operator==(__map_iterator const& rhs) { return (this->_node == rhs._node); } // OK
 				inline bool	operator!=(__map_iterator const& rhs) { return (this->_node != rhs._node); } // OK
 		};
-		
+
+	private:
+		typedef typename	Allocator::template rebind<__s_node>::other	_Alloc;
+		Compare		_compare;
+		_Alloc		_allocator;
+		__s_node	*_endLeaf;
+		__s_node	*_root;
+
+		static std::ostream&	logstream; // Defined in map.tpp
+
 	public:
 		typedef				Key										key_type;
 		typedef				T										mapped_type;
@@ -310,6 +309,51 @@ class map
 			_endLeaf->parent = newNode;
 		}
 };
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator==(const ft::map<Key,T,Compare,Alloc>& lhs,
+				const ft::map<Key,T,Compare,Alloc>& rhs)
+{
+	// TODO: size() optimisation so it doesn't call god damned ft::distance every time
+	// if (lhs.size() != rhs.size())
+	// 	return (false);
+	return (ft::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
+}
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator!=(const ft::map<Key,T,Compare,Alloc>& lhs,
+				const ft::map<Key,T,Compare,Alloc>& rhs)
+{
+	return (!(lhs == rhs));
+}
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator< (const ft::map<Key,T,Compare,Alloc>& lhs,
+				const ft::map<Key,T,Compare,Alloc>& rhs)
+{
+	return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
+}
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator> (const ft::map<Key,T,Compare,Alloc>& lhs,
+				const ft::map<Key,T,Compare,Alloc>& rhs)
+{
+	return (rhs < lhs);
+}
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator<=(const ft::map<Key,T,Compare,Alloc>& lhs,
+				const ft::map<Key,T,Compare,Alloc>& rhs)
+{
+	return (!(rhs < lhs));
+}
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator>=(const ft::map<Key,T,Compare,Alloc>& lhs,
+				const ft::map<Key,T,Compare,Alloc>& rhs)
+{
+	return (!(lhs < rhs));
+}
 
 }
 
