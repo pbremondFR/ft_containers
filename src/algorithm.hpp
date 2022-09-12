@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 22:45:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/06 13:31:21 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/12 17:53:01 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ bool	equal(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2)
 	for (; first1 != last1 && first2 != last2; ++first1, ++first2)
 		if (*first1 != *first2)
 			return (false);
-	return (true);
+	return (first1 == last1 && first2 == last2);
 }
 
 template < class InputIt1, class InputIt2, class BinaryPredicate >
