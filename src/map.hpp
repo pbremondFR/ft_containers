@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/12 18:02:14 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/14 17:46:25 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ class map
 			__s_node	*right;
 
 			value_type	val;
-			enum { RED, BLACK }	colour;
+			enum e_colour { RED, BLACK }	colour;
 
 			__s_node() : parent(NULL), left(NULL), right(NULL), val(value_type()), colour(BLACK) {}
 
@@ -70,19 +70,7 @@ class map
 					return (NULL);
 				return (parent == parent->parent->left ? parent->parent->right : parent->parent->left);
 			}
-			inline optional<__s_node*>	optbrother() // OK
-			{
-				if (parent == NULL || parent->left == NULL || parent->right == NULL)
-					return (nullopt);
-				return (this == parent->left ? parent->right : parent->left);
-			}
-			inline optional<__s_node*>	optuncle() // OK
-			{
-				if (parent == NULL || parent->parent == NULL
-					|| parent->parent->left == NULL || parent->parent->right == NULL)
-					return (nullopt);
-				return (parent == parent->parent->left ? parent->parent->right : parent->parent->left);
-			}
+			inline bool	isLeftChild() { return (parent != NULL && this == parent->left); }
 
 			void	rotateLeft(__s_node **treeRoot) // OK
 			{
@@ -279,10 +267,10 @@ class map
 		inline iterator			end()		{ return (iterator(_endLeaf)); } // OK
 		inline const_iterator	end() const { return (iterator(_endLeaf)); } // OK
 
-		inline reverse_iterator			rbegin()	   { return reverse_iterator(end()); }
-		inline const_reverse_iterator	rbegin() const { return reverse_iterator(end()); }
-		inline reverse_iterator			rend()		 { return reverse_iterator(begin()); }
-		inline const_reverse_iterator	rend() const { return reverse_iterator(begin()); }
+		inline reverse_iterator			rbegin()	   { return reverse_iterator(end()); } // OK
+		inline const_reverse_iterator	rbegin() const { return reverse_iterator(end()); } // OK
+		inline reverse_iterator			rend()		 { return reverse_iterator(begin()); } // OK
+		inline const_reverse_iterator	rend() const { return reverse_iterator(begin()); } // OK
 
 	#if MAP_DEBUG_VERBOSE == true
 		void	debug_leftRotate(Key const& key);	
@@ -303,10 +291,32 @@ class map
 			CORRECT_COLOR,
 			CORRECT_ROTATE
 		};
-		void	_repositionEndLeaf(__s_node *newNode)
+		inline void	_repositionEndLeaf(__s_node *newNode)
 		{
 			newNode->right = _endLeaf;
 			_endLeaf->parent = newNode;
+		}
+		// NOTE: Leafs are considered to be NULL nodes or the _endLeaf marker
+		inline bool	_isLeaf(__s_node *node) const { return (node == NULL || node == _endLeaf); }
+		inline typename __s_node::e_colour	_getColour(__s_node *node) const
+		{
+			return (_isLeaf(node) ? __s_node::BLACK : node->colour);
+		}
+		// NOTE: Must NOT be called if node has more than one child!!!
+		void	_removeNodeWithSingleChild(__s_node *toDelete, __s_node *child = NULL)
+		{
+			if (child == NULL)
+				child = (_isLeaf(toDelete->left) ? toDelete->right : toDelete->left);
+			__s_node	*parent = toDelete->parent;
+			child->parent = parent;
+			if (parent != NULL) {
+				if (parent->left == toDelete)
+					parent->left = child;
+				else
+					parent->right = child;
+			}
+			_allocator.destroy(toDelete);
+			_allocator.deallocate(toDelete, 1);
 		}
 };
 

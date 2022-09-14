@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/12 17:59:32 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/14 17:42:47 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,8 @@ template <class U>
 typename ft::map<Key, T, Compare, Allocator>::template __map_iterator<U>&
 	ft::map<Key, T, Compare, Allocator>::__map_iterator<U>::operator++()
 {
-	if (_node->right != NULL) // NOTE: No need to edit this behaviour for end leaf, because end()++ is undefined
-	{ // If there is a right child
+	if (_node->right != NULL) // NOTE: Keep it like this. It allows to get to end leaf
+	{
 		_node = _node->right;
 		while (_node->left != NULL)
 			_node = _node->left;
@@ -155,7 +155,7 @@ ft::pair<typename ft::map<Key, T, Compare, Allocator>::iterator, bool>
 		_repositionEndLeaf(_root);
 		return (_correctInsertion(_root, iterator(_root)));
 	}
-	while (tree != NULL && tree != _endLeaf)
+	while (!_isLeaf(tree))
 	{
 		prev = tree;
 		if (this->_compare(val.first, tree->val.first) == true) {
@@ -193,7 +193,7 @@ typename ft::map<Key, T, Compare, Allocator>::iterator
 		return (this->insert(val).first);
 	else if (_compare(val.first, hint->first) == true
 		&& _compare(val.first, hintedNode->parent->val.first) == false
-		&& hintedNode->left == NULL)
+		&& _isLeaf(hintedNode->left))
 	{
 		hintedNode->left = _allocator.allocate(1);
 		_allocator.construct(hintedNode->left, __s_node(val, hintedNode));
@@ -201,7 +201,7 @@ typename ft::map<Key, T, Compare, Allocator>::iterator
 	}
 	else if (_compare(hint->first, val.first) == true
 		&& _compare(hintedNode->parent->val.first, val.first) == false
-		&& (hintedNode->right == NULL || hintedNode->right == _endLeaf))
+		&& _isLeaf(hintedNode->right))
 	{
 		hintedNode->right = _allocator.allocate(1);
 		_allocator.construct(hintedNode->right, __s_node(val, hintedNode));
@@ -225,6 +225,45 @@ typename ft::enable_if
 	for (; first != last; ++first)
 	{
 		this->insert(*first);
+	}
+}
+
+template <class Key, class T, class Compare, class Allocator>
+void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
+{
+	__s_node	*node = pos._node;
+
+	if (!_isLeaf(node->left) && !_isLeaf(node->right))
+	{
+		__s_node	*src = node->right;
+		while (!_isLeaf(src->left)) // Get the direct in-order successor
+			src = src->left;
+		*node = *src;
+		node = src;
+	}
+	__s_node	*child = _isLeaf(node->left) ? node->right : node->left;
+	if (_isLeaf(child)) // No children
+	{
+		__s_node **parentLink = (node == node->parent->left ? &node->parent->left : &node->parent->right);
+		if (node->right == _endLeaf)
+			_repositionEndLeaf(node->parent);
+		else
+			*parentLink = NULL;
+		_allocator.destroy(node);
+		_allocator.deallocate(node, 1);
+	}
+	else if (_getColour(node) == __s_node::RED)
+	{
+		_removeNodeWithSingleChild(node, child);
+	}
+	else if (_getColour(node) == __s_node::BLACK && _getColour(child) == __s_node::RED)
+	{
+		child->colour = __s_node::BLACK;
+		_removeNodeWithSingleChild(node, child);
+	}
+	else // node AND its child are black. fuck.
+	{
+		;
 	}
 }
 
@@ -379,7 +418,7 @@ typename ft::map<Key, T, Compare, Allocator>::const_iterator
 template <class Key, class T, class Compare, class Allocator>
 void	ft::map<Key, T, Compare, Allocator>::_postfix_dealloc(__s_node *root)
 {
-	if (root == NULL || root == _endLeaf)
+	if (_isLeaf(root))
 		return ;
 	_postfix_dealloc(root->left);
 	_postfix_dealloc(root->right);
@@ -398,7 +437,7 @@ int	ft::map<Key, T, Compare, Allocator>::_checkInsertValidity(__s_node *node) co
 		return (CORRECT_ROOT);
 	else if (node->parent->colour == __s_node::BLACK)
 		return (CORRECT_NOTHING);
-	else if (node->uncle() != NULL && node->uncle()->colour == __s_node::RED)
+	else if (_getColour(node->uncle()) == __s_node::RED)
 		return (CORRECT_COLOR);
 	else // Uncle is black when it is NULL
 		return (CORRECT_ROTATE);
@@ -458,15 +497,18 @@ void	ft::map<Key, T, Compare, Allocator>::_correctInsertion_rotate(__s_node *nod
 	__s_node	*grandparent = node->parent->parent;
 
 	if (grandparent->left && grandparent->left->right
-		&& node == grandparent->left->right) {
+		&& node == grandparent->left->right)
+	{
 		node->parent->rotateLeft(&_root);
 		node = node->left;
 	}
 	else if (grandparent->right && grandparent->right->left
-		&& node == grandparent->right->left) {
+		&& node == grandparent->right->left)
+	{
 		node->parent->rotateRight(&_root);
 		node = node->right;
 	}
+	
 	grandparent = node->parent->parent;
 	if (node == node->parent->left)
 		grandparent->rotateRight(&_root);
@@ -514,9 +556,9 @@ void	ft::map<Key, T, Compare, Allocator>::_correctInsertion_rotate(__s_node *nod
 				<< (queue.front()->colour == __s_node::RED ? REDB : BLKB)
 				<< queue.front()->val.first << " | " << queue.front()->val.second
 				<< RESET << std::endl;
-			if (queue.front()->left != NULL)
+			if (!_isLeaf(queue.front()->left))
 				queue.push(queue.front()->left);
-			if (queue.front()->right != NULL && queue.front()->right != _endLeaf)
+			if (!_isLeaf(queue.front()->right))
 				queue.push(queue.front()->right);
 			queue.pop();
 		}
@@ -534,9 +576,9 @@ void	ft::map<Key, T, Compare, Allocator>::_correctInsertion_rotate(__s_node *nod
 				<< queue.front()->val.first << " | " << queue.front()->val.second
 				<< RESET << (queue.front()->val.first == highlight_key ? BGRN"*"RESET : "")
 				<< std::endl;
-			if (queue.front()->left != NULL/*  && queue.front()->left != _endLeaf */)
+			if (!_isLeaf(queue.front()->left))
 				queue.push(queue.front()->left);
-			if (queue.front()->right != NULL && queue.front()->right != _endLeaf)
+			if (!_isLeaf(queue.front()->right))
 				queue.push(queue.front()->right);
 			queue.pop();
 		}
