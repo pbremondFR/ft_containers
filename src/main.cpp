@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/11 17:06:35 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/16 09:53:57 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -344,5 +344,37 @@ int	main(void)
 		it--;
 		std::cout << it->first << " | " << it->second << std::endl;
 	}
+	// newtest();
+	// {
+	// 	NAMESP::map<int, int>	test;
+	// 	test.insert(NAMESP::make_pair(11, 11));
+	// 	test.insert(NAMESP::make_pair(7, 7));
+	// 	test.insert(NAMESP::make_pair(5, 5));
+	// 	printMap("test", test);
+	// 	test.debug_printByLevel();
+	// 	test.debug_leftRotate(7);
+	// 	test.debug_printFamily(7);
+	// 	test.debug_printByLevel();
+	// 	printMap("test", test);
+	// 	test.debug_rightRotate(11);
+	// 	test.debug_printFamily(7);
+	// 	test.debug_printByLevel();
+	// }
+	// newtest();
+	// {
+	// 	NAMESP::map<int, int>	test;
+	// 	test.insert(NAMESP::make_pair(11, 11));
+	// 	test.insert(NAMESP::make_pair(7, 7));
+	// 	test.insert(NAMESP::make_pair(5, 5));
+	// 	printMap("test", test);
+	// 	test.debug_printByLevel();
+	// 	test.debug_rightRotate(7);
+	// 	test.debug_printFamily(7);
+	// 	test.debug_printByLevel();
+	// 	printMap("test", test);
+	// 	test.debug_leftRotate(11);
+	// 	test.debug_printFamily(7);
+	// 	test.debug_printByLevel();
+	// }
 	return (0);
 }

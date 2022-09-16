@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/14 17:42:47 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/16 13:20:08 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,11 @@ ft::map<Key, T, Compare, Allocator>::map(Compare const& comp, Allocator const& a
 	_endLeaf->parent = NULL;
 	_endLeaf->left = NULL;
 	_endLeaf->right = NULL;
+	_dummy = _allocator.allocate(1);
+	_dummy->colour = __s_node::BLACK;
+	_dummy->parent = NULL;
+	_dummy->left = NULL;
+	_dummy->right = NULL;
 }
 
 template <class Key, class T, class Compare, class Allocator>
@@ -113,6 +118,11 @@ ft::map<Key, T, Compare, Allocator>::map(InputIt first, InputIt last,
 	_endLeaf->parent = NULL;
 	_endLeaf->left = NULL;
 	_endLeaf->right = NULL;
+	_dummy = _allocator.allocate(1);
+	_dummy->colour = __s_node::BLACK;
+	_dummy->parent = NULL;
+	_dummy->left = NULL;
+	_dummy->right = NULL;
 	this->insert(first, last);
 }
 
@@ -124,6 +134,11 @@ ft::map<Key, T, Compare, Allocator>::map(map const& src)
 	_endLeaf->parent = NULL;
 	_endLeaf->left = NULL;
 	_endLeaf->right = NULL;
+	_dummy = _allocator.allocate(1);
+	_dummy->colour = __s_node::BLACK;
+	_dummy->parent = NULL;
+	_dummy->left = NULL;
+	_dummy->right = NULL;
 	for (map::const_iterator it = src.begin(); it != src.end(); ++it)
 	{
 		this->insert(*it);
@@ -238,32 +253,116 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 		__s_node	*src = node->right;
 		while (!_isLeaf(src->left)) // Get the direct in-order successor
 			src = src->left;
-		*node = *src;
+		// *node = *src;
+		node->val = src->val;
+		// node->swap(src);
 		node = src;
 	}
 	__s_node	*child = _isLeaf(node->left) ? node->right : node->left;
-	if (_isLeaf(child)) // No children
-	{
-		__s_node **parentLink = (node == node->parent->left ? &node->parent->left : &node->parent->right);
-		if (node->right == _endLeaf)
-			_repositionEndLeaf(node->parent);
-		else
-			*parentLink = NULL;
-		_allocator.destroy(node);
-		_allocator.deallocate(node, 1);
-	}
-	else if (_getColour(node) == __s_node::RED)
-	{
+	
+	if (_getColour(node) == __s_node::RED)
 		_removeNodeWithSingleChild(node, child);
-	}
-	else if (_getColour(node) == __s_node::BLACK && _getColour(child) == __s_node::RED)
-	{
-		child->colour = __s_node::BLACK;
+	else
+	{ // In this case, leafs count as black, so a black node with no children counts.
 		_removeNodeWithSingleChild(node, child);
+		_eraseTreeFix(child);
 	}
-	else // node AND its child are black. fuck.
+}
+
+template <class Key, class T, class Compare, class Allocator>
+void	ft::map<Key, T, Compare, Allocator>::erase(iterator first, iterator last)
+{
+	// for (; first != last; ++first) {
+	// 	erase(first);
+	// }
+	while (first != last) {
+		++first;
+		erase(ft::prev(first));
+	}
+}
+
+template <class Key, class T, class Compare, class Allocator>
+typename ft::map<Key, T, Compare, Allocator>::size_type
+	ft::map<Key, T, Compare, Allocator>::erase(Key const& key)
+{
+	iterator target = find(key);
+	if (target == this->end())
+		return (0);
+	else {
+		erase(target);
+		return (1);
+	}
+}
+
+
+template <class Key, class T, class Compare, class Allocator>
+void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
+{
+	while (node != _root && node != NULL)
 	{
-		;
+		if (_getColour(node) == __s_node::RED) {
+			node->colour = __s_node::BLACK;
+			return ;
+		}
+		else if (_getColour(node->brother()) == __s_node::RED) // case 2: red brother
+		{
+			node->brother()->colour = __s_node::BLACK; // swap parent and brother's colours
+			// assert(node->parent != NULL);
+			node->parent->colour = __s_node::RED;
+			if (node->isLeftChild())
+				node->parent->rotateLeft(&_root);
+			else
+				node->parent->rotateRight(&_root);
+		}
+		if (node->brother() != NULL
+			&& _getColour(node->brother()->left) == __s_node::BLACK // case 3: black brother, black nephews
+			&& _getColour(node->brother()->right) == __s_node::BLACK)
+		{
+			// assert(node->brother() != NULL);
+			node->brother()->colour = __s_node::BLACK; // TESTME: Possible segfault ?
+			// assert(node->parent != NULL);
+			node = node->parent;
+		}
+		else // case 4: black brother, at least one red nephew
+		{
+			if (node->isLeftChild()) // left symetry
+			{
+				#if MAP_DEBUG_VERBOSE == true
+					logstream << _RED"Is left child"RESET << std::endl;
+				#endif
+				assert(node->brother() != NULL);
+				if (_getColour(node->brother()->right) == __s_node::BLACK) // subcase something something
+				{
+					node->brother()->rotateRight(&_root);
+					node->brother()->colour = __s_node::BLACK;
+					node->brother()->right->colour = __s_node::RED; // make it so the far nephew is red
+				}
+				// std::swap(node->parent()->colour, node->brother()->colour);
+				node->brother()->colour = _getColour(node->parent);
+				node->parent->colour = __s_node::BLACK;
+				node->brother()->right->colour = __s_node::BLACK;
+				node->parent->rotateLeft(&_root);
+				return ;
+			}
+			else // right symetry
+			{
+				#if MAP_DEBUG_VERBOSE == true
+					logstream << _GRN"Is right child"RESET << std::endl;
+				#endif
+				assert(node->brother() != NULL);
+				if (_getColour(node->brother()->left) == __s_node::BLACK) // subcase something something
+				{
+					node->brother()->rotateLeft(&_root);
+					node->brother()->colour = __s_node::BLACK;
+					node->brother()->left->colour = __s_node::RED; // make it so the far nephew is red
+				}
+				node->brother()->colour = _getColour(node->parent);
+				node->parent->colour = __s_node::BLACK;
+				node->brother()->left->colour = __s_node::BLACK;
+				node->parent->rotateRight(&_root);
+				return ;
+			}
+		}
 	}
 }
 
@@ -530,7 +629,6 @@ void	ft::map<Key, T, Compare, Allocator>::_correctInsertion_rotate(__s_node *nod
 		iterator	target = this->find(key);
 		if (target == this->end())
 			throw (std::logic_error("DEBUG: debug_leftRotate: invalid key"));
-		logstream << BBLU"DEBUG:"BRED" left rotate ("<<key<<')'<<RESET << std::endl;
 		target._node->rotateLeft(&_root);
 	}
 
@@ -540,7 +638,6 @@ void	ft::map<Key, T, Compare, Allocator>::_correctInsertion_rotate(__s_node *nod
 		iterator	target = this->find(key);
 		if (target == this->end())
 			throw (std::logic_error("DEBUG: debug_rightRotate: invalid key"));
-		logstream << BBLU"DEBUG:"BGRN" right rotate ("<<key<<')'<<RESET << std::endl;
 		target._node->rotateRight(&_root);
 	}
 

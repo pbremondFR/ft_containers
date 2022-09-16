@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/14 17:46:25 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/16 13:20:31 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #include "ansi_color.h"
 #include <queue>
 
-#define MAP_DEBUG_VERBOSE	false
+#define MAP_DEBUG_VERBOSE	true
 
 namespace ft
 {
@@ -38,7 +38,7 @@ class map
 	private:
 		struct __s_node
 		{
-			typedef typename	ft::pair<const Key, T>	value_type;
+			typedef typename	ft::pair</* const */ Key, T>	value_type;
 			
 			__s_node	*parent;
 			__s_node	*left;
@@ -58,6 +58,8 @@ class map
 			~__s_node() {}
 
 			inline void		toggleColour() { colour = (colour == RED ? BLACK : RED); }
+
+			// FIXME: Return a dummy node instead of NULL to avoid segfaults ?
 			inline __s_node	*brother() // OK
 			{
 				if (parent == NULL)
@@ -70,10 +72,34 @@ class map
 					return (NULL);
 				return (parent == parent->parent->left ? parent->parent->right : parent->parent->left);
 			}
-			inline bool	isLeftChild() { return (parent != NULL && this == parent->left); }
+
+			// __s_node *brother_or(__s_node *dummy)
+			// {
+			// 	if (parent == NULL) {
+			// 		dummy->colour = BLACK;
+			// 		dummy->parent = NULL;
+			// 		dummy->left = NULL;
+			// 		dummy->right = NULL;
+			// 		return (dummy);
+			// 	}
+			// 	__s_node *retval = (this == parent->left ? parent->right : parent->left);
+			// 	if (retval == NULL) {
+			// 		dummy->colour = BLACK;
+			// 		dummy->parent = parent;
+			// 		dummy->left = NULL;
+			// 		dummy->right = NULL;
+			// 		return (dummy);
+			// 	}
+			// 	return (retval);
+			// }
+
+			inline bool	isLeftChild() const { return (parent != NULL && this == parent->left); }
 
 			void	rotateLeft(__s_node **treeRoot) // OK
 			{
+				#if MAP_DEBUG_VERBOSE == true
+					logstream << BBLU"DEBUG: "BRED"left rotate (" << this->val.first << ")"RESET << std::endl;
+				#endif
 				__s_node	*son = this->right;
 				if (son == NULL)
 					throw (std::logic_error("map: attempted to left-rotate with no right child"));
@@ -93,6 +119,9 @@ class map
 
 			void	rotateRight(__s_node **treeRoot) // OK
 			{
+				#if MAP_DEBUG_VERBOSE == true
+					logstream << BBLU"DEBUG: "BGRN"right rotate (" << this->val.first << ")"RESET << std::endl;
+				#endif
 				__s_node	*son = this->left;
 				if (son == NULL)
 					throw (std::logic_error("map: attempted to right-rotate with no left child"));
@@ -108,6 +137,45 @@ class map
 				son->parent = this->parent;
 				son->right = this;
 				this->parent = son;
+			}
+
+			void	swap(__s_node *other)
+			{
+				// __s_node *tmp;
+
+				if (this->left != NULL)
+					this->left->parent = other;
+				if (other->left != NULL)
+					other->left->parent = this;
+					
+				if (this->right != NULL)
+					this->right->parent = other;
+				if (other->right != NULL)
+					other->right->parent = this;
+
+				if (this->isLeftChild() && this->parent != NULL)
+					this->parent->left = other;
+				else if (this->parent != NULL)
+					this->parent->right = other;
+				if (other->isLeftChild() && other->parent != NULL)
+					other->parent->left = this;
+				else if (other->parent != NULL)
+					other->parent->right = this;
+
+				std::swap(other->parent, this->parent);
+				// tmp = other->parent;
+				// other->parent = this->parent;
+				// this->parent = tmp;
+
+				std::swap(other->left, this->left);
+				// tmp = other->left;
+				// other->left = this->left;
+				// this->left = tmp;
+
+				std::swap(other->right, this->right);
+				// tmp = other->right;
+				// other->right = this->right;
+				// this->right = tmp;
 			}
 		};
 
@@ -164,13 +232,14 @@ class map
 		_Alloc		_allocator;
 		__s_node	*_endLeaf;
 		__s_node	*_root;
+		__s_node	*_dummy;
 
 		static std::ostream&	logstream; // Defined in map.tpp
 
 	public:
 		typedef				Key										key_type;
 		typedef				T										mapped_type;
-		typedef typename	ft::pair<const Key, T>					value_type;
+		typedef typename	ft::pair</* const */ Key, T>					value_type;
 		typedef typename	std::size_t								size_type;
 		typedef typename	std::ptrdiff_t							difference_type;
 		typedef				Compare									key_compare;
@@ -210,7 +279,11 @@ class map
 			Allocator const& alloc = Allocator(),
 			typename enable_if< !is_fundamental<InputIt>::value, int >::type = 0); // OK
 		map(map const& src); // OK
-		~map() { this->clear(); _allocator.deallocate(_endLeaf, 1); } // OK
+		~map()
+		{
+			this->clear();
+			_allocator.deallocate(_endLeaf, 1);
+		} // OK
 
 		map&	operator=(map const& src); // OK
 		
@@ -302,13 +375,31 @@ class map
 		{
 			return (_isLeaf(node) ? __s_node::BLACK : node->colour);
 		}
+		__s_node	*_getBrotherOrDummy(__s_node *node)
+		{
+			_dummy->colour = __s_node::BLACK;
+			_dummy->parent = NULL;
+			_dummy->left = NULL;
+			_dummy->right = NULL;
+			if (node->parent == NULL)
+				return (_dummy);
+			__s_node	*bro = node->brother();
+			if (bro == NULL) {
+				_dummy->parent = node->parent;
+				return (_dummy);
+			}
+			return (bro);
+		}
+		inline __s_node *_brother(__s_node *node) { return (_getBrotherOrDummy(node)); }
+		
 		// NOTE: Must NOT be called if node has more than one child!!!
 		void	_removeNodeWithSingleChild(__s_node *toDelete, __s_node *child = NULL)
 		{
 			if (child == NULL)
 				child = (_isLeaf(toDelete->left) ? toDelete->right : toDelete->left);
 			__s_node	*parent = toDelete->parent;
-			child->parent = parent;
+			if (child != NULL)
+				child->parent = parent;
 			if (parent != NULL) {
 				if (parent->left == toDelete)
 					parent->left = child;
@@ -318,6 +409,19 @@ class map
 			_allocator.destroy(toDelete);
 			_allocator.deallocate(toDelete, 1);
 		}
+
+		// void	_removeNodeWithNoChild(__s_node *toDelete)
+		// {
+		// 	__s_node **parentLink = (toDelete == toDelete->parent->left ? &toDelete->parent->left : &toDelete->parent->right);
+		// 	if (toDelete->right == _endLeaf)
+		// 		_repositionEndLeaf(toDelete->parent);
+		// 	else
+		// 		*parentLink = NULL;
+		// 	_allocator.destroy(toDelete);
+		// 	_allocator.deallocate(toDelete, 1);
+		// }
+
+		void	_eraseTreeFix(__s_node *);
 };
 
 template <class Key, class T, class Compare, class Alloc>
