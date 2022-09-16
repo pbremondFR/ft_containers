@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/16 13:20:08 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/16 14:28:18 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -248,6 +248,8 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 {
 	__s_node	*node = pos._node;
 
+	logstream << BBLU"DEBUG: Erasing node " << pos._node->val.first << RESET << std::endl;
+	
 	if (!_isLeaf(node->left) && !_isLeaf(node->right))
 	{
 		__s_node	*src = node->right;
@@ -294,7 +296,9 @@ typename ft::map<Key, T, Compare, Allocator>::size_type
 	}
 }
 
-
+// FIXME: EVERYTHING IS BROKEN GOOD LOOOOORD
+// https://www.cs.usfca.edu/~galles/visualization/RedBlack.html
+// https://www.slideshare.net/ISquareIT/red-black-tree-insertion-deletion
 template <class Key, class T, class Compare, class Allocator>
 void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 {
@@ -314,11 +318,11 @@ void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 			else
 				node->parent->rotateRight(&_root);
 		}
-		if (node->brother() != NULL
-			&& _getColour(node->brother()->left) == __s_node::BLACK // case 3: black brother, black nephews
-			&& _getColour(node->brother()->right) == __s_node::BLACK)
+		if (_isLeaf(node->brother()) ||
+			(_getColour(node->brother()->left) == __s_node::BLACK // case 3: black brother, black nephews
+			&& _getColour(node->brother()->right) == __s_node::BLACK))
 		{
-			// assert(node->brother() != NULL);
+			assert(node->brother() != NULL);
 			node->brother()->colour = __s_node::BLACK; // TESTME: Possible segfault ?
 			// assert(node->parent != NULL);
 			node = node->parent;
