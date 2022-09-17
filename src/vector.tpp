@@ -6,11 +6,14 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/09 18:36:57 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/17 06:42:14 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+// FIXME: Absolutely MORONIC use of std::memmove in there. You're not in C anymore.
+// Classes exist, and their instances cannot just be wildly flailed around.
 
 #include "vector.hpp"
 
@@ -40,7 +43,8 @@ ft::vector<T, Allocator>::vector(size_type count,
 	_itrBegin = _array;
 	_itrEnd = _array + _size;
 	for (size_type i = 0; i < count; ++i)
-		_array[i] = value;
+		_allocator.construct(_array + i, value);
+		// _array[i] = value;
 }
 
 template < class T, class Allocator >
@@ -60,7 +64,8 @@ ft::vector<T, Allocator>::vector(InputIt first,
 
 	size_type	i = 0;
 	for (InputIt itr = first; itr != last; ++itr)
-		_array[i++] = *itr;
+		_allocator.construct(_array + i++, *itr);
+		// _array[i++] = *itr;
 }
 
 template < class T, class Allocator >
@@ -153,7 +158,11 @@ void	ft::vector<T, Allocator>::reserve(size_type newCapacity)
 	if (newCapacity > _allocator.max_size())
 		throw (std::length_error("std::length_error"));	
 	T	*newArray = _allocator.allocate(newCapacity);
-	std::memcpy(newArray, _array, _size * sizeof(T));
+	// BUG: This FUCKS UP memory in Linux. Don't EVER use bitwise on objects again, you moron.
+	// std::memcpy(newArray, _array, _size * sizeof(T));
+	for (size_type i = 0; i < _size; ++i) {
+		_allocator.construct(newArray + i, _array[i]);
+	}
 	_allocator.deallocate(_array, _init_size);
 	_init_size = newCapacity;
 	_capacity = newCapacity;
@@ -263,7 +272,8 @@ void	ft::vector<T, Allocator>::push_back(const T& value)
 {
 	if (_size + 1 > _capacity)
 		this->_doubleCapacity();
-	_array[_size] = value;
+	// _array[_size] = value;
+	_allocator.construct(_array + _size, value);
 	++_size;
 	_recalcIterators(false, true);
 }

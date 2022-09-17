@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/17 05:02:33 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/17 06:43:03 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #ifdef __linux__
 # include <cstring>
 #endif
+
 #include "iterator.hpp"
 #include "type_traits.hpp"
 #include "random_access_iterator.hpp"
@@ -84,10 +85,15 @@ class vector
 		void		reserve(size_type new_cap);
 		size_type	capacity()	const { return (_capacity);				};
 
-		inline iterator			begin()		  { return _itrBegin; };
-		inline const_iterator	begin() const { return const_iterator(_itrBegin); };
-		inline iterator			end()	    { return _itrEnd; };
-		inline const_iterator	end() const { return const_iterator(_itrEnd); };
+		// inline iterator			begin()		  { return _itrBegin; };
+		// inline const_iterator	begin() const { return const_iterator(_itrBegin); };
+		// inline iterator			end()	    { return _itrEnd; };
+		// inline const_iterator	end() const { return const_iterator(_itrEnd); };
+		// Just for testing
+		inline iterator			begin()		  { return iterator(_array); };
+		inline const_iterator	begin() const { return const_iterator(_array); };
+		inline iterator			end()	    { return iterator(_array + _size); };
+		inline const_iterator	end() const { return const_iterator(_array + _size); };
 
 		inline reverse_iterator			rbegin()	   { return reverse_iterator(end()); };
 		inline const_reverse_iterator	rbegin() const { return reverse_iterator(end()); };

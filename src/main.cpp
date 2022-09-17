@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/16 09:53:57 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/17 06:42:40 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -343,6 +343,23 @@ int	main(void)
 		NAMESP::map<int, int>::iterator	it = test.end();
 		it--;
 		std::cout << it->first << " | " << it->second << std::endl;
+	}
+	newtest();
+	try
+	{
+		NAMESP::vector<std::string>	test;
+		test.push_back("A");
+		test.push_back("BB");
+		test.push_back("CCC");
+		test.push_back("DDDD");
+
+		test.erase(test.begin() + 2);
+		// test1.erase(test1.begin() + 1, test1.end() - 1);
+		printContainer("test", test);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "Exception caught: " << e.what() << std::endl;
 	}
 	// newtest();
 	// {
