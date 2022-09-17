@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/11 19:44:44 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/17 05:02:33 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 
 #include <memory>
 #include <iostream>
+#ifdef __linux__
+# include <cstring>
+#endif
 #include "iterator.hpp"
 #include "type_traits.hpp"
 #include "random_access_iterator.hpp"

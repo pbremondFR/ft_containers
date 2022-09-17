@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 06:44:44 by pbremond          #+#    #+#             */
-/*   Updated: 2022/06/27 19:20:49 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/17 05:05:35 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,9 @@ template <>			struct is_integral<bool>				: public true_type {};
 template <>			struct is_integral<char>				: public true_type {};
 template <>			struct is_integral<unsigned char>		: public true_type {};
 template <>			struct is_integral<wchar_t>				: public true_type {};
-template <>			struct is_integral<char16_t>			: public true_type {};
-template <>			struct is_integral<char32_t>			: public true_type {};
+// NOTE: These do not exist until C11
+// template <>			struct is_integral<char16_t>			: public true_type {};
+// template <>			struct is_integral<char32_t>			: public true_type {};
 template <>			struct is_integral<short>				: public true_type {};
 template <>			struct is_integral<unsigned short>		: public true_type {};
 template <>			struct is_integral<int>					: public true_type {};
