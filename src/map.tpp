@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/16 14:28:18 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 01:43:05 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -248,26 +248,54 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 {
 	__s_node	*node = pos._node;
 
-	logstream << BBLU"DEBUG: Erasing node " << pos._node->val.first << RESET << std::endl;
-	
+	#if MAP_DEBUG_VERBOSE == true
+		logstream << BBLU"DEBUG: Erasing node " << node->val.first << RESET << std::endl;
+		debug_printByLevel();
+	#endif
+
 	if (!_isLeaf(node->left) && !_isLeaf(node->right))
 	{
-		__s_node	*src = node->right;
-		while (!_isLeaf(src->left)) // Get the direct in-order successor
-			src = src->left;
-		// *node = *src;
+		#if MAP_DEBUG_VERBOSE == true
+			logstream << BYEL"Node has two children, replacing with predecessor...\n"RESET;
+		#endif
+		__s_node	*src = node->left;
+		while (!_isLeaf(src->right)) // Get the direct in-order predecessor
+			src = src->right;
 		node->val = src->val;
 		// node->swap(src);
 		node = src;
 	}
 	__s_node	*child = _isLeaf(node->left) ? node->right : node->left;
+	if (child == NULL) {
+		#if MAP_DEBUG_VERBOSE == true
+			logstream << BYEL"Found node with no children\n"RESET;
+		#endif
+		if (_getColour(node) == __s_node::BLACK)
+		{
+			child = _dummy;
+			child->colour = __s_node::BLACK;
+			child->parent = node;
+			node->left = child;
+			child->left = NULL;
+			child->right = NULL;
+		}
+	}
 	
 	if (_getColour(node) == __s_node::RED)
+	{
+		#if MAP_DEBUG_VERBOSE == true
+			logstream << UCYN"Targeted node is red, remove it and don't fix tree"RESET << std::endl;
+		#endif
 		_removeNodeWithSingleChild(node, child);
+	}
 	else
-	{ // In this case, leafs count as black, so a black node with no children counts.
+	{
 		_removeNodeWithSingleChild(node, child);
 		_eraseTreeFix(child);
+	}
+	if (child == _dummy) {
+		child->parent->left = NULL;
+		_dummy->parent = NULL;
 	}
 }
 
@@ -299,17 +327,24 @@ typename ft::map<Key, T, Compare, Allocator>::size_type
 // FIXME: EVERYTHING IS BROKEN GOOD LOOOOORD
 // https://www.cs.usfca.edu/~galles/visualization/RedBlack.html
 // https://www.slideshare.net/ISquareIT/red-black-tree-insertion-deletion
+// node is a node with a double black colour
 template <class Key, class T, class Compare, class Allocator>
 void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 {
 	while (node != _root && node != NULL)
 	{
-		if (_getColour(node) == __s_node::RED) {
+		if (_getColour(node) == __s_node::RED) { // Went far enough up the tree, found red node
+			#if MAP_DEBUG_VERBOSE == true
+				logstream << UCYN"In case 1 (red node)"RESET << std::endl;
+			#endif
 			node->colour = __s_node::BLACK;
 			return ;
 		}
 		else if (_getColour(node->brother()) == __s_node::RED) // case 2: red brother
 		{
+			#if MAP_DEBUG_VERBOSE == true
+				logstream << UCYN"In case 2 (red brother)"RESET << std::endl;
+			#endif
 			node->brother()->colour = __s_node::BLACK; // swap parent and brother's colours
 			// assert(node->parent != NULL);
 			node->parent->colour = __s_node::RED;
@@ -318,25 +353,29 @@ void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 			else
 				node->parent->rotateRight(&_root);
 		}
-		if (_isLeaf(node->brother()) ||
-			(_getColour(node->brother()->left) == __s_node::BLACK // case 3: black brother, black nephews
-			&& _getColour(node->brother()->right) == __s_node::BLACK))
+		if (_getColour(node->brother()->left) == __s_node::BLACK // case 3: black brother, black nephews
+			&& _getColour(node->brother()->right) == __s_node::BLACK)
 		{
-			assert(node->brother() != NULL);
-			node->brother()->colour = __s_node::BLACK; // TESTME: Possible segfault ?
+			#if MAP_DEBUG_VERBOSE == true
+				logstream << UCYN"In case 3 (black brother and black nephews)"RESET << std::endl;
+			#endif
+			node->brother()->colour = __s_node::RED; // TESTME: Possible segfault ?
 			// assert(node->parent != NULL);
 			node = node->parent;
 		}
 		else // case 4: black brother, at least one red nephew
 		{
+			#if MAP_DEBUG_VERBOSE == true
+				logstream << UCYN"In case 4 (black brother, at least one red nephew)"RESET << std::endl;
+			#endif
 			if (node->isLeftChild()) // left symetry
 			{
-				#if MAP_DEBUG_VERBOSE == true
-					logstream << _RED"Is left child"RESET << std::endl;
-				#endif
 				assert(node->brother() != NULL);
-				if (_getColour(node->brother()->right) == __s_node::BLACK) // subcase something something
+				if (_getColour(node->brother()->right) == __s_node::BLACK) // subcase: If far nephew isn't red
 				{
+					#if MAP_DEBUG_VERBOSE == true
+						logstream << UCYN"In subcase 1, far nephew isn't red"RESET << std::endl;
+					#endif
 					node->brother()->rotateRight(&_root);
 					node->brother()->colour = __s_node::BLACK;
 					node->brother()->right->colour = __s_node::RED; // make it so the far nephew is red
@@ -350,12 +389,12 @@ void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 			}
 			else // right symetry
 			{
-				#if MAP_DEBUG_VERBOSE == true
-					logstream << _GRN"Is right child"RESET << std::endl;
-				#endif
 				assert(node->brother() != NULL);
-				if (_getColour(node->brother()->left) == __s_node::BLACK) // subcase something something
+				if (_getColour(node->brother()->left) == __s_node::BLACK) // If far nephew isn't red
 				{
+					#if MAP_DEBUG_VERBOSE == true
+						logstream << UCYN"In subcase 1, far nephew isn't red"RESET << std::endl;
+					#endif
 					node->brother()->rotateLeft(&_root);
 					node->brother()->colour = __s_node::BLACK;
 					node->brother()->left->colour = __s_node::RED; // make it so the far nephew is red
@@ -692,11 +731,28 @@ void	ft::map<Key, T, Compare, Allocator>::_correctInsertion_rotate(__s_node *nod
 			throw (std::logic_error("DEBUG: debug_printFamily: invalid key"));
 		logstream << BBLU"DEBUG: Family of node " << key << ": \n"RESET
 			<< _YEL"Parent: "RESET
-				<< (target._node->parent ? target._node->parent->val.first : 99999) << '\n'
+				<< (target._node->parent ? target._node->parent->val.first : 99999)
+				<< (_getColour(target._node->parent) == __s_node::BLACK ? " (B)" : " "REDB"(R)"RESET) << '\n'
 			<< _RED"Left: "RESET
 				<< (target._node->left ? target._node->left->val.first : 99999) << '\n'
+				<< (_getColour(target._node->left) == __s_node::BLACK ? " (B)" : " "REDB"(R)"RESET) << '\n'
 			<< _GRN"Right: "RESET
-				<< (target._node->right ? target._node->right->val.first : 99999) << std::endl;
+				<< (target._node->right ? target._node->right->val.first : 99999)
+				<< (_getColour(target._node->right) == __s_node::BLACK ? " (B)" : " "REDB"(R)"RESET) << std::endl;
+	}
+	template <class Key, class T, class Compare, class Allocator>
+	void	ft::map<Key, T, Compare, Allocator>::debug_printFamily(__s_node const *node) const
+	{
+		logstream << BBLU"DEBUG: Family of node " << node->val.first << ": \n"RESET
+			<< _YEL"Parent: "RESET
+				<< (node->parent ? node->parent->val.first : 99999)
+				<< (_getColour(node->parent) == __s_node::BLACK ? " (B)" : " "REDB"(R)"RESET) << '\n'
+			<< _RED"Left: "RESET
+				<< (node->left ? node->left->val.first : 99999)
+				<< (_getColour(node->left) == __s_node::BLACK ? " (B)" : " "REDB"(R)"RESET) << '\n'
+			<< _GRN"Right: "RESET
+				<< (node->right ? node->right->val.first : 99999)
+				<< (_getColour(node->right) == __s_node::BLACK ? " (B)" : " "REDB"(R)"RESET) << std::endl;
 	}
 
 #endif

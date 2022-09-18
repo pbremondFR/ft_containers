@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/18 22:10:35 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 01:41:42 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 
 #include "ansi_color.h"
 #include <queue>
+#include <cassert>
 
 #define MAP_DEBUG_VERBOSE	false
 
@@ -352,6 +353,7 @@ class map
 		void	debug_printByLevel() const;
 		void	debug_printByLevel(Key const& key) const;
 		void	debug_printFamily(Key const& key) const;
+		void	debug_printFamily(const __s_node *node) const;
 	#endif
 
 	private:
@@ -371,7 +373,7 @@ class map
 			_endLeaf->parent = newNode;
 		}
 		// NOTE: Leafs are considered to be NULL nodes or the _endLeaf marker
-		inline bool	_isLeaf(__s_node *node) const { return (node == NULL || node == _endLeaf); }
+		inline bool	_isLeaf(__s_node *node) const { return (node == NULL || node == _endLeaf || node == _dummy); }
 		inline typename __s_node::e_colour	_getColour(__s_node *node) const
 		{
 			return (_isLeaf(node) ? __s_node::BLACK : node->colour);
@@ -407,6 +409,8 @@ class map
 				else
 					parent->right = child;
 			}
+			else
+				_root = child;
 			_allocator.destroy(toDelete);
 			_allocator.deallocate(toDelete, 1);
 		}
