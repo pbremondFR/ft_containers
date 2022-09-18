@@ -6,11 +6,13 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/17 06:42:14 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/18 18:09:49 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+#include <cassert>
 
 // FIXME: Absolutely MORONIC use of std::memmove in there. You're not in C anymore.
 // Classes exist, and their instances cannot just be wildly flailed around.
@@ -77,6 +79,7 @@ ft::vector<T, Allocator>::vector(const ft::vector<T, Allocator>& src)
 	_array = _allocator.allocate(_init_size);
 	_size = src._size;
 	_itrBegin = _array;
+	_itrEnd = _array;
 	this->assign(src.begin(), src.end());
 }
 
@@ -85,7 +88,7 @@ ft::vector<T, Allocator>	&ft::vector<T, Allocator>::operator=(const ft::vector<T
 {
 	_allocator.deallocate(_array, _init_size);
 	_array = _allocator.allocate(rhs._capacity);
-	_recalcIterators(true, false);
+	_recalcIterators(true, true);
 	_capacity = rhs._capacity;
 	_init_size = rhs._capacity;
 	_size = rhs._size;
@@ -191,8 +194,13 @@ typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::insert(ite
 		this->_doubleCapacity();
 		pos = _itrBegin + pos_index;
 	}
-	std::memmove((pos + 1).operator->(), pos.operator->(),
-		static_cast<size_type>(_itrEnd - pos) * sizeof(T));
+	pointer src = pos.operator->();
+	pointer dest = src + 1;
+	for (size_type i = _itrEnd - pos; i > 0;) {
+		--i;
+		dest[i] = src[i];
+	}
+	
 	*pos = value;
 	++_size;
 	_recalcIterators(false, true);
@@ -204,14 +212,19 @@ void	ft::vector<T, Allocator>::insert(iterator pos, size_type count, const T& va
 {
 	if (_size + count > _capacity)
 	{
-		size_type	pos_index = pos.operator->() - _itrBegin.operator->();
+		size_type	pos_index = pos - _itrBegin;
 		this->reserve(_size + count);
 		pos = _itrBegin + pos_index;
 	}
-	std::memmove((pos + count).operator->(), pos.operator->(),
-		static_cast<size_type>(_itrEnd - pos) * sizeof(T));
-	for (size_type i = 0; i < count; ++i)
-		*pos++ = value;
+	pointer src = pos.operator->();
+	pointer dest = src + count;
+	for (difference_type i = _itrEnd - pos; i > 0;) {
+		--i;
+		dest[i] = src[i];
+	}
+	for (size_type i = 0; i < count; ++i, ++pos) {
+		*pos = value;
+	}
 	_size += count;
 	_recalcIterators(false, true);
 }
@@ -225,6 +238,7 @@ typename ft::enable_if
 >::type
 ft::vector<T, Allocator>::insert(iterator pos, InputIt first, InputIt last)
 {
+	// TODO: Specialization for forward iterators
 	difference_type	count = std::distance(first, last); // FIXME
 
 	if (_size + count > _capacity)
@@ -233,11 +247,20 @@ ft::vector<T, Allocator>::insert(iterator pos, InputIt first, InputIt last)
 		this->reserve(_size + count);
 		pos = _itrBegin.operator->() + pos_index;
 	}
-	std::memmove((pos + count).operator->(), pos.operator->(),
-		static_cast<size_type>(_itrEnd - pos) * sizeof(T));
-	for (; first != last; ++first)
-		*pos++ = *first;
+	
+	pointer src = pos.operator->();
+	pointer dest = src + count;
+	for (difference_type i = _itrEnd - pos; i > 0;) {
+		--i;
+		dest[i] = src[i];
+	}
+	for (; first != last; ++first, ++pos)
+		*pos = *first;
 	_size += count;
+
+	// for (; first != last; ++first, ++pos) {
+	// 	this->insert(pos, *first);
+	// }
 	_recalcIterators(false, true);
 }
 
@@ -245,8 +268,11 @@ template < class T, class Allocator >
 typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iterator pos)
 {
 	_allocator.destroy(pos.operator->());
-	std::memmove(pos.operator->(), (pos + 1).operator->(),
-		static_cast<size_type>((_itrEnd).operator->() - (pos + 1).operator->()) * sizeof(T));
+	pointer src = (pos + 1).operator->();
+	pointer dest = pos.operator->();
+	for (difference_type i = 0; i < _itrEnd - src; ++i) {
+		dest[i] = src[i];
+	}
 	--_size;
 	_recalcIterators(false, true);
 	if (pos > _itrEnd)
@@ -261,8 +287,11 @@ typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iter
 	_size -= ft::distance(first, last);
 	for (iterator it = first; it != last; ++it)
 		_allocator.destroy(it.operator->());
-	std::memmove(first.operator->(), last.operator->(),
-		static_cast<size_type>((_itrEnd).operator->() - last.operator->()) * sizeof(T));
+	pointer src = last.operator->();
+	pointer dest = first.operator->();
+	for (difference_type i = 0; i < _itrEnd - last; ++i) {
+		dest[i] = src[i];
+	}
 	_recalcIterators(false, true);
 	return (first);
 }
