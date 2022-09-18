@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/16 13:20:31 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/18 22:10:35 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #include "ansi_color.h"
 #include <queue>
 
-#define MAP_DEBUG_VERBOSE	true
+#define MAP_DEBUG_VERBOSE	false
 
 namespace ft
 {
@@ -283,6 +283,7 @@ class map
 		{
 			this->clear();
 			_allocator.deallocate(_endLeaf, 1);
+			_allocator.deallocate(_dummy, 1);
 		} // OK
 
 		map&	operator=(map const& src); // OK
