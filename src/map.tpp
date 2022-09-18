@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 01:43:05 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 02:32:26 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -294,7 +294,10 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 		_eraseTreeFix(child);
 	}
 	if (child == _dummy) {
-		child->parent->left = NULL;
+		if (child->isLeftChild())
+			child->parent->left = NULL;
+		else
+			child->parent->right = NULL;
 		_dummy->parent = NULL;
 	}
 }
@@ -324,10 +327,9 @@ typename ft::map<Key, T, Compare, Allocator>::size_type
 	}
 }
 
-// FIXME: EVERYTHING IS BROKEN GOOD LOOOOORD
 // https://www.cs.usfca.edu/~galles/visualization/RedBlack.html
 // https://www.slideshare.net/ISquareIT/red-black-tree-insertion-deletion
-// node is a node with a double black colour
+// node is a double black node, which is the child of deleted node
 template <class Key, class T, class Compare, class Allocator>
 void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 {
@@ -346,7 +348,6 @@ void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 				logstream << UCYN"In case 2 (red brother)"RESET << std::endl;
 			#endif
 			node->brother()->colour = __s_node::BLACK; // swap parent and brother's colours
-			// assert(node->parent != NULL);
 			node->parent->colour = __s_node::RED;
 			if (node->isLeftChild())
 				node->parent->rotateLeft(&_root);
@@ -359,8 +360,7 @@ void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 			#if MAP_DEBUG_VERBOSE == true
 				logstream << UCYN"In case 3 (black brother and black nephews)"RESET << std::endl;
 			#endif
-			node->brother()->colour = __s_node::RED; // TESTME: Possible segfault ?
-			// assert(node->parent != NULL);
+			node->brother()->colour = __s_node::RED;
 			node = node->parent;
 		}
 		else // case 4: black brother, at least one red nephew
@@ -380,7 +380,6 @@ void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 					node->brother()->colour = __s_node::BLACK;
 					node->brother()->right->colour = __s_node::RED; // make it so the far nephew is red
 				}
-				// std::swap(node->parent()->colour, node->brother()->colour);
 				node->brother()->colour = _getColour(node->parent);
 				node->parent->colour = __s_node::BLACK;
 				node->brother()->right->colour = __s_node::BLACK;

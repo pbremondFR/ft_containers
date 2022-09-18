@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 01:41:42 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 02:31:07 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,6 @@ class map
 
 			inline void		toggleColour() { colour = (colour == RED ? BLACK : RED); }
 
-			// FIXME: Return a dummy node instead of NULL to avoid segfaults ?
 			inline __s_node	*brother() // OK
 			{
 				if (parent == NULL)
@@ -73,26 +72,6 @@ class map
 					return (NULL);
 				return (parent == parent->parent->left ? parent->parent->right : parent->parent->left);
 			}
-
-			// __s_node *brother_or(__s_node *dummy)
-			// {
-			// 	if (parent == NULL) {
-			// 		dummy->colour = BLACK;
-			// 		dummy->parent = NULL;
-			// 		dummy->left = NULL;
-			// 		dummy->right = NULL;
-			// 		return (dummy);
-			// 	}
-			// 	__s_node *retval = (this == parent->left ? parent->right : parent->left);
-			// 	if (retval == NULL) {
-			// 		dummy->colour = BLACK;
-			// 		dummy->parent = parent;
-			// 		dummy->left = NULL;
-			// 		dummy->right = NULL;
-			// 		return (dummy);
-			// 	}
-			// 	return (retval);
-			// }
 
 			inline bool	isLeftChild() const { return (parent != NULL && this == parent->left); }
 
@@ -414,17 +393,6 @@ class map
 			_allocator.destroy(toDelete);
 			_allocator.deallocate(toDelete, 1);
 		}
-
-		// void	_removeNodeWithNoChild(__s_node *toDelete)
-		// {
-		// 	__s_node **parentLink = (toDelete == toDelete->parent->left ? &toDelete->parent->left : &toDelete->parent->right);
-		// 	if (toDelete->right == _endLeaf)
-		// 		_repositionEndLeaf(toDelete->parent);
-		// 	else
-		// 		*parentLink = NULL;
-		// 	_allocator.destroy(toDelete);
-		// 	_allocator.deallocate(toDelete, 1);
-		// }
 
 		void	_eraseTreeFix(__s_node *);
 };
