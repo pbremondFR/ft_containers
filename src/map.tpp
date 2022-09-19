@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 14:40:36 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 17:34:34 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,13 +93,14 @@ typename ft::map<Key, T, Compare, Allocator>::template __map_iterator<U>
 
 template <class Key, class T, class Compare, class Allocator>
 ft::map<Key, T, Compare, Allocator>::map(Compare const& comp, Allocator const& alloc)
-	: _compare(comp), _allocator(alloc), _endLeaf(_allocator.allocate(1)), _root(_endLeaf)
+	: _compare(comp), _allocator(alloc), _endLeaf(_allocator.allocate(1)), _root(_endLeaf),
+		_dummy(_allocator.allocate(1)), _size(0)
 {
 	_endLeaf->colour = __s_node::BLACK;
 	_endLeaf->parent = NULL;
 	_endLeaf->left = NULL;
 	_endLeaf->right = NULL;
-	_dummy = _allocator.allocate(1);
+	
 	_dummy->colour = __s_node::BLACK;
 	_dummy->parent = NULL;
 	_dummy->left = NULL;
@@ -112,13 +113,14 @@ ft::map<Key, T, Compare, Allocator>::map(InputIt first, InputIt last,
 										 Compare const& comp,
 										 Allocator const& alloc,
 										 typename enable_if< !is_fundamental<InputIt>::value, int >::type)
-	: _compare(comp), _allocator(alloc), _endLeaf(_allocator.allocate(1)), _root(_endLeaf)
+	: _compare(comp), _allocator(alloc), _endLeaf(_allocator.allocate(1)), _root(_endLeaf),
+		_dummy(_allocator.allocate(1)), _size(0)
 {
 	_endLeaf->colour = __s_node::BLACK;
 	_endLeaf->parent = NULL;
 	_endLeaf->left = NULL;
 	_endLeaf->right = NULL;
-	_dummy = _allocator.allocate(1);
+	
 	_dummy->colour = __s_node::BLACK;
 	_dummy->parent = NULL;
 	_dummy->left = NULL;
@@ -128,13 +130,14 @@ ft::map<Key, T, Compare, Allocator>::map(InputIt first, InputIt last,
 
 template <class Key, class T, class Compare, class Allocator>
 ft::map<Key, T, Compare, Allocator>::map(map const& src)
-	: _compare(src._compare), _allocator(src._allocator), _endLeaf(_allocator.allocate(1)), _root(_endLeaf)
+	: _compare(src._compare), _allocator(src._allocator), _endLeaf(_allocator.allocate(1)), _root(_endLeaf),
+		_dummy(_allocator.allocate(1)), _size(0)
 {
 	_endLeaf->colour = __s_node::BLACK;
 	_endLeaf->parent = NULL;
 	_endLeaf->left = NULL;
 	_endLeaf->right = NULL;
-	_dummy = _allocator.allocate(1);
+	
 	_dummy->colour = __s_node::BLACK;
 	_dummy->parent = NULL;
 	_dummy->left = NULL;
@@ -164,12 +167,14 @@ ft::pair<typename ft::map<Key, T, Compare, Allocator>::iterator, bool>
 	__s_node	*prev = NULL;
 	bool		go_left = false; // Avoids extra _compare() call
 
-	if (_root == _endLeaf) {
+	if (this->empty())
+	{
 		_root = _allocator.allocate(1);
 		_allocator.construct(_root, __s_node(val, NULL));
 		_repositionEndLeaf(_root);
 		return (_correctInsertion(_root, iterator(_root)));
 	}
+	
 	while (!_isLeaf(tree))
 	{
 		prev = tree;
@@ -202,30 +207,44 @@ template <class Key, class T, class Compare, class Allocator>
 typename ft::map<Key, T, Compare, Allocator>::iterator
 	ft::map<Key, T, Compare, Allocator>::insert(iterator hint, value_type const& val)
 {
-	__s_node	*hintedNode = hint._node;
+	iterator	next = hint;
 
-	if (hint == this->end() || hintedNode->parent == NULL)
+	#if MAP_DEBUG_VERBOSE == true
+		logstream << BCYN"Entering insert() hint overload."RESET << std::endl;
+	#endif
+	if (hint == this->end())
 		return (this->insert(val).first);
-	else if (_compare(val.first, hint->first) == true
-		&& _compare(val.first, hintedNode->parent->val.first) == false
-		&& _isLeaf(hintedNode->left))
+
+	Key	hintedKey = (hint)->first;
+	Key	nextKey   = (++next)->first;
+
+	if (_compare(hintedKey, val.first) == true
+		&& (_compare(val.first, nextKey) == true || next == _endLeaf)) // hintedKey < val.first < nextKey
 	{
-		hintedNode->left = _allocator.allocate(1);
-		_allocator.construct(hintedNode->left, __s_node(val, hintedNode));
-		return (_correctInsertion(hintedNode->left, hintedNode->left).first);
+		#if MAP_DEBUG_VERBOSE == true
+			logstream << BCYN"Hint looks correct, trying to find slot..."RESET << std::endl;
+		#endif
+		__s_node	*hintNode = hint._node;
+		__s_node	*nextNode = next._node;
+		if (_isLeaf(hintNode->right))
+		{
+			hintNode->right = _allocator.allocate(1);
+			_allocator.construct(hintNode->right, __s_node(val, hintNode));
+			if (_endLeaf->parent == hintNode)
+				_repositionEndLeaf(hintNode->right);
+			return (_correctInsertion(hintNode->right, iterator(hintNode->right)).first);
+		}
+		else if (nextNode->left == NULL)
+		{
+			nextNode->left = _allocator.allocate(1);
+			_allocator.construct(nextNode->left, __s_node(val, nextNode));
+			return (_correctInsertion(hintNode->left, iterator(hintNode->left)).first);
+		}
 	}
-	else if (_compare(hint->first, val.first) == true
-		&& _compare(hintedNode->parent->val.first, val.first) == false
-		&& _isLeaf(hintedNode->right))
-	{
-		hintedNode->right = _allocator.allocate(1);
-		_allocator.construct(hintedNode->right, __s_node(val, hintedNode));
-		if (_endLeaf->parent == hintedNode)
-			_repositionEndLeaf(hintedNode->right);
-		return (_correctInsertion(hintedNode->right, hintedNode->right).first);
-	}
-	else
-		return (this->insert(val).first);
+	#if MAP_DEBUG_VERBOSE == true
+		logstream << BRED"No insertion optimisation could be done."RESET << std::endl;
+	#endif
+	return (this->insert(val).first);
 }
 
 template <class Key, class T, class Compare, class Allocator>

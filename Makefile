@@ -6,7 +6,7 @@
 #    By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/25 15:25:19 by pbremond          #+#    #+#              #
-#    Updated: 2022/06/23 22:46:44 by pbremond         ###   ########.fr        #
+#    Updated: 2022/09/19 17:37:37 by pbremond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -51,7 +51,7 @@ OBJ_DIR = objs
 # ============================================================================ #
 
 # Source files common to mandatory and bonus parts
-SRC_COMMON =	main.cpp
+SRC_COMMON =	main.cpp	test.cpp
 
 VECTOR_SRC_FILES =	
 
@@ -91,7 +91,7 @@ NAME = ft_containers_test
 NAME_BONUS = ft_containers_test_bonus
 
 CXX = clang++
-CXXFLAGS = -Wall -Wextra -Werror -g -std=c++98
+CXXFLAGS = -Wall -Wextra -Werror -g -std=c++98 #-D NAMESP=std
 
 all : $(NAME)
 

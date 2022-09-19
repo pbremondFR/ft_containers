@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 14:43:55 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 16:18:05 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,6 +177,7 @@ class map
 		__s_node	*_endLeaf;
 		__s_node	*_root;
 		__s_node	*_dummy;
+		std::size_t	_size;
 
 		static std::ostream&	logstream; // Defined in map.tpp
 

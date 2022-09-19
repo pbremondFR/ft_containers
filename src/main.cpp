@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 14:34:42 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 17:37:10 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,9 @@
 #include "optional.hpp"
 
 #ifndef NAMESP
-# define NAMESP	ft
+# define NAMESP ft
+#else
+# define NAMESP std
 #endif
 
 void	newtest(void)
@@ -67,6 +69,8 @@ void	print(NAMESP::map<Key, T>& lst)
 		std::cout << *it << ' ';
 	std::cout << '\n';
 }
+
+void	lmartin_main(void);
 
 int	main(void)
 {
@@ -155,7 +159,7 @@ int	main(void)
 	newtest();
 	try
 	{
-		std::string			truc = "0123456789";
+		std::string				truc = "0123456789";
 		NAMESP::vector<char>	test(truc.begin(), truc.end());
 
 		fillWithAscii(test);
@@ -328,7 +332,7 @@ int	main(void)
 		test.insert(NAMESP::make_pair(8, "8"));
 		test.insert(NAMESP::make_pair(1, "1"));
 		printMap("map - test", test);
-		std::cout << test.insert(test.find(1), ft::make_pair(0, "0"))->first << std::endl;
+		std::cout << test.insert(test.find(1), NAMESP::make_pair(0, "0"))->first << std::endl;
 		
 		printMap("map - test", test);
 		// test.debug_printByLevel();
@@ -369,67 +373,24 @@ int	main(void)
 	{
 		std::cerr << "Exception caught: " << e.what() << std::endl;
 	}
-	// newtest();
-	// {
-	// 	NAMESP::map<int, int>	test;
-	// 	test.insert(NAMESP::make_pair(11, 11));
-	// 	test.insert(NAMESP::make_pair(7, 7));
-	// 	test.insert(NAMESP::make_pair(5, 5));
-	// 	printMap("test", test);
-	// 	test.debug_printByLevel();
-	// 	test.debug_leftRotate(7);
-	// 	test.debug_printFamily(7);
-	// 	test.debug_printByLevel();
-	// 	printMap("test", test);
-	// 	test.debug_rightRotate(11);
-	// 	test.debug_printFamily(7);
-	// 	test.debug_printByLevel();
-	// }
-	// newtest();
-	// {
-	// 	NAMESP::map<int, int>	test;
-	// 	test.insert(NAMESP::make_pair(11, 11));
-	// 	test.insert(NAMESP::make_pair(7, 7));
-	// 	test.insert(NAMESP::make_pair(5, 5));
-	// 	printMap("test", test);
-	// 	test.debug_printByLevel();
-	// 	test.debug_rightRotate(7);
-	// 	test.debug_printFamily(7);
-	// 	test.debug_printByLevel();
-	// 	printMap("test", test);
-	// 	test.debug_leftRotate(11);
-	// 	test.debug_printFamily(7);
-	// 	test.debug_printByLevel();
-	// }
 	newtest();
 	{
-		NAMESP::pair<int, std::string>			my_pair(8, "salut");
-		NAMESP::map<int, std::string>			test;
-		NAMESP::map<int, std::string>::iterator	it;
+		lmartin_main();
+	}
+	newtest();
+	{
+		NAMESP::map<char, int>	test;
+		
+		test['a'];
+		test['b'];
+		test['c'];
+		test['d'];
+		test['e'];
+		test['f'];
+		test['h'];
 
-		test.insert(my_pair);
-		test.insert(NAMESP::pair<int, std::string>(-4, "bar"));
-		test.insert(NAMESP::pair<int, std::string>(2, "machin"));
-		test.insert(NAMESP::pair<int, std::string>(3, "foo"));
-		test.insert(NAMESP::pair<int, std::string>(746, "Marcel"));
-		test.insert(NAMESP::pair<int, std::string>(1, "truc"));
-		it = test.begin();
-		std::cout << '\n';
-
-		while (it != test.end())
-		{
-			// cout << "start of while\n";
-			std::cout << it->first << ", " << it->second << '\n';
-			it++;
-	// 		cout << "iterator incremented\n";
-
-	// #ifndef STD
-	// 		cout << it.getPointer() << '\n';
-	// 		cout << test.end().getPointer() << '\n';
-	// #endif
-
-		}
-		std::cout << "End of display loop\n";
+		test.insert(test.find('f'), NAMESP::make_pair('g', 1337));
+		printMap("test", test);
 	}
 	return (0);
 }
