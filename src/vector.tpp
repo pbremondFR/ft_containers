@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 21:37:18 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 22:56:11 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ ft::vector<T, Allocator>::vector(InputIt first,
 {
 	_init_size = 0;
 	_capacity = _init_size;
-	_size = _init_size;
+	_size = 0;
 	_array = _allocator.allocate(_init_size);
 	_itrBegin = _array;
 	_itrEnd = _array + _size;
@@ -73,7 +73,8 @@ ft::vector<T, Allocator>::vector(const ft::vector<T, Allocator>& src)
 	_init_size = src._capacity;
 	_capacity = src._capacity;
 	_array = _allocator.allocate(_init_size);
-	_size = src._size;
+	// _size = src._size;
+	_size = 0;
 	_itrBegin = _array;
 	_itrEnd = _array;
 	this->assign(src.begin(), src.end());
@@ -84,14 +85,15 @@ ft::vector<T, Allocator>	&ft::vector<T, Allocator>::operator=(const ft::vector<T
 {
 	if (&rhs == this)
 		return (*this);
-	// for (size_type i = 0; i < _capacity; ++i)
-	// 	_allocator.destroy(_array + i);
+	for (size_type i = 0; i < _size; ++i)
+		_allocator.destroy(_array + i);
 	_allocator.deallocate(_array, _init_size);
 	_array = _allocator.allocate(rhs._capacity);
 	_recalcIterators(true, true);
 	_capacity = rhs._capacity;
 	_init_size = rhs._capacity;
-	_size = rhs._size;
+	// _size = rhs._size;
+	_size = 0;
 	this->assign(rhs.begin(), rhs.end());
 	return (*this);
 }
@@ -109,8 +111,11 @@ void	ft::vector<T, Allocator>::assign(size_type count, const T& value)
 {
 	if (count > _capacity)
 		this->reserve(count);
-	for (size_type i = 0; i < count; ++i)
+	for (size_type i = 0; i < _size; ++i)
+		_allocator.destroy(_array + i);
+	for (size_type i = 0; i < count; ++i) {
 		_allocator.construct(_array + i, value);
+	}
 	_size = count;
 	_recalcIterators(false, true);
 }
@@ -124,15 +129,21 @@ typename ft::enable_if
 >::type
 ft::vector<T, Allocator>::assign(InputIt first, InputIt last)
 {
-	difference_type	newSize = std::distance<InputIt>(first, last); // FIXME
+	// difference_type	newSize = std::distance<InputIt>(first, last); // FIXME
 
-	if (static_cast<size_type>(newSize) > _capacity)
-		this->reserve(newSize);
-	size_type i = 0;
-	for (InputIt itr = first; itr != last; ++itr, ++i)
-		_allocator.construct(_array + i, *itr);
-	_size = newSize;
-	_recalcIterators(false, true);
+	// if (static_cast<size_type>(newSize) > _capacity)
+	// 	this->reserve(newSize);
+	// for (size_type i = 0; i < _size; ++i)
+	// 	_allocator.destroy(_array + i);
+	// size_type i = 0;
+	// for (InputIt itr = first; itr != last; ++itr, ++i)
+	// 	_allocator.construct(_array + i, *itr);
+	// _size = newSize;
+	// _recalcIterators(false, true);
+
+	this->clear();
+	for (; first != last; ++first)
+		this->push_back(*first);
 }
 
 /* ************************************************************************** */
@@ -161,13 +172,15 @@ void	ft::vector<T, Allocator>::reserve(size_type newCapacity)
 	if (newCapacity <= _capacity)
 		return ;
 	if (newCapacity > _allocator.max_size())
-		throw (std::length_error("allocator<T>::allocate(size_t n) 'n' exceeds maximum supported size"));	
+		throw (std::length_error("allocator<T>::allocate(size_t n) 'n' exceeds maximum supported size"));
+
 	T	*newArray = _allocator.allocate(newCapacity);
 	for (size_type i = 0; i < _size; ++i) {
 		_allocator.construct(newArray + i, _array[i]);
 	}
-	for (size_type i = 0; i < _size; ++i)
+	for (size_type i = 0; i < _size; ++i) {
 		_allocator.destroy(_array + i);
+	}
 	_allocator.deallocate(_array, _init_size);
 	_init_size = newCapacity;
 	_capacity = newCapacity;
@@ -202,6 +215,8 @@ typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::insert(ite
 	pointer dest = src + 1;
 	for (size_type i = _itrEnd - pos; i > 0;) {
 		--i;
+		if (dest + i < _array + _size)
+			_allocator.destroy(dest + i);
 		_allocator.construct(dest + i, src[i]);
 		// dest[i] = src[i];
 	}
@@ -226,6 +241,8 @@ void	ft::vector<T, Allocator>::insert(iterator pos, size_type count, const T& va
 	for (difference_type i = _itrEnd - pos; i > 0;) {
 		--i;
 		// _allocator.destroy(_array + i);
+		if (dest + i < _array + _size)
+			_allocator.destroy(dest + i);
 		_allocator.construct(dest + i, src[i]);
 		// dest[i] = src[i];
 	}
@@ -297,10 +314,16 @@ void	ft::vector<T, Allocator>::_do_insert(iterator pos, ForwardIt first, Forward
 		--i;
 		// dest[i] = src[i];
 		// _allocator.destroy(_array + i);
+		if (dest + i < _array + _size)
+			_allocator.destroy(dest + i);
 		_allocator.construct(dest + i, src[i]);
 	}
-	for (; first != last; ++first, ++pos)
-		*pos = *first;
+	for (; first != last; ++first, ++pos) {
+		if (pos.operator->() < _array + _size)
+			_allocator.destroy(pos.operator->());
+		_allocator.construct(pos.operator->(), *first);
+		// *pos = *first;
+	}
 	_size += count;
 	_recalcIterators(false, true);
 }
@@ -308,14 +331,17 @@ void	ft::vector<T, Allocator>::_do_insert(iterator pos, ForwardIt first, Forward
 template < class T, class Allocator >
 typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iterator pos)
 {
-	_allocator.destroy(pos.operator->());
+	// _allocator.destroy(pos.operator->());
 	pointer src = (pos + 1).operator->();
 	pointer dest = pos.operator->();
 	for (difference_type i = 0; i < _itrEnd - src; ++i) {
 		// dest[i] = src[i];
 		// _allocator.destroy(dest + i);
+		if (dest + i < _array + _size)
+			_allocator.destroy(dest + i);
 		_allocator.construct(dest + i, src[i]);
 	}
+	_allocator.destroy(_array + _size - 1);
 	--_size;
 	_recalcIterators(false, true);
 	if (pos > _itrEnd)
@@ -327,16 +353,23 @@ typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iter
 template < class T, class Allocator >
 typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iterator first, iterator last)
 {
-	_size -= ft::distance(first, last);
-	for (iterator it = first; it != last; ++it)
-		_allocator.destroy(it.operator->());
+	difference_type	i;
+	difference_type	n_erased = ft::distance(first, last);
+
+	// for (iterator it = first; it != last; ++it)
+	// 	_allocator.destroy(it.operator->());
 	pointer src = last.operator->();
 	pointer dest = first.operator->();
-	for (difference_type i = 0; i < _itrEnd - last; ++i) {
-		// _allocator.destroy(dest + i);
-		_allocator.construct(dest + i, src[i]);
-		// dest[i] = src[i];
+	for (i = 0; i < _itrEnd - last; ++i) {
+		// if (dest + i < _array + _size)
+		// 	_allocator.destroy(dest + i);
+		// _allocator.construct(dest + i, src[i]);
+		dest[i] = src[i];
 	}
+	for (; dest + i < _array + _size; ++i) {
+		_allocator.destroy(dest + i);
+	}
+	_size -= n_erased;
 	_recalcIterators(false, true);
 	return (first);
 }
@@ -354,7 +387,8 @@ void	ft::vector<T, Allocator>::push_back(const T& value)
 template < class T, class Allocator >
 void	ft::vector<T, Allocator>::pop_back()
 {
-	_allocator.destroy((_array + _size--) - 1);
+	// _allocator.destroy((_array + _size--) - 1);
+	_allocator.destroy(_array + --_size);
 	_recalcIterators(false, true);
 }
 
