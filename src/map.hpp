@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 18:05:37 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 20:14:28 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,13 @@
 #include "optional.hpp"
 #include "reverse_iterator.hpp"
 #include "algorithm.hpp"
+# include <cassert>
 
 #define MAP_DEBUG_VERBOSE	false
 
 #if MAP_DEBUG_VERBOSE == true
 # include "ansi_color.h"
 # include <queue>
-# include <cassert>
 #endif
 
 namespace ft

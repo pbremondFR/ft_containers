@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 17:47:44 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 20:26:47 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,7 +221,7 @@ typename ft::map<Key, T, Compare, Allocator>::iterator
 	Key	nextKey   = (++next)->first;
 
 	if (_compare(hintedKey, val.first) == true
-		&& (_compare(val.first, nextKey) == true || next == _endLeaf)) // hintedKey < val.first < nextKey
+		&& (next == _endLeaf || _compare(val.first, nextKey) == true)) // hintedKey < val.first < nextKey
 	{
 		#if MAP_DEBUG_VERBOSE == true
 			logstream << BCYN"Hint looks correct, trying to find slot..."RESET << std::endl;
@@ -242,7 +242,7 @@ typename ft::map<Key, T, Compare, Allocator>::iterator
 			nextNode->left = _allocator.allocate(1);
 			_allocator.construct(nextNode->left, __s_node(val, nextNode));
 			++_size;
-			return (_correctInsertion(hintNode->left, iterator(hintNode->left)).first);
+			return (_correctInsertion(nextNode->left, iterator(nextNode->left)).first);
 		}
 	}
 	#if MAP_DEBUG_VERBOSE == true
