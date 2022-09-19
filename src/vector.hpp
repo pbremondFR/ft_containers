@@ -6,11 +6,13 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/17 06:43:03 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 20:30:58 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+// #pragma once
+#ifndef VECTOR_HPP
+#define VECTOR_HPP
 
 #include <memory>
 #include <iostream>
@@ -132,6 +134,11 @@ class vector
 		void	_doubleCapacity();
 		void	_recalcIterators(bool begin, bool end);
 		void	_shallowCopyNoDealloc(vector& other);
+
+		template<class InputIt>
+		void	_do_insert(iterator pos, InputIt first, InputIt last, std::input_iterator_tag);
+		template<class ForwardIt>
+		void	_do_insert(iterator pos, ForwardIt first, ForwardIt last, std::forward_iterator_tag);
 		
 };
 
@@ -177,3 +184,5 @@ bool	operator>=(ft::vector<T, Allocator> const& lhs, ft::vector<T, Allocator> co
 }
 
 #include "vector.tpp"
+
+#endif

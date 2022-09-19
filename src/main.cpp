@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 18:01:33 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 19:52:34 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -415,6 +415,17 @@ int	main(void)
 		std::swap(test1, test2);
 		printMap("Test 1", test1);
 		printMap("Test 2", test2);
+	}
+	newtest();
+	try
+	{
+		std::vector<int>	test;
+
+		test.reserve(test.max_size() * 2);
+	}
+	catch (std::exception const& e)
+	{
+		std::cerr << "Exception caught: " << e.what() << std::endl;
 	}
 	return (0);
 }
