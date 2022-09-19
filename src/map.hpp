@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 02:31:07 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 14:18:00 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ class map
 	private:
 		struct __s_node
 		{
-			typedef typename	ft::pair</* const */ Key, T>	value_type;
+			typedef typename	ft::pair<const Key, T>	value_type;
 			
 			__s_node	*parent;
 			__s_node	*left;
@@ -118,45 +118,6 @@ class map
 				son->right = this;
 				this->parent = son;
 			}
-
-			void	swap(__s_node *other)
-			{
-				// __s_node *tmp;
-
-				if (this->left != NULL)
-					this->left->parent = other;
-				if (other->left != NULL)
-					other->left->parent = this;
-					
-				if (this->right != NULL)
-					this->right->parent = other;
-				if (other->right != NULL)
-					other->right->parent = this;
-
-				if (this->isLeftChild() && this->parent != NULL)
-					this->parent->left = other;
-				else if (this->parent != NULL)
-					this->parent->right = other;
-				if (other->isLeftChild() && other->parent != NULL)
-					other->parent->left = this;
-				else if (other->parent != NULL)
-					other->parent->right = this;
-
-				std::swap(other->parent, this->parent);
-				// tmp = other->parent;
-				// other->parent = this->parent;
-				// this->parent = tmp;
-
-				std::swap(other->left, this->left);
-				// tmp = other->left;
-				// other->left = this->left;
-				// this->left = tmp;
-
-				std::swap(other->right, this->right);
-				// tmp = other->right;
-				// other->right = this->right;
-				// this->right = tmp;
-			}
 		};
 
 		template <class U>
@@ -219,7 +180,7 @@ class map
 	public:
 		typedef				Key										key_type;
 		typedef				T										mapped_type;
-		typedef typename	ft::pair</* const */ Key, T>					value_type;
+		typedef typename	ft::pair<const Key, T>					value_type;
 		typedef typename	std::size_t								size_type;
 		typedef typename	std::ptrdiff_t							difference_type;
 		typedef				Compare									key_compare;

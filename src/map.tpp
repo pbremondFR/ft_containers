@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 02:32:26 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 14:23:19 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,8 +261,8 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 		__s_node	*src = node->left;
 		while (!_isLeaf(src->right)) // Get the direct in-order predecessor
 			src = src->right;
-		node->val = src->val;
-		// node->swap(src);
+		ft::pair<Key, T>	*nonConstNodePtr = reinterpret_cast<ft::pair<Key, T>* >(&node->val);
+		*nonConstNodePtr = src->val;
 		node = src;
 	}
 	__s_node	*child = _isLeaf(node->left) ? node->right : node->left;
