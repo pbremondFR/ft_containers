@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 23:45:58 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/20 00:13:19 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -254,6 +254,8 @@ typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::insert(ite
 template < class T, class Allocator >
 void	ft::vector<T, Allocator>::insert(iterator pos, size_type count, const T& value)
 {
+	if (count == 0)
+		return ;
 	if (_size + count > _capacity)
 	{
 		size_type	pos_index = pos - _itrBegin;
@@ -272,8 +274,8 @@ void	ft::vector<T, Allocator>::insert(iterator pos, size_type count, const T& va
 		// dest[i] = src[i];
 	}
 	for (size_type i = 0; i < count; ++i, ++pos) {
-		// if (pos.operator->() < _array + _size)
-		// 	_allocator.destroy(pos.operator->());
+		if (pos.operator->() < _array + _size)
+			_allocator.destroy(pos.operator->());
 		_allocator.construct(pos.operator->(), value);
 		// *pos = value;
 	}
