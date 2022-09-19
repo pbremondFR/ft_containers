@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 17:37:10 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 18:01:33 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 
 #include <map>
 #include "map.hpp"
+
+#include <list>
 
 #include "optional.hpp"
 
@@ -391,6 +393,28 @@ int	main(void)
 
 		test.insert(test.find('f'), NAMESP::make_pair('g', 1337));
 		printMap("test", test);
+	}
+	newtest();
+	{
+		std::string	input1 = "ABCDEFGHIJ";
+		std::string input2 = "KLMNOPQRST";
+		std::list<NAMESP::pair<char, char> >	inputA;
+		std::list<NAMESP::pair<char, char> >	inputB;
+		NAMESP::map<char, char>	test1;
+		NAMESP::map<char, char>	test2;
+
+		for (std::string::iterator it = input1.begin(); it != input1.end(); ++it)
+			inputA.push_back(NAMESP::make_pair(*it, *it));
+		for (std::string::iterator it = input2.begin(); it != input2.end(); ++it)
+			inputB.push_back(NAMESP::make_pair(*it, *it));
+		test1.insert(inputA.begin(), inputA.end());
+		test2.insert(inputB.begin(), inputB.end());
+
+		printMap("Test 1", test1);
+		printMap("Test 2", test2);
+		std::swap(test1, test2);
+		printMap("Test 1", test1);
+		printMap("Test 2", test2);
 	}
 	return (0);
 }

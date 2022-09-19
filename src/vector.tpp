@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/18 18:09:49 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 18:06:52 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 #include <cassert>
 
-// FIXME: Absolutely MORONIC use of std::memmove in there. You're not in C anymore.
+// NOTE: Absolutely MORONIC use of std::memmove was in there. You're not in C anymore.
 // Classes exist, and their instances cannot just be wildly flailed around.
 
 #include "vector.hpp"
@@ -161,8 +161,6 @@ void	ft::vector<T, Allocator>::reserve(size_type newCapacity)
 	if (newCapacity > _allocator.max_size())
 		throw (std::length_error("std::length_error"));	
 	T	*newArray = _allocator.allocate(newCapacity);
-	// BUG: This FUCKS UP memory in Linux. Don't EVER use bitwise on objects again, you moron.
-	// std::memcpy(newArray, _array, _size * sizeof(T));
 	for (size_type i = 0; i < _size; ++i) {
 		_allocator.construct(newArray + i, _array[i]);
 	}
@@ -320,7 +318,7 @@ void	ft::vector<T, Allocator>::resize(size_type count, T value)
 	if (_size < count)
 	{
 		if (_capacity < count)
-			this->reserve(count); // TESTME: compare alloc size to std::vector
+			this->reserve(count);
 		for (size_type i = _size; i < count; ++i)
 			_array[i] = value;
 		_size = count;

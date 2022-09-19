@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 17:34:34 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 17:47:44 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,6 +172,7 @@ ft::pair<typename ft::map<Key, T, Compare, Allocator>::iterator, bool>
 		_root = _allocator.allocate(1);
 		_allocator.construct(_root, __s_node(val, NULL));
 		_repositionEndLeaf(_root);
+		++_size;
 		return (_correctInsertion(_root, iterator(_root)));
 	}
 	
@@ -189,6 +190,7 @@ ft::pair<typename ft::map<Key, T, Compare, Allocator>::iterator, bool>
 		else // If two keys are equal, unable to insert
 			return (ft::make_pair(iterator(tree), false));
 	}
+	++_size;
 	if (go_left) {
 		prev->left = _allocator.allocate(1);
 		_allocator.construct(prev->left, __s_node(val, prev));
@@ -232,12 +234,14 @@ typename ft::map<Key, T, Compare, Allocator>::iterator
 			_allocator.construct(hintNode->right, __s_node(val, hintNode));
 			if (_endLeaf->parent == hintNode)
 				_repositionEndLeaf(hintNode->right);
+			++_size;
 			return (_correctInsertion(hintNode->right, iterator(hintNode->right)).first);
 		}
 		else if (nextNode->left == NULL)
 		{
 			nextNode->left = _allocator.allocate(1);
 			_allocator.construct(nextNode->left, __s_node(val, nextNode));
+			++_size;
 			return (_correctInsertion(hintNode->left, iterator(hintNode->left)).first);
 		}
 	}
@@ -319,14 +323,12 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 			child->parent->right = NULL;
 		_dummy->parent = NULL;
 	}
+	--_size;
 }
 
 template <class Key, class T, class Compare, class Allocator>
 void	ft::map<Key, T, Compare, Allocator>::erase(iterator first, iterator last)
 {
-	// for (; first != last; ++first) {
-	// 	erase(first);
-	// }
 	while (first != last) {
 		++first;
 		erase(ft::prev(first));
@@ -430,21 +432,11 @@ void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 template <class Key, class T, class Compare, class Allocator>
 void	ft::map<Key, T, Compare, Allocator>::swap(map& other)
 {
-	__s_node *tmpRoot = other._root;
-	other._root = this->_root;
-	this->_root = tmpRoot;
-
-	_Alloc tmpAlloc = other._allocator;
-	other._allocator = this->_allocator;
-	this->_allocator = tmpAlloc;
-
-	Compare tmpComp = other._compare;
-	other._compare = this->_compare;
-	this->_compare = tmpComp;
-
-	__s_node *tmpEndLeaf = other._endLeaf;
-	other._endLeaf = this->_endLeaf;
-	this->_endLeaf = tmpEndLeaf;
+	std::swap(this->_root, other._root);
+	std::swap(this->_allocator, other._allocator);
+	std::swap(this->_compare, other._compare);
+	std::swap(this->_endLeaf, other._endLeaf);
+	std::swap(this->_size, other._size);
 }
 
 template <class Key, class T, class Compare, class Allocator>
@@ -525,6 +517,7 @@ void	ft::map<Key, T, Compare, Allocator>::clear(void)
 {
 	this->_postfix_dealloc(_root);
 	_root = _endLeaf;
+	_size = 0;
 }
 
 template <class Key, class T, class Compare, class Allocator>

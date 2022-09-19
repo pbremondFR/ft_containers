@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 06:44:44 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/17 05:05:35 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 18:05:54 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ struct is_forward_iterator
 	>
 {};
 
-// TODO
+// TODO (or not, who cares)
 template < class T, class U >
 struct is_convertible : false_type
 {};

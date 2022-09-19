@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 16:18:05 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 18:05:37 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -240,8 +240,8 @@ class map
 		T const&	at(Key const& key) const; // OK
 		T&			operator[](Key const& key); // OK
 
-		bool		empty() const { return (_root == _endLeaf); } // OK
-		size_type	size() const { return ft::distance(this->begin(), this->end()); } // FIXME: Inefficient as hell
+		bool		empty() const { return (_size == 0); } // OK
+		size_type	size() const { return (_size); }
 		size_type	max_size() const { return (_allocator.max_size()); } // OK
 
 		void		clear(); // OK
@@ -254,9 +254,9 @@ class map
 			void
 		>::type						insert(InputIt first, InputIt last); // OK
 
-		void		erase(iterator pos); // TODO
-		void		erase(iterator first, iterator last); // TODO
-		size_type	erase(Key const& key); // TODO
+		void		erase(iterator pos); // OK
+		void		erase(iterator first, iterator last); // OK
+		size_type	erase(Key const& key); // OK
 
 		void		swap(map& src); // OK
 
@@ -366,9 +366,8 @@ template <class Key, class T, class Compare, class Alloc>
 bool operator==(const ft::map<Key,T,Compare,Alloc>& lhs,
 				const ft::map<Key,T,Compare,Alloc>& rhs)
 {
-	// TODO: size() optimisation so it doesn't call god damned ft::distance every time
-	// if (lhs.size() != rhs.size())
-	// 	return (false);
+	if (lhs.size() != rhs.size())
+		return (false);
 	return (ft::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
 }
 
@@ -407,6 +406,19 @@ bool operator>=(const ft::map<Key,T,Compare,Alloc>& lhs,
 	return (!(lhs < rhs));
 }
 
+}
+
+namespace std
+{
+	template <class Key, class T, class Compare, class Alloc>
+	void	swap(ft::map<Key, T, Compare, Alloc>& lhs,
+				 ft::map<Key, T, Compare, Alloc>& rhs)
+	{
+		#if MAP_DEBUG_VERBOSE == true
+			std::cout << _BLU"DEBUG: map: std::swap is specialized"RESET << std::endl;
+		#endif
+		lhs.swap(rhs);
+	}
 }
 
 #include "map.tpp"
