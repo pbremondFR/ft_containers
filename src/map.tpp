@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 14:23:19 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 14:40:36 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -471,7 +471,7 @@ typename ft::map<Key, T, Compare, Allocator>::iterator
 {
 	__s_node	*node = _root;
 
-	while (node != NULL)
+	while (!_isLeaf(node))
 	{
 		if (_compare(key, node->val.first) == true)
 			node = node->left;
@@ -489,7 +489,7 @@ typename ft::map<Key, T, Compare, Allocator>::const_iterator
 {
 	__s_node	*node = _root;
 
-	while (node != NULL)
+	while (!_isLeaf(node))
 	{
 		if (_compare(key, node->val.first) == true)
 			node = node->left;

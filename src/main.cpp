@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/17 06:42:40 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 14:34:42 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,14 @@ void	printMap(std::string const& name, T const& container)
 	std::cout << name << ": " << std::endl;
 	for (typename T::const_iterator itr = container.begin(); itr != container.end(); ++itr)
 		std::cout << "- " << itr->first << " | " << itr->second << std::endl;
+}
+
+template <class Key, class T>
+void	print(NAMESP::map<Key, T>& lst)
+{
+	for (typename NAMESP::map<Key, T>::iterator it = lst.begin(); it != lst.end(); it++)
+		std::cout << *it << ' ';
+	std::cout << '\n';
 }
 
 int	main(void)
@@ -393,5 +401,35 @@ int	main(void)
 	// 	test.debug_printFamily(7);
 	// 	test.debug_printByLevel();
 	// }
+	newtest();
+	{
+		NAMESP::pair<int, std::string>			my_pair(8, "salut");
+		NAMESP::map<int, std::string>			test;
+		NAMESP::map<int, std::string>::iterator	it;
+
+		test.insert(my_pair);
+		test.insert(NAMESP::pair<int, std::string>(-4, "bar"));
+		test.insert(NAMESP::pair<int, std::string>(2, "machin"));
+		test.insert(NAMESP::pair<int, std::string>(3, "foo"));
+		test.insert(NAMESP::pair<int, std::string>(746, "Marcel"));
+		test.insert(NAMESP::pair<int, std::string>(1, "truc"));
+		it = test.begin();
+		std::cout << '\n';
+
+		while (it != test.end())
+		{
+			// cout << "start of while\n";
+			std::cout << it->first << ", " << it->second << '\n';
+			it++;
+	// 		cout << "iterator incremented\n";
+
+	// #ifndef STD
+	// 		cout << it.getPointer() << '\n';
+	// 		cout << test.end().getPointer() << '\n';
+	// #endif
+
+		}
+		std::cout << "End of display loop\n";
+	}
 	return (0);
 }

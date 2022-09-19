@@ -6,24 +6,27 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 14:18:00 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 14:43:55 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+// #pragma once
+#ifndef MAP_HPP
+#define MAP_HPP
 
-#include <memory>
 #include "utility.hpp"
 #include "type_traits.hpp"
 #include "optional.hpp"
 #include "reverse_iterator.hpp"
 #include "algorithm.hpp"
 
-#include "ansi_color.h"
-#include <queue>
-#include <cassert>
-
 #define MAP_DEBUG_VERBOSE	false
+
+#if MAP_DEBUG_VERBOSE == true
+# include "ansi_color.h"
+# include <queue>
+# include <cassert>
+#endif
 
 namespace ft
 {
@@ -406,3 +409,5 @@ bool operator>=(const ft::map<Key,T,Compare,Alloc>& lhs,
 }
 
 #include "map.tpp"
+
+#endif
