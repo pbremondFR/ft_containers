@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 20:30:58 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/19 23:38:56 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,6 +132,13 @@ class vector
 	
 	private:
 		void	_doubleCapacity();
+		void	_reserveOrDouble(size_type capacity)
+		{
+			if (_capacity * 2 >= capacity)
+				this->_doubleCapacity();
+			else
+				this->reserve(capacity);
+		}
 		void	_recalcIterators(bool begin, bool end);
 		void	_shallowCopyNoDealloc(vector& other);
 
@@ -139,6 +146,11 @@ class vector
 		void	_do_insert(iterator pos, InputIt first, InputIt last, std::input_iterator_tag);
 		template<class ForwardIt>
 		void	_do_insert(iterator pos, ForwardIt first, ForwardIt last, std::forward_iterator_tag);
+
+		template<class InputIt>
+		void	_do_assign(InputIt first, InputIt last, std::input_iterator_tag);
+		template<class ForwardIt>
+		void	_do_assign(ForwardIt first, ForwardIt last, std::forward_iterator_tag);
 		
 };
 
