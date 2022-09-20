@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/20 13:53:01 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/20 21:43:14 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ void	ft::vector<T, Allocator>::assign(size_type count, const T& value)
 {
 	if (count > _capacity)
 		this->reserve(count);
-	for (size_type i = 0; i < _size; ++i)
+	for (size_type i = 0; i < _size; ++i) // TESTME: Optimize ?
 		_allocator.destroy(_array + i);
 	for (size_type i = 0; i < count; ++i) {
 		_allocator.construct(_array + i, value);
@@ -165,7 +165,7 @@ void	ft::vector<T, Allocator>::_do_assign(ForwardIt first, ForwardIt last,
 	if (static_cast<size_type>(newSize) > _capacity)
 		this->reserve(newSize);
 	for (size_type i = 0; i < _size; ++i)
-		_allocator.destroy(_array + i);
+		_allocator.destroy(_array + i); // TESTME: Optimize?
 	size_type i = 0;
 	for (ForwardIt itr = first; itr != last; ++itr, ++i)
 		_allocator.construct(_array + i, *itr);
@@ -249,12 +249,13 @@ typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::insert(ite
 	for (size_type i = _itrEnd - pos; i > 0;) {
 		--i;
 		if (dest + i < _array + _size)
-			_allocator.destroy(dest + i);
-		_allocator.construct(dest + i, src[i]);
-		// dest[i] = src[i];
+			dest[i] = src[i];
+		else
+			_allocator.construct(dest + i, src[i]);
 	}
 	
-	*pos = value;
+	// *pos = value;
+	_allocator.construct(pos.operator->(), value);
 	++_size;
 	_recalcIterators(false, true);
 	return (pos);
@@ -268,7 +269,6 @@ void	ft::vector<T, Allocator>::insert(iterator pos, size_type count, const T& va
 	if (_size + count > _capacity)
 	{
 		size_type	pos_index = pos - _itrBegin;
-		// this->reserve(_size + count);
 		_reserveOrDouble(_size + count);
 		pos = _itrBegin + pos_index;
 	}
@@ -276,17 +276,16 @@ void	ft::vector<T, Allocator>::insert(iterator pos, size_type count, const T& va
 	pointer dest = src + count;
 	for (difference_type i = _itrEnd - pos; i > 0;) {
 		--i;
-		// _allocator.destroy(_array + i);
 		if (dest + i < _array + _size)
-			_allocator.destroy(dest + i);
-		_allocator.construct(dest + i, src[i]);
-		// dest[i] = src[i];
+			dest[i] = src[i];
+		else
+			_allocator.construct(dest + i, src[i]);
 	}
 	for (size_type i = 0; i < count; ++i, ++pos) {
 		if (pos.operator->() < _array + _size)
-			_allocator.destroy(pos.operator->());
-		_allocator.construct(pos.operator->(), value);
-		// *pos = value;
+			*pos = value;
+		else
+			_allocator.construct(pos.operator->(), value);
 	}
 	_size += count;
 	_recalcIterators(false, true);
@@ -331,7 +330,6 @@ void	ft::vector<T, Allocator>::_do_insert(iterator pos, ForwardIt first, Forward
 	if (_size + count > _capacity)
 	{
 		size_type	pos_index = pos.operator->() - _itrBegin.operator->();
-		// this->reserve(_size + count);
 		_reserveOrDouble(_size + count);
 		pos = _itrBegin.operator->() + pos_index;
 	}
@@ -339,17 +337,16 @@ void	ft::vector<T, Allocator>::_do_insert(iterator pos, ForwardIt first, Forward
 	pointer dest = src + count;
 	for (difference_type i = _itrEnd - pos; i > 0;) {
 		--i;
-		// dest[i] = src[i];
-		// _allocator.destroy(_array + i);
 		if (dest + i < _array + _size)
-			_allocator.destroy(dest + i);
-		_allocator.construct(dest + i, src[i]);
+			dest[i] = src[i];
+		else
+			_allocator.construct(dest + i, src[i]);
 	}
 	for (; first != last; ++first, ++pos) {
 		if (pos.operator->() < _array + _size)
-			_allocator.destroy(pos.operator->());
-		_allocator.construct(pos.operator->(), *first);
-		// *pos = *first;
+			*pos = *first;
+		else
+			_allocator.construct(pos.operator->(), *first);
 	}
 	_size += count;
 	_recalcIterators(false, true);
@@ -358,15 +355,13 @@ void	ft::vector<T, Allocator>::_do_insert(iterator pos, ForwardIt first, Forward
 template < class T, class Allocator >
 typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iterator pos)
 {
-	// _allocator.destroy(pos.operator->());
 	pointer src = (pos + 1).operator->();
 	pointer dest = pos.operator->();
 	for (difference_type i = 0; i < _itrEnd - src; ++i) {
-		// dest[i] = src[i];
-		// _allocator.destroy(dest + i);
 		if (dest + i < _array + _size)
-			_allocator.destroy(dest + i);
-		_allocator.construct(dest + i, src[i]);
+			dest[i] = src[i];
+		else
+			_allocator.construct(dest + i, src[i]);
 	}
 	_allocator.destroy(_array + _size - 1);
 	--_size;
@@ -383,8 +378,6 @@ typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iter
 	difference_type	i;
 	difference_type	n_erased = ft::distance(first, last);
 
-	// for (iterator it = first; it != last; ++it)
-	// 	_allocator.destroy(it.operator->());
 	pointer src = last.operator->();
 	pointer dest = first.operator->();
 	for (i = 0; i < _itrEnd - last; ++i) {
@@ -406,15 +399,13 @@ void	ft::vector<T, Allocator>::push_back(const T& value)
 {
 	if (_size + 1 > _capacity)
 		this->_doubleCapacity();
-	_allocator.construct(_array + _size, value);
-	++_size;
+	_allocator.construct(_array + _size++, value);
 	_recalcIterators(false, true);
 }
 
 template < class T, class Allocator >
 void	ft::vector<T, Allocator>::pop_back()
 {
-	// _allocator.destroy((_array + _size--) - 1);
 	_allocator.destroy(_array + --_size);
 	_recalcIterators(false, true);
 }
@@ -426,7 +417,6 @@ void	ft::vector<T, Allocator>::resize(size_type count, T value)
 	{
 		if (_capacity < count)
 			_reserveOrDouble(count);
-			// this->reserve(count);
 		for (size_type i = _size; i < count; ++i)
 			_allocator.construct(_array + i, value);
 		_size = count;
