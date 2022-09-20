@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/20 20:31:42 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/20 21:15:10 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@
 #include <map>
 #include "map.hpp"
 
-#define BONUS
 #ifdef BONUS
 # include <set>
 # include "set.hpp"
@@ -462,34 +461,36 @@ int	main(void)
 		printMap("Test 1", test1);
 		printMap("Test 2", test2);
 	}
-	// newtest();
-	// {
-	// 	const int size = 1e5;
-
-	// 	NAMESP::map<int, char>	mapperf;
-	// 	fillMapWithRand(size, mapperf);
-	// 	std::cout << "Filled map, " << size - mapperf.size() << " elements failed to insert" << std::endl;
-		
-	// 	NAMESP::set<int>	setperf;
-	// 	fillSetWithRand(size, setperf);
-	// 	std::cout << "Filled set, " << size - setperf.size() << " elements failed to insert" << std::endl;
-
-	// 	NAMESP::vector<int>	vecperf;
-	// 	fillVecWithRand(size, vecperf);
-	// 	std::cout << "Filled vector, " << size - vecperf.size() << " elements failed to insert" << std::endl;
-
-	// 	NAMESP::stack<int>	stackperf;
-	// 	fillStackWithRand(size, stackperf);
-	// 	std::cout << "Filled stack, " << size - stackperf.size() << " elements failed to insert" << std::endl;
-	// }
 	newtest();
 	{
-		const int size = 1e7;
+		const int size = 1e5;
 
 		NAMESP::map<int, char>	mapperf;
-		for (std::size_t i = 0; i < size; ++i) {
-			mapperf.insert(NAMESP::make_pair(i, 'A'));
-		}
+		fillMapWithRand(size, mapperf);
+		std::cout << "Filled map, " << size - mapperf.size() << " elements failed to insert" << std::endl;
+		
+		#ifdef BONUS
+		NAMESP::set<int>	setperf;
+		fillSetWithRand(size, setperf);
+		std::cout << "Filled set, " << size - setperf.size() << " elements failed to insert" << std::endl;
+		#endif
+		
+		NAMESP::vector<int>	vecperf;
+		fillVecWithRand(size, vecperf);
+		std::cout << "Filled vector, " << size - vecperf.size() << " elements failed to insert" << std::endl;
+
+		NAMESP::stack<int>	stackperf;
+		fillStackWithRand(size, stackperf);
+		std::cout << "Filled stack, " << size - stackperf.size() << " elements failed to insert" << std::endl;
 	}
+	// newtest();
+	// {
+	// 	const int size = 1e7;
+
+	// 	NAMESP::map<int, char>	mapperf;
+	// 	for (std::size_t i = 0; i < size; ++i) {
+	// 		mapperf.insert(NAMESP::make_pair(i, 'A'));
+	// 	}
+	// }
 	return (0);
 }

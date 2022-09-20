@@ -8,7 +8,7 @@
 *_prout.cpp
 
 ft_containers_test
-ft_containers_test_bonus
+std_containers_test
 
 *.a
 *.o
@@ -16,4 +16,3 @@ ft_containers_test_bonus
 *.sh
 
 tests/
-

@@ -6,7 +6,7 @@
 #    By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/25 15:25:19 by pbremond          #+#    #+#              #
-#    Updated: 2022/09/19 17:37:37 by pbremond         ###   ########.fr        #
+#    Updated: 2022/09/20 21:31:20 by pbremond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -53,10 +53,6 @@ OBJ_DIR = objs
 # Source files common to mandatory and bonus parts
 SRC_COMMON =	main.cpp	test.cpp
 
-VECTOR_SRC_FILES =	
-
-VECTOR_SRC =	$(addprefix vector/,	$(MAP_SRC_FILES))
-
 # ============================================================================ #
 # ============================================================================ #
 
@@ -65,7 +61,9 @@ SRC_MANDATORY =	$(SRC_COMMON)
 
 # Makefile variables for mandatory
 SRC_MANDATORY_PLUS_PATH = $(addprefix $(SRC_DIR)/, $(SRC_MANDATORY))
-OBJ = $(subst $(SRC_DIR)/, $(OBJ_DIR)/, $(patsubst %.cpp, %.o, $(SRC_MANDATORY_PLUS_PATH)))
+# OBJ = $(subst $(SRC_DIR)/, $(OBJ_DIR)/, $(patsubst %.cpp, %.o, $(SRC_MANDATORY_PLUS_PATH)))
+FT_OBJ  = $(subst $(SRC_DIR)/, $(OBJ_DIR)/ft/,  $(patsubst %.cpp, %.o, $(SRC_MANDATORY_PLUS_PATH)))
+STD_OBJ = $(subst $(SRC_DIR)/, $(OBJ_DIR)/std/, $(patsubst %.cpp, %.o, $(SRC_MANDATORY_PLUS_PATH)))
 
 # ============================================================================ #
 # ============================================================================ #
@@ -87,30 +85,48 @@ OBJ = $(subst $(SRC_DIR)/, $(OBJ_DIR)/, $(patsubst %.cpp, %.o, $(SRC_MANDATORY_P
 
 LIBS = 
 
-NAME = ft_containers_test
-NAME_BONUS = ft_containers_test_bonus
+# NAME = ft_containers_test
+FT_NAME  = ft_containers_test
+STD_NAME = std_containers_test
+
+# NAME_BONUS = ft_containers_test_bonus
 
 CXX = clang++
-CXXFLAGS = -Wall -Wextra -Werror -g -std=c++98 #-D NAMESP=std
+ifdef BONUS
+	CXXFLAGS = -Wall -Wextra -Werror -g -std=c++98 -D BONUS
+else
+	CXXFLAGS = -Wall -Wextra -Werror -g -std=c++98
+endif
 
-all : $(NAME)
+all : $(FT_NAME) $(STD_NAME)
 
-$(NAME): $(OBJ)
-	@echo "$(_PURPLE)Linking $(NAME)$(_COLOR_RESET)"
-	@$(CXX) $(CXXFLAGS) $(OBJ) -o $(NAME) $(LIBS)
+$(FT_NAME): $(FT_OBJ)
+	@echo "$(_PURPLE)Linking $(FT_NAME)$(_COLOR_RESET)"
+	@$(CXX) $(CXXFLAGS) $(FT_OBJ) -o $(FT_NAME) $(LIBS)
 	@echo "$(_GREEN)DONE$(_COLOR_RESET)"
 
-bonus: $(NAME_BONUS)
+$(STD_NAME): $(STD_OBJ)
+	@echo "$(_PURPLE)Linking $(STD_NAME)$(_COLOR_RESET)"
+	@$(CXX) $(CXXFLAGS) $(STD_OBJ) -o $(STD_NAME) $(LIBS)
+	@echo "$(_GREEN)DONE$(_COLOR_RESET)"
+
+bonus: fclean
+	@make BONUS=1 all
 
 $(NAME_BONUS): $(BONUS_OBJ)
 	@echo "$(_PURPLE)Linking $(NAME_BONUS)$(_COLOR_RESET)"
 	@$(CXX) $(CXXFLAGS) $(BONUS_OBJ) -o $(NAME_BONUS) $(LIBS)
 	@echo "$(_GREEN)DONE$(_COLOR_RESET)"
 
-$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp
+$(OBJ_DIR)/ft/%.o : $(SRC_DIR)/%.cpp
 	@echo "$(_BLUE)Compiling $(basename $(notdir $*.o)) $(_COLOR_RESET)"
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c $< -o $@ -I./$(INCLUDES)
+
+$(OBJ_DIR)/std/%.o : $(SRC_DIR)/%.cpp
+	@echo "$(_BLUE)Compiling $(basename $(notdir $*.o)) $(_COLOR_RESET)"
+	@mkdir -p $(@D)
+	@$(CXX) $(CXXFLAGS) -D NAMESP=std -c $< -o $@ -I./$(INCLUDES)
 
 
 re: fclean all
@@ -120,11 +136,11 @@ rebonus: fclean bonus
 b: bonus
 
 fclean: clean
-	@echo "$(_RED)Deleting $(NAME)$(_COLOR_RESET)"
-	@rm -rf $(NAME) $(NAME_BONUS)
+	@echo "$(_RED)Deleting $(FT_NAME) $(STD_NAME) $(_COLOR_RESET)"
+	@rm -rf $(FT_NAME) $(STD_NAME)
 
 clean:
 	@echo "$(_RED)Cleaning object files$(_COLOR_RESET)"
 	@rm -rf $(OBJ_DIR)
 	
-.PHONY: clean fclean re all bonus debug
+.PHONY: clean fclean re all bonus
