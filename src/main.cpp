@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/20 23:56:37 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/21 00:06:10 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -282,18 +282,6 @@ int	main(void)
 		ft::optional<std::string>	opt("Hello world");
 		std::cout << "Has value: " << opt.has_value() << std::endl;
 		std::cout << "value_or(\"merde\"): " << opt.value_or("merde") << std::endl;
-		opt = ft::nullopt;
-		std::cout << "Has value: " << opt.has_value() << std::endl;
-		opt.reset();
-		std::cout << "Has value: " << opt.has_value() << std::endl;
-	}
-	newtest();
-	{ // Just random tests, not needed by subject
-		ft::optional<std::string*>	opt = new std::string("Hello world");
-		std::cout << "Has value: " << opt.has_value() << std::endl;
-		if (opt)
-			std::cout << "value(): " << opt.value() << std::endl;
-		delete *opt;
 		opt = ft::nullopt;
 		std::cout << "Has value: " << opt.has_value() << std::endl;
 		opt.reset();
