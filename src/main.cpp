@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/20 21:15:10 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/20 23:56:37 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,8 +92,7 @@ template <class T>
 void	fillVecWithRand(std::size_t amount, NAMESP::vector<T>& vec)
 {
 	for (std::size_t i = 0; i < amount; ++i) {
-		vec.insert( vec.begin(), T(std::rand()) );
-		// std::cout << i << std::endl;
+		vec.push_back( T(std::rand()) );
 	}
 }
 
@@ -461,36 +460,70 @@ int	main(void)
 		printMap("Test 1", test1);
 		printMap("Test 2", test2);
 	}
+	const int size = 1e6;
 	newtest();
 	{
-		const int size = 1e5;
 
+		{
 		NAMESP::map<int, char>	mapperf;
 		fillMapWithRand(size, mapperf);
 		std::cout << "Filled map, " << size - mapperf.size() << " elements failed to insert" << std::endl;
-		
+		}
+		{
 		#ifdef BONUS
 		NAMESP::set<int>	setperf;
 		fillSetWithRand(size, setperf);
 		std::cout << "Filled set, " << size - setperf.size() << " elements failed to insert" << std::endl;
 		#endif
-		
+		}
+		{
 		NAMESP::vector<int>	vecperf;
 		fillVecWithRand(size, vecperf);
 		std::cout << "Filled vector, " << size - vecperf.size() << " elements failed to insert" << std::endl;
-
+		}
+		{
 		NAMESP::stack<int>	stackperf;
 		fillStackWithRand(size, stackperf);
 		std::cout << "Filled stack, " << size - stackperf.size() << " elements failed to insert" << std::endl;
+		}
 	}
-	// newtest();
-	// {
-	// 	const int size = 1e7;
+	newtest();
+	{
 
-	// 	NAMESP::map<int, char>	mapperf;
-	// 	for (std::size_t i = 0; i < size; ++i) {
-	// 		mapperf.insert(NAMESP::make_pair(i, 'A'));
-	// 	}
-	// }
+		{
+		NAMESP::map<int, std::string>	mapperf;
+		for (std::size_t i = 0; i < size; ++i)
+			mapperf.insert(NAMESP::make_pair(std::rand(), "According to all known laws of aviation, there is no way that a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyways. Because bees don't care what humans think is impossible."));
+		std::cout << "Filled map, " << size - mapperf.size() << " elements failed to insert" << std::endl;
+		}
+		{
+		NAMESP::vector<std::string>	vecperf;
+		for (std::size_t i = 0; i < size; ++i)
+			vecperf.push_back("According to all known laws of aviation, there is no way that a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyways. Because bees don't care what humans think is impossible.");
+		std::cout << "Filled vector, " << size - vecperf.size() << " elements failed to insert" << std::endl;
+		}
+		{
+		NAMESP::stack<std::string>	stackperf;
+		for (std::size_t i = 0; i < size; ++i)
+			stackperf.push("According to all known laws of aviation, there is no way that a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyways. Because bees don't care what humans think is impossible.");
+		std::cout << "Filled stack, " << size - stackperf.size() << " elements failed to insert" << std::endl;
+		}
+	}
+	newtest();
+	{
+		NAMESP::map<int, char>	mapperf;
+		for (std::size_t i = 0; i < size; ++i) {
+			mapperf.insert(NAMESP::make_pair(i, 'A'));
+		}
+		std::cout << "Filled map, " << size - mapperf.size() << " elements failed to insert" << std::endl;
+	}
+	newtest();
+	{
+		NAMESP::vector<int>	vecperf;
+		for (std::size_t i = 0; i < 1e5; ++i) {
+			vecperf.insert( vecperf.begin(), i );
+		}
+		std::cout << "Filled vector, " << 1e5 - vecperf.size() << " elements failed to insert" << std::endl;
+	}
 	return (0);
 }
