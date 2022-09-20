@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/20 00:13:19 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/20 13:53:01 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,9 @@
 
 // NOTE: Absolutely MORONIC use of std::memmove was in there. You're not in C anymore.
 // Classes exist, and their instances cannot just be wildly flailed around.
+
+// TESTME: Some very small capacity discreptancies when testing on Linux. Not remotely
+// important, but curious nonetheless.
 
 #include "vector.hpp"
 
@@ -196,7 +199,13 @@ void	ft::vector<T, Allocator>::reserve(size_type newCapacity)
 	if (newCapacity <= _capacity)
 		return ;
 	if (newCapacity > _allocator.max_size())
-		throw (std::length_error("allocator<T>::allocate(size_t n) 'n' exceeds maximum supported size"));
+	{ // Useless preproc directives to mimic current OS error messages.
+		#ifdef __linux__
+			throw (std::length_error("vector::reserve"));
+		#else
+			throw (std::length_error("allocator<T>::allocate(size_t n) 'n' exceeds maximum supported size"));
+		#endif
+	}
 
 	T	*newArray = _allocator.allocate(newCapacity);
 	for (size_type i = 0; i < _size; ++i) {
