@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 20:14:28 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/20 19:29:50 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,10 @@
 #include "optional.hpp"
 #include "reverse_iterator.hpp"
 #include "algorithm.hpp"
-# include <cassert>
+
+#include <cassert>
+#include <functional> // std::less
+#include <memory> // std::allocator
 
 #define MAP_DEBUG_VERBOSE	false
 
@@ -63,13 +66,13 @@ class map
 
 			inline void		toggleColour() { colour = (colour == RED ? BLACK : RED); }
 
-			inline __s_node	*brother() // OK
+			inline __s_node	*brother()
 			{
 				if (parent == NULL)
 					return (NULL);
 				return (this == parent->left ? parent->right : parent->left);
 			}
-			inline __s_node	*uncle() // OK, or I commit sudoku
+			inline __s_node	*uncle()
 			{
 				if (parent == NULL || parent->parent == NULL)
 					return (NULL);
@@ -78,7 +81,7 @@ class map
 
 			inline bool	isLeftChild() const { return (parent != NULL && this == parent->left); }
 
-			void	rotateLeft(__s_node **treeRoot) // OK
+			void	rotateLeft(__s_node **treeRoot)
 			{
 				#if MAP_DEBUG_VERBOSE == true
 					logstream << BBLU"DEBUG: "BRED"left rotate (" << this->val.first << ")"RESET << std::endl;
@@ -100,7 +103,7 @@ class map
 				this->parent = son;
 			}
 
-			void	rotateRight(__s_node **treeRoot) // OK
+			void	rotateRight(__s_node **treeRoot)
 			{
 				#if MAP_DEBUG_VERBOSE == true
 					logstream << BBLU"DEBUG: "BGRN"right rotate (" << this->val.first << ")"RESET << std::endl;
@@ -127,7 +130,10 @@ class map
 		class __map_iterator
 		{
 			private:
-				friend class map; // KO maybe, are you SURE ?
+				// NOTE: This is needed so that the map class can access the
+				// node pointer of the iterator, which simplifies the code a whole bunch.
+				friend class map;
+				
 				typedef __map_iterator<U>	self;
 				
 				__s_node	*_node;
@@ -136,12 +142,12 @@ class map
 				{
 					for (; _node->left != NULL; _node = _node->left) ;
 					return *this;
-				} // OK
+				}
 				inline self& goto_end()
 				{
 					for (; _node->right != NULL; _node = _node->right) ;
 					return *this;
-				} // OK
+				}
 				
 			public:
 				typedef std::bidirectional_iterator_tag	iterator_category;
@@ -158,16 +164,16 @@ class map
 
 				inline operator __map_iterator<const U>() const { return (this->_node); }
 
-				inline reference	operator*()  const { return(_node->val);  } // OK
-				inline pointer		operator->() const { return(&_node->val); } // OK
+				inline reference	operator*()  const { return(_node->val);  }
+				inline pointer		operator->() const { return(&_node->val); }
 
-				__map_iterator&	operator++(); // OK
-				__map_iterator	operator++(int); // OK
-				__map_iterator&	operator--(); // OK
-				__map_iterator	operator--(int); // OK
+				__map_iterator&	operator++();
+				__map_iterator	operator++(int);
+				__map_iterator&	operator--();
+				__map_iterator	operator--(int);
 
-				inline bool	operator==(__map_iterator const& rhs) { return (this->_node == rhs._node); } // OK
-				inline bool	operator!=(__map_iterator const& rhs) { return (this->_node != rhs._node); } // OK
+				inline bool	operator==(__map_iterator const& rhs) { return (this->_node == rhs._node); }
+				inline bool	operator!=(__map_iterator const& rhs) { return (this->_node != rhs._node); }
 		};
 
 	private:
@@ -217,79 +223,79 @@ class map
 		};
 		
 	public:
-		explicit map(Compare const& comp = Compare(), Allocator const& alloc = Allocator()); // OK
+		explicit map(Compare const& comp = Compare(), Allocator const& alloc = Allocator());
 		template<class InputIt>
 		map(InputIt first, InputIt last,
 			Compare const& comp = Compare(),
 			Allocator const& alloc = Allocator(),
-			typename enable_if< !is_fundamental<InputIt>::value, int >::type = 0); // OK
-		map(map const& src); // OK
+			typename enable_if< !is_fundamental<InputIt>::value, int >::type = 0);
+		map(map const& src);
 		~map()
 		{
 			this->clear();
 			_allocator.deallocate(_endLeaf, 1);
 			_allocator.deallocate(_dummy, 1);
-		} // OK
+		}
 
-		map&	operator=(map const& src); // OK
+		map&	operator=(map const& src);
 		
-		allocator_type	get_allocator() const { return (_allocator); } // OK
+		allocator_type	get_allocator() const { return (_allocator); }
 	
 	public:
-		T&			at(Key const& key); // OK
-		T const&	at(Key const& key) const; // OK
-		T&			operator[](Key const& key); // OK
+		T&			at(Key const& key);
+		T const&	at(Key const& key) const;
+		T&			operator[](Key const& key);
 
-		bool		empty() const { return (_size == 0); } // OK
+		bool		empty() const { return (_size == 0); }
 		size_type	size() const { return (_size); }
-		size_type	max_size() const { return (_allocator.max_size()); } // OK
+		size_type	max_size() const { return (_allocator.max_size()); }
 
-		void		clear(); // OK
+		void		clear();
 
-		ft::pair<iterator, bool>	insert(value_type const& val); // OK
-		iterator					insert(iterator hint, value_type const& val); // OK
+		ft::pair<iterator, bool>	insert(value_type const& val);
+		iterator					insert(iterator hint, value_type const& val);
 		template<class InputIt>
 		typename ft::enable_if <
 			!ft::is_fundamental<InputIt>::value,
 			void
-		>::type						insert(InputIt first, InputIt last); // OK
+		>::type						insert(InputIt first, InputIt last);
 
-		void		erase(iterator pos); // OK
-		void		erase(iterator first, iterator last); // OK
-		size_type	erase(Key const& key); // OK
+		void		erase(iterator pos);
+		void		erase(iterator first, iterator last);
+		size_type	erase(Key const& key);
 
-		void		swap(map& src); // OK
+		void		swap(map& src);
 
-		size_type		count(Key const& key) const; // OK
-		iterator		find(Key const& key); // OK
-		const_iterator	find(Key const& key) const; // OK
+		size_type		count(Key const& key) const;
+		iterator		find(Key const& key);
+		const_iterator	find(Key const& key) const;
 
-		ft::pair<iterator,iterator>				equal_range(Key const& key) // OK
+		ft::pair<iterator,iterator>				equal_range(Key const& key)
 		{
 			return (make_pair(lower_bound(key), upper_bound(key)));
 		}
-		ft::pair<const_iterator,const_iterator>	equal_range(Key const& key) const // OK
+		ft::pair<const_iterator,const_iterator>	equal_range(Key const& key) const
 		{
 			return (make_pair(lower_bound(key), upper_bound(key)));
 		}
 
-		iterator		lower_bound(Key const& key); // OK
-		const_iterator	lower_bound(Key const& key) const; // OK
-		iterator		upper_bound(Key const& key); // OK
-		const_iterator	upper_bound(Key const& key) const; // OK
+		iterator		lower_bound(Key const& key);
+		const_iterator	lower_bound(Key const& key) const;
+		iterator		upper_bound(Key const& key);
+		const_iterator	upper_bound(Key const& key) const;
 
-		key_compare		key_comp() const { return (_compare); } // OK
-		value_compare	value_comp() const { return (value_compare(_compare)); } // OK
+		key_compare		key_comp() const { return (_compare); }
+		value_compare	value_comp() const { return (value_compare(_compare)); }
 
-		inline iterator			begin()		  { return (iterator(_root).goto_begin()); } // OK
-		inline const_iterator	begin() const { return (iterator(_root).goto_begin()); } // OK
-		inline iterator			end()		{ return (iterator(_endLeaf)); } // OK
-		inline const_iterator	end() const { return (iterator(_endLeaf)); } // OK
+		inline iterator			begin()		  { return (iterator(_root).goto_begin()); }
+		inline const_iterator	begin() const { return (iterator(_root).goto_begin()); }
+		inline iterator			end()		{ return (iterator(_endLeaf)); }
+		inline const_iterator	end() const { return (iterator(_endLeaf)); }
 
-		inline reverse_iterator			rbegin()	   { return reverse_iterator(end()); } // OK
-		inline const_reverse_iterator	rbegin() const { return reverse_iterator(end()); } // OK
-		inline reverse_iterator			rend()		 { return reverse_iterator(begin()); } // OK
-		inline const_reverse_iterator	rend() const { return reverse_iterator(begin()); } // OK
+		inline reverse_iterator			rbegin()	   { return reverse_iterator(end()); }
+		inline const_reverse_iterator	rbegin() const { return reverse_iterator(end()); }
+		inline reverse_iterator			rend()		 { return reverse_iterator(begin()); }
+		inline const_reverse_iterator	rend() const { return reverse_iterator(begin()); }
 
 	#if MAP_DEBUG_VERBOSE == true
 		void	debug_leftRotate(Key const& key);	

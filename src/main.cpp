@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 19:52:34 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/20 20:31:42 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,20 @@
 #include <vector>
 #include "vector.hpp"
 
+#include <stack>
+#include "stack.hpp"
+
 #include <utility>
 #include "utility.hpp"
 
 #include <map>
 #include "map.hpp"
+
+#define BONUS
+#ifdef BONUS
+# include <set>
+# include "set.hpp"
+#endif
 
 #include <list>
 
@@ -72,10 +81,47 @@ void	print(NAMESP::map<Key, T>& lst)
 	std::cout << '\n';
 }
 
+template <class T>
+void	fillStackWithRand(std::size_t amount, NAMESP::stack<T>& stack)
+{
+	for (std::size_t i = 0; i < amount; ++i) {
+		stack.push( std::rand() );
+	}
+}
+
+template <class T>
+void	fillVecWithRand(std::size_t amount, NAMESP::vector<T>& vec)
+{
+	for (std::size_t i = 0; i < amount; ++i) {
+		vec.insert( vec.begin(), T(std::rand()) );
+		// std::cout << i << std::endl;
+	}
+}
+
+template <class Key, class T>
+void	fillMapWithRand(std::size_t amount, NAMESP::map<Key, T>& map)
+{
+	for (std::size_t i = 0; i < amount; ++i) {
+		map.insert(NAMESP::make_pair( Key(std::rand()), T() ));
+	}
+}
+
+#ifdef BONUS
+template <class Key>
+void	fillSetWithRand(std::size_t amount, NAMESP::set<Key>& set)
+{
+	for (std::size_t i = 0; i < amount; ++i) {
+		set.insert( Key(std::rand()) );
+	}
+}
+#endif
+
 void	lmartin_main(void);
 
 int	main(void)
 {
+	std::srand(1337);
+
 	try
 	{
 		NAMESP::vector<char>	test(9, 'a');
@@ -416,16 +462,34 @@ int	main(void)
 		printMap("Test 1", test1);
 		printMap("Test 2", test2);
 	}
-	newtest();
-	try
-	{
-		std::vector<int>	test;
+	// newtest();
+	// {
+	// 	const int size = 1e5;
 
-		test.reserve(test.max_size() * 2);
-	}
-	catch (std::exception const& e)
+	// 	NAMESP::map<int, char>	mapperf;
+	// 	fillMapWithRand(size, mapperf);
+	// 	std::cout << "Filled map, " << size - mapperf.size() << " elements failed to insert" << std::endl;
+		
+	// 	NAMESP::set<int>	setperf;
+	// 	fillSetWithRand(size, setperf);
+	// 	std::cout << "Filled set, " << size - setperf.size() << " elements failed to insert" << std::endl;
+
+	// 	NAMESP::vector<int>	vecperf;
+	// 	fillVecWithRand(size, vecperf);
+	// 	std::cout << "Filled vector, " << size - vecperf.size() << " elements failed to insert" << std::endl;
+
+	// 	NAMESP::stack<int>	stackperf;
+	// 	fillStackWithRand(size, stackperf);
+	// 	std::cout << "Filled stack, " << size - stackperf.size() << " elements failed to insert" << std::endl;
+	// }
+	newtest();
 	{
-		std::cerr << "Exception caught: " << e.what() << std::endl;
+		const int size = 1e7;
+
+		NAMESP::map<int, char>	mapperf;
+		for (std::size_t i = 0; i < size; ++i) {
+			mapperf.insert(NAMESP::make_pair(i, 'A'));
+		}
 	}
 	return (0);
 }
