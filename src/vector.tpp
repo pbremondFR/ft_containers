@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/20 21:43:14 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/21 16:43:42 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,6 @@ ft::vector<T, Allocator>::vector(const ft::vector<T, Allocator>& src)
 	_init_size = src._size;
 	_capacity = src._size;
 	_array = _allocator.allocate(_init_size);
-	// _size = src._size;
 	_size = 0;
 	_itrBegin = _array;
 	_itrEnd = _array;
@@ -244,18 +243,16 @@ typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::insert(ite
 		this->_doubleCapacity();
 		pos = _itrBegin + pos_index;
 	}
-	pointer src = pos.operator->();
-	pointer dest = src + 1;
-	for (size_type i = _itrEnd - pos; i > 0;) {
-		--i;
-		if (dest + i < _array + _size)
-			dest[i] = src[i];
-		else
-			_allocator.construct(dest + i, src[i]);
+	if (pos == _itrEnd)
+		_allocator.construct(pos.operator->(), value);
+	else
+	{
+		pointer src = pos.operator->();
+		pointer dest = src + 1;
+		_moveBackward(src, dest, _itrEnd - pos,
+			ft::integral_constant< bool, _hasSwapMethod::value>());
+		*pos = value;
 	}
-	
-	// *pos = value;
-	_allocator.construct(pos.operator->(), value);
 	++_size;
 	_recalcIterators(false, true);
 	return (pos);
@@ -274,14 +271,11 @@ void	ft::vector<T, Allocator>::insert(iterator pos, size_type count, const T& va
 	}
 	pointer src = pos.operator->();
 	pointer dest = src + count;
-	for (difference_type i = _itrEnd - pos; i > 0;) {
-		--i;
-		if (dest + i < _array + _size)
-			dest[i] = src[i];
-		else
-			_allocator.construct(dest + i, src[i]);
-	}
-	for (size_type i = 0; i < count; ++i, ++pos) {
+	_moveBackward(src, dest, _itrEnd - pos,
+		ft::integral_constant< bool, _hasSwapMethod::value>());
+
+	for (size_type i = 0; i < count; ++i, ++pos)
+	{
 		if (pos.operator->() < _array + _size)
 			*pos = value;
 		else
@@ -335,14 +329,11 @@ void	ft::vector<T, Allocator>::_do_insert(iterator pos, ForwardIt first, Forward
 	}
 	pointer src = pos.operator->();
 	pointer dest = src + count;
-	for (difference_type i = _itrEnd - pos; i > 0;) {
-		--i;
-		if (dest + i < _array + _size)
-			dest[i] = src[i];
-		else
-			_allocator.construct(dest + i, src[i]);
-	}
-	for (; first != last; ++first, ++pos) {
+	_moveBackward(src, dest, _itrEnd - pos,
+		ft::integral_constant< bool, _hasSwapMethod::value>());
+	
+	for (; first != last; ++first, ++pos)
+	{
 		if (pos.operator->() < _array + _size)
 			*pos = *first;
 		else

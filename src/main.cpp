@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/21 00:06:10 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/21 16:12:56 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -448,6 +448,13 @@ int	main(void)
 		printMap("Test 1", test1);
 		printMap("Test 2", test2);
 	}
+	newtest();
+	{
+		NAMESP::vector<std::string>	testOptiSFINAE;
+		testOptiSFINAE.push_back("CECI EST UN TEST MDR");
+		testOptiSFINAE.insert(testOptiSFINAE.begin(), "CECI EN EST UN AUTRE LOL");
+	}
+	return 0;
 	const int size = 1e6;
 	newtest();
 	{

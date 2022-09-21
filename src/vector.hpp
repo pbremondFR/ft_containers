@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/20 19:13:23 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/21 16:49:32 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,11 +91,6 @@ class vector
 		inline const_iterator	begin() const { return const_iterator(_itrBegin); };
 		inline iterator			end()	    { return _itrEnd; };
 		inline const_iterator	end() const { return const_iterator(_itrEnd); };
-		// Just for testing
-		// inline iterator			begin()		  { return iterator(_array); };
-		// inline const_iterator	begin() const { return const_iterator(_array); };
-		// inline iterator			end()	    { return iterator(_array + _size); };
-		// inline const_iterator	end() const { return const_iterator(_array + _size); };
 
 		inline reverse_iterator			rbegin()	   { return reverse_iterator(end()); };
 		inline const_reverse_iterator	rbegin() const { return reverse_iterator(end()); };
@@ -151,6 +146,50 @@ class vector
 		void	_do_assign(InputIt first, InputIt last, std::input_iterator_tag);
 		template<class ForwardIt>
 		void	_do_assign(ForwardIt first, ForwardIt last, std::forward_iterator_tag);
+
+		struct _hasSwapMethod
+		{
+			template < typename U, void (U::*)(U&) >
+				struct SFINAE {};
+
+			template <typename U>
+				static char Test(SFINAE<U, &U::swap>*);
+
+			template <typename U>
+				static int Test(...);
+
+			static const bool value = ( sizeof(Test<T>(0)) == sizeof(char) );
+		};
+
+		void	_moveBackward(pointer src, pointer dest, size_type n, ft::false_type)
+		{
+			#if VEC_DEBUG_VERBOSE == true
+				std::cerr << _RED"In unspecialized moveBackward"RESET << std::endl;
+			#endif
+			for (size_type i = n; i > 0;)
+			{
+				--i;
+				if (dest + i < _array + _size)
+					dest[i] = src[i];
+				else
+					_allocator.construct(dest + i, src[i]);
+			}
+		}
+		// Executes only if value_type have a swap method
+		void	_moveBackward(pointer src, pointer dest, size_type n, ft::true_type)
+		{
+			#if VEC_DEBUG_VERBOSE == true
+				std::cerr << _GRN"In swap specialized moveBackward"RESET << std::endl;
+			#endif
+			for (size_type i = n; i > 0;)
+			{
+				--i;
+				if (dest + i < _array + _size)
+					dest[i].swap(src[i]);
+				else
+					_allocator.construct(dest + i, src[i]);
+			}
+		}
 		
 };
 
