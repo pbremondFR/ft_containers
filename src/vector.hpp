@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/21 16:49:32 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/21 18:02:04 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,10 @@
 #include "random_access_iterator.hpp"
 #include "reverse_iterator.hpp"
 #include "algorithm.hpp"
+
+#ifndef VEC_DEBUG_VERBOSE
+# define VEC_DEBUG_VERBOSE	false
+#endif
 
 namespace ft
 {
@@ -135,7 +139,6 @@ class vector
 				this->reserve(capacity);
 		}
 		void	_recalcIterators(bool begin, bool end);
-		void	_shallowCopyNoDealloc(vector& other);
 
 		template<class InputIt>
 		void	_do_insert(iterator pos, InputIt first, InputIt last, std::input_iterator_tag);
@@ -147,6 +150,8 @@ class vector
 		template<class ForwardIt>
 		void	_do_assign(ForwardIt first, ForwardIt last, std::forward_iterator_tag);
 
+		// SFINAE trick to know at compile time whether or not value_type has got
+		// a `void T.swap(T& other)` method. This allows optimizations further down the line.
 		struct _hasSwapMethod
 		{
 			template < typename U, void (U::*)(U&) >
@@ -158,38 +163,19 @@ class vector
 			template <typename U>
 				static int Test(...);
 
-			static const bool value = ( sizeof(Test<T>(0)) == sizeof(char) );
+			static const bool value = ( sizeof(Test<value_type>(0)) == sizeof(char) );
 		};
 
-		void	_moveBackward(pointer src, pointer dest, size_type n, ft::false_type)
-		{
-			#if VEC_DEBUG_VERBOSE == true
-				std::cerr << _RED"In unspecialized moveBackward"RESET << std::endl;
-			#endif
-			for (size_type i = n; i > 0;)
-			{
-				--i;
-				if (dest + i < _array + _size)
-					dest[i] = src[i];
-				else
-					_allocator.construct(dest + i, src[i]);
-			}
-		}
-		// Executes only if value_type have a swap method
-		void	_moveBackward(pointer src, pointer dest, size_type n, ft::true_type)
-		{
-			#if VEC_DEBUG_VERBOSE == true
-				std::cerr << _GRN"In swap specialized moveBackward"RESET << std::endl;
-			#endif
-			for (size_type i = n; i > 0;)
-			{
-				--i;
-				if (dest + i < _array + _size)
-					dest[i].swap(src[i]);
-				else
-					_allocator.construct(dest + i, src[i]);
-			}
-		}
+		// Shifts elements in the underlying array, using operator= for those already constructed,
+		// and _allocator.construct for those uninitialized. Is only called if value_type
+		// does NOT have a `void T.swap(T& other)` method.
+		// Last parameter should be `ft::integral_constant< bool, _hasSwapMethod::value >()`
+		void	_moveElements(pointer src, pointer dest, size_type n, ft::false_type);
+		// Shifts elements in the underlying array, using T.swap(T&) for those already constructed,
+		// and _allocator.construct for those uninitialized. Is only called if value_type
+		// has got a `void T.swap(T& other)` method.
+		// Last parameter should be `ft::integral_constant< bool, _hasSwapMethod::value >()`
+		void	_moveElements(pointer src, pointer dest, size_type n, ft::true_type);
 		
 };
 

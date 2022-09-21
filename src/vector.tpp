@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/21 16:43:42 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/21 17:59:36 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,6 @@
 // important, but curious nonetheless.
 
 #include "vector.hpp"
-
-#define VEC_DEBUG_VERBOSE	false
 
 template < class T, class Allocator >
 ft::vector<T, Allocator>::vector(const Allocator& alloc): _allocator(alloc)
@@ -198,7 +196,7 @@ void	ft::vector<T, Allocator>::reserve(size_type newCapacity)
 	if (newCapacity <= _capacity)
 		return ;
 	if (newCapacity > _allocator.max_size())
-	{ // Useless preproc directives to mimic current OS error messages.
+	{ // Pointless preproc directives to mimic current OS error messages.
 		#ifdef __linux__
 			throw (std::length_error("vector::reserve"));
 		#else
@@ -249,7 +247,7 @@ typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::insert(ite
 	{
 		pointer src = pos.operator->();
 		pointer dest = src + 1;
-		_moveBackward(src, dest, _itrEnd - pos,
+		_moveElements(src, dest, _itrEnd - pos,
 			ft::integral_constant< bool, _hasSwapMethod::value>());
 		*pos = value;
 	}
@@ -271,7 +269,7 @@ void	ft::vector<T, Allocator>::insert(iterator pos, size_type count, const T& va
 	}
 	pointer src = pos.operator->();
 	pointer dest = src + count;
-	_moveBackward(src, dest, _itrEnd - pos,
+	_moveElements(src, dest, _itrEnd - pos,
 		ft::integral_constant< bool, _hasSwapMethod::value>());
 
 	for (size_type i = 0; i < count; ++i, ++pos)
@@ -329,8 +327,8 @@ void	ft::vector<T, Allocator>::_do_insert(iterator pos, ForwardIt first, Forward
 	}
 	pointer src = pos.operator->();
 	pointer dest = src + count;
-	_moveBackward(src, dest, _itrEnd - pos,
-		ft::integral_constant< bool, _hasSwapMethod::value>());
+	_moveElements(src, dest, _itrEnd - pos,
+		ft::integral_constant< bool, _hasSwapMethod::value >());
 	
 	for (; first != last; ++first, ++pos)
 	{
@@ -348,14 +346,10 @@ typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iter
 {
 	pointer src = (pos + 1).operator->();
 	pointer dest = pos.operator->();
-	for (difference_type i = 0; i < _itrEnd - src; ++i) {
-		if (dest + i < _array + _size)
-			dest[i] = src[i];
-		else
-			_allocator.construct(dest + i, src[i]);
-	}
-	_allocator.destroy(_array + _size - 1);
-	--_size;
+	_moveElements(src, dest, _itrEnd - src,
+		ft::integral_constant< bool, _hasSwapMethod::value >());
+	
+	_allocator.destroy(_array + --_size);
 	_recalcIterators(false, true);
 	if (pos > _itrEnd)
 		return (_itrEnd);
@@ -366,20 +360,15 @@ typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iter
 template < class T, class Allocator >
 typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iterator first, iterator last)
 {
-	difference_type	i;
 	difference_type	n_erased = ft::distance(first, last);
 
 	pointer src = last.operator->();
 	pointer dest = first.operator->();
-	for (i = 0; i < _itrEnd - last; ++i) {
-		// if (dest + i < _array + _size)
-		// 	_allocator.destroy(dest + i);
-		// _allocator.construct(dest + i, src[i]);
-		dest[i] = src[i];
-	}
-	for (; dest + i < _array + _size; ++i) {
+	_moveElements(src, dest, _itrEnd - src,
+		ft::integral_constant< bool, _hasSwapMethod::value >());
+	
+	for (difference_type i = _itrEnd - last; dest + i < _array + _size; ++i)
 		_allocator.destroy(dest + i);
-	}
 	_size -= n_erased;
 	_recalcIterators(false, true);
 	return (first);
@@ -422,11 +411,9 @@ void	ft::vector<T, Allocator>::resize(size_type count, T value)
 template < class T, class Allocator >
 void	ft::vector<T, Allocator>::swap(vector& other)
 {
-	// vector			tmp;
-	// vector::pointer	tmp_ptr = tmp._array;
-
-	if (_verbose)
-		std::cout << "DEBUG: INSIDE MEMBER SWAP FUNC" << std::endl;
+	#if VEC_DEBUG_VERBOSE == true
+		std::cout << BBLU"DEBUG: INSIDE MEMBER SWAP FUNC"RESET << std::endl;
+	#endif
 	std::swap(this->_allocator, other._allocator);
 	std::swap(this->_init_size, other._init_size);
 	std::swap(this->_array, other._array);
@@ -434,11 +421,6 @@ void	ft::vector<T, Allocator>::swap(vector& other)
 	std::swap(this->_size, other._size);
 	std::swap(this->_itrBegin, other._itrBegin);
 	std::swap(this->_itrEnd, other._itrEnd);
-	// tmp._shallowCopyNoDealloc(other);
-	// other._shallowCopyNoDealloc(*this);
-	// this->_shallowCopyNoDealloc(tmp);
-	// tmp._init_size = 0;
-	// tmp._array = tmp_ptr;
 }
 
 // namespace ft
@@ -491,15 +473,49 @@ void	ft::vector<T, Allocator>::_recalcIterators(bool begin, bool end)
 }
 
 template < class T, class Allocator >
-void	ft::vector<T, Allocator>::_shallowCopyNoDealloc(vector& other)
+void	ft::vector<T, Allocator>::_moveElements(pointer src, pointer dest, size_type n, ft::false_type)
 {
-	_allocator = other._allocator;
-	_init_size = other._init_size;
+	#if VEC_DEBUG_VERBOSE == true
+		std::cerr << _RED"In unspecialized moveBackward"RESET << std::endl;
+	#endif
+	if (dest > src)
+	{
+		for (size_type i = n; i > 0;)
+		{
+			--i;
+			if (dest + i < _array + _size)
+				dest[i] = src[i];
+			else
+				_allocator.construct(dest + i, src[i]);
+		}
+	}
+	else
+	{
+		for (difference_type i = 0; i < _itrEnd - src; ++i)
+			dest[i] = src[i];
+	}
+}
 
-	_array = other._array;
-	_capacity = other._capacity;
-	_size = other._size;
-	
-	_itrBegin = other._itrBegin;
-	_itrEnd = other._itrEnd;
+template < class T, class Allocator >
+void	ft::vector<T, Allocator>::_moveElements(pointer src, pointer dest, size_type n, ft::true_type)
+{
+	#if VEC_DEBUG_VERBOSE == true
+		std::cerr << _GRN"In swap specialized moveBackward"RESET << std::endl;
+	#endif
+	if (dest > src)
+	{
+		for (size_type i = n; i > 0;)
+		{
+			--i;
+			if (dest + i < _array + _size)
+				dest[i].swap(src[i]);
+			else
+				_allocator.construct(dest + i, src[i]);
+		}
+	}
+	else
+	{
+		for (difference_type i = 0; i < _itrEnd - src; ++i)
+			dest[i].swap(src[i]);
+	}
 }

@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/21 16:12:56 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/21 18:13:03 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -449,12 +449,14 @@ int	main(void)
 		printMap("Test 2", test2);
 	}
 	newtest();
-	{
+	{ // Enable vector debugging information to see the results !
+		#if VEC_DEBUG_VERBOSE == false
+			std::cout << "Enable vector debugging information to see results of this test." << std::endl;
+		#endif
 		NAMESP::vector<std::string>	testOptiSFINAE;
 		testOptiSFINAE.push_back("CECI EST UN TEST MDR");
 		testOptiSFINAE.insert(testOptiSFINAE.begin(), "CECI EN EST UN AUTRE LOL");
 	}
-	return 0;
 	const int size = 1e6;
 	newtest();
 	{
@@ -512,11 +514,19 @@ int	main(void)
 		}
 		std::cout << "Filled map, " << size - mapperf.size() << " elements failed to insert" << std::endl;
 	}
+	// newtest();
+	// {
+	// 	NAMESP::vector<int>	vecperf;
+	// 	for (std::size_t i = 0; i < 1e5; ++i) {
+	// 		vecperf.insert( vecperf.begin(), i );
+	// 	}
+	// 	std::cout << "Filled vector, " << 1e5 - vecperf.size() << " elements failed to insert" << std::endl;
+	// }
 	newtest();
 	{
-		NAMESP::vector<int>	vecperf;
+		NAMESP::vector<std::string>	vecperf;
 		for (std::size_t i = 0; i < 1e5; ++i) {
-			vecperf.insert( vecperf.begin(), i );
+			vecperf.insert( vecperf.begin(), "According to all known laws of aviation, there is no way that a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyways. Because bees don't care what humans think is impossible." );
 		}
 		std::cout << "Filled vector, " << 1e5 - vecperf.size() << " elements failed to insert" << std::endl;
 	}
