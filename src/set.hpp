@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/20 14:50:08 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/22 16:34:54 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -305,15 +305,13 @@ class set
 		}
 		__s_node	*_getBrotherOrDummy(__s_node *node)
 		{
-			_dummy->colour = __s_node::BLACK;
-			_dummy->parent = NULL;
-			_dummy->left = NULL;
-			_dummy->right = NULL;
-			if (node->parent == NULL)
-				return (_dummy);
 			__s_node	*bro = node->brother();
-			if (bro == NULL) {
-				_dummy->parent = node->parent;
+			if (bro == NULL)
+			{
+				_dummy->colour = __s_node::BLACK;
+				_dummy->left = NULL;
+				_dummy->right = NULL;
+				_dummy->parent = (node->parent == NULL ? NULL : node->parent);
 				return (_dummy);
 			}
 			return (bro);

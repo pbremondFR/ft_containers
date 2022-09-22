@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/20 19:29:50 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/22 16:26:56 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ namespace ft
 template <
 	class Key,
 	class T,
-	class Compare = std::less<Key>, // TODO: ft::less ?
+	class Compare = std::less<Key>,
 	class Allocator = std::allocator< ft::pair<const Key, T> >
 		>
 class map
@@ -205,7 +205,7 @@ class map
 		typedef typename	ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 
 		class value_compare : public std::binary_function<value_type, value_type, bool>
-		{ // TODO: ft::binary_function ?
+		{
 			friend class map;
 
 			public:
@@ -330,15 +330,13 @@ class map
 		}
 		__s_node	*_getBrotherOrDummy(__s_node *node)
 		{
-			_dummy->colour = __s_node::BLACK;
-			_dummy->parent = NULL;
-			_dummy->left = NULL;
-			_dummy->right = NULL;
-			if (node->parent == NULL)
-				return (_dummy);
 			__s_node	*bro = node->brother();
-			if (bro == NULL) {
-				_dummy->parent = node->parent;
+			if (bro == NULL)
+			{
+				_dummy->colour = __s_node::BLACK;
+				_dummy->left = NULL;
+				_dummy->right = NULL;
+				_dummy->parent = (node->parent == NULL ? NULL : node->parent);
 				return (_dummy);
 			}
 			return (bro);
