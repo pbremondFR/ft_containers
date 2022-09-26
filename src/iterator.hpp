@@ -113,7 +113,7 @@ void advance(It& it, Distance n)
 template<class BidirIt>
 BidirIt	prev(BidirIt it, typename iterator_traits<BidirIt>::difference_type n = 1)
 {
-    std::advance(it, -n);
+    advance(it, -n);
     return it;
 }
 
