@@ -31,6 +31,7 @@
 #endif
 
 #include <list>
+#include <cstdlib>
 
 #include "optional.hpp"
 
