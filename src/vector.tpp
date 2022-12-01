@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/21 17:59:36 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/22 22:01:29 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -412,7 +412,7 @@ template < class T, class Allocator >
 void	ft::vector<T, Allocator>::swap(vector& other)
 {
 	#if VEC_DEBUG_VERBOSE == true
-		std::cout << BBLU"DEBUG: INSIDE MEMBER SWAP FUNC"RESET << std::endl;
+		std::cerr << DEBUG_TAG<<__BLU("inside ft::vector swap method") << std::endl;
 	#endif
 	std::swap(this->_allocator, other._allocator);
 	std::swap(this->_init_size, other._init_size);
@@ -445,7 +445,7 @@ namespace std
 	void	swap(ft::vector<T, Alloc>& lhs, ft::vector<T, Alloc>& rhs)
 	{
 		if (VEC_DEBUG_VERBOSE)
-			std::cout << "DEBUG: SWAP IS SPECIALIZED (IN STD)" << std::endl;
+			std::cerr << DEBUG_TAG<<__BLU("specialized std::swap<ft::vector> was called") << std::endl;
 		lhs.swap(rhs);
 	}
 }
@@ -476,7 +476,7 @@ template < class T, class Allocator >
 void	ft::vector<T, Allocator>::_moveElements(pointer src, pointer dest, size_type n, ft::false_type)
 {
 	#if VEC_DEBUG_VERBOSE == true
-		std::cerr << _RED"In unspecialized moveBackward"RESET << std::endl;
+		std::cerr << __BBLU("DEBUG: ")<<__RED("vector: In unspecialized moveBackward") << std::endl;
 	#endif
 	if (dest > src)
 	{
@@ -500,7 +500,8 @@ template < class T, class Allocator >
 void	ft::vector<T, Allocator>::_moveElements(pointer src, pointer dest, size_type n, ft::true_type)
 {
 	#if VEC_DEBUG_VERBOSE == true
-		std::cerr << _GRN"In swap specialized moveBackward"RESET << std::endl;
+		std::cerr << DEBUG_TAG<<__UGRN("vector:")<<__GRN(" In swap specialized moveBackward")
+			<< std::endl;
 	#endif
 	if (dest > src)
 	{

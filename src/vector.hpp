@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/21 18:02:04 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/12/01 12:05:39 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@
 
 #ifndef VEC_DEBUG_VERBOSE
 # define VEC_DEBUG_VERBOSE	false
+# include "ansi_color_funcs.h"
+# define DEBUG_TAG	BBLU"DEBUG: "RESET
 #endif
 
 namespace ft

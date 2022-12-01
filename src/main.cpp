@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/21 18:13:03 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/22 21:57:27 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -523,13 +523,23 @@ int	main(void)
 	// 	}
 	// 	std::cout << "Filled vector, " << 1e5 - vecperf.size() << " elements failed to insert" << std::endl;
 	// }
+	// newtest();
+	// {
+	// 	NAMESP::vector<std::string>	vecperf;
+	// 	for (std::size_t i = 0; i < 1e5; ++i) {
+	// 		vecperf.insert( vecperf.begin(), "According to all known laws of aviation, there is no way that a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyways. Because bees don't care what humans think is impossible." );
+	// 	}
+	// 	std::cout << "Filled vector, " << 1e5 - vecperf.size() << " elements failed to insert" << std::endl;
+	// }
 	newtest();
 	{
-		NAMESP::vector<std::string>	vecperf;
-		for (std::size_t i = 0; i < 1e5; ++i) {
-			vecperf.insert( vecperf.begin(), "According to all known laws of aviation, there is no way that a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyways. Because bees don't care what humans think is impossible." );
-		}
-		std::cout << "Filled vector, " << 1e5 - vecperf.size() << " elements failed to insert" << std::endl;
+		NAMESP::vector<std::string>	test;
+		test.insert(test.begin(), "A");
+		test.insert(test.begin(), "BB");
+		test.insert(test.begin(), "CCC");
+		test.insert(test.begin(), "DDDD");
+		test.insert(test.begin(), "EEEEE");
+		printContainer("test", test);
 	}
 	return (0);
 }

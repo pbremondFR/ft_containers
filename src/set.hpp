@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/22 16:34:54 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/09/22 16:39:26 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ class set
 		class __set_iterator
 		{
 			private:
-				friend class set; // KO maybe, are you SURE ?
+				friend class set;
 				typedef __set_iterator<U>	self;
 				
 				__s_node	*_node;
@@ -235,8 +235,8 @@ class set
 			void
 		>::type						insert(InputIt first, InputIt last);
 
-		void		erase(iterator pos); // TODO
-		void		erase(iterator first, iterator last); // TODO
+		void		erase(iterator pos);
+		void		erase(iterator first, iterator last);
 		size_type	erase(Key const& key);
 
 		void		swap(set& src);
