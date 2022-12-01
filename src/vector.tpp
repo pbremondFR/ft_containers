@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/22 22:01:29 by pbremond         ###   ########.fr       */
+/*   Updated: 2022/12/01 12:19:08 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -444,8 +444,9 @@ namespace std
 	template< class T, class Alloc >
 	void	swap(ft::vector<T, Alloc>& lhs, ft::vector<T, Alloc>& rhs)
 	{
-		if (VEC_DEBUG_VERBOSE)
+		#if VEC_DEBUG_VERBOSE == true
 			std::cerr << DEBUG_TAG<<__BLU("specialized std::swap<ft::vector> was called") << std::endl;
+		#endif
 		lhs.swap(rhs);
 	}
 }
