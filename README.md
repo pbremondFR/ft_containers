@@ -4,7 +4,7 @@
 
 <p align="center">
 	<img src="https://forthebadge.com/images/badges/made-with-c-plus-plus.svg"/>
-	<img src="readme_assets/evaluation-pending.svg"/>
+	<img src="readme_assets/success-125_100_bitone.svg"/>
 </p>
 
 <p align="center">
