@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 20:26:47 by pbremond         ###   ########.fr       */
+/*   Updated: 2024/07/03 01:35:19 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -276,7 +276,7 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 		debug_printByLevel();
 	#endif
 
-	if (!_isLeaf(node->left) && !_isLeaf(node->right))
+	if (!_isLeaf(node->left) && (!_isLeaf(node->right) || node->right == _endLeaf))
 	{
 		#if MAP_DEBUG_VERBOSE == true
 			logstream << BYEL"Node has two children, replacing with predecessor...\n"RESET;
@@ -313,6 +313,9 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 	}
 	else
 	{
+#if MAP_DEBUG_VERBOSE == true
+			logstream << UCYN"Targeted node is black, remove it and fix tree"RESET << std::endl;
+#endif
 		_removeNodeWithSingleChild(node, child);
 		_eraseTreeFix(child);
 	}
@@ -745,7 +748,7 @@ void	ft::map<Key, T, Compare, Allocator>::_correctInsertion_rotate(__s_node *nod
 				<< (target._node->parent ? target._node->parent->val.first : 99999)
 				<< (_getColour(target._node->parent) == __s_node::BLACK ? " (B)" : " "REDB"(R)"RESET) << '\n'
 			<< _RED"Left: "RESET
-				<< (target._node->left ? target._node->left->val.first : 99999) << '\n'
+				<< (target._node->left ? target._node->left->val.first : 99999)
 				<< (_getColour(target._node->left) == __s_node::BLACK ? " (B)" : " "REDB"(R)"RESET) << '\n'
 			<< _GRN"Right: "RESET
 				<< (target._node->right ? target._node->right->val.first : 99999)

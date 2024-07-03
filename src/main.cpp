@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/22 21:57:27 by pbremond         ###   ########.fr       */
+/*   Updated: 2024/07/03 01:50:38 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -540,6 +540,21 @@ int	main(void)
 		test.insert(test.begin(), "DDDD");
 		test.insert(test.begin(), "EEEEE");
 		printContainer("test", test);
+	}
+	newtest();
+	{
+		ft::map<int, std::string>	test;
+		test.insert(ft::make_pair(30, "30"));
+		test.insert(ft::make_pair(20, "20"));
+		test.insert(ft::make_pair(70, "70"));
+		test.insert(ft::make_pair(10, "10"));
+		test.insert(ft::make_pair(50, "50"));
+		test.insert(ft::make_pair(40, "40"));
+		test.insert(ft::make_pair(60, "60"));
+
+		printMap("map", test);
+		test.erase(70);
+		printMap("map", test);
 	}
 	return (0);
 }
